@@ -18,7 +18,9 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  XCircle
+  XCircle,
+  List,
+  Grid
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
@@ -32,6 +34,7 @@ export default function ReleasesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
 
   const permissions = user ? rolePermissions[user.role] : null;
 
@@ -152,10 +155,39 @@ export default function ReleasesPage() {
     <div className="h-full flex flex-col space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          <Package className="w-8 h-8 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">Releases</h1>
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
+            <Package className="w-8 h-8 text-blue-600" />
+            <h1 className="text-2xl font-bold text-gray-900">Releases</h1>
+          </div>
+          
+          {/* View Mode Toggle */}
+          <div className="flex items-center bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => setViewMode('card')}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'card'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <Grid className="w-4 h-4" />
+              <span>Cards</span>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <List className="w-4 h-4" />
+              <span>List</span>
+            </button>
+          </div>
         </div>
+        
         {permissions?.canManageUsers && (
           <Link
             href="/releases/new"
@@ -287,7 +319,8 @@ export default function ReleasesPage() {
               {permissions?.canManageUsers ? 'Get started by creating a new release.' : 'No releases available at the moment.'}
             </p>
           </div>
-        ) : (
+        ) : viewMode === 'card' ? (
+          // Card View
           <div className="space-y-4">
             {releases.map((release) => (
               <div key={release._id} className="card hover:shadow-lg transition-shadow">
@@ -374,6 +407,114 @@ export default function ReleasesPage() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          // List View
+          <div className="card">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Release Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Application Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Version
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Downloads
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {releases.map((release) => (
+                    <tr key={release._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
+                          <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                          {new Date(release.releaseDate).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{release.title}</div>
+                        <div className="text-sm text-gray-500 truncate max-w-xs">
+                          {release.description}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
+                          <Tag className="w-4 h-4 text-gray-400 mr-2" />
+                          v{release.version}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(release.status)}`}>
+                          {getStatusIcon(release.status)}
+                          <span className="ml-1">{release.status}</span>
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(release.type)}`}>
+                          {release.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className="flex items-center">
+                          <Download className="w-4 h-4 text-gray-400 mr-2" />
+                          {release.downloadCount}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end space-x-2">
+                          <Link
+                            href={`/releases/${release._id}`}
+                            className="text-blue-600 hover:text-blue-900"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Link>
+                          
+                          {permissions?.canManageUsers && (
+                            <>
+                              <Link
+                                href={`/releases/${release._id}/edit`}
+                                className="text-gray-600 hover:text-gray-900"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Link>
+                              
+                              {user.role === 'super_admin' && (
+                                <button
+                                  onClick={() => handleDelete(release._id)}
+                                  className="text-red-600 hover:text-red-900"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
