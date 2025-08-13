@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts';
 import { Release, ReleaseStatus, ReleaseType, ReleaseFilters } from '@/types/release';
-import { Project, ReleasePlan, CreateReleasePlanData } from '@/types/project';
 import { rolePermissions } from '@/types/user';
 import { 
   Package, 
@@ -19,40 +18,26 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  XCircle,
-  Grid,
-  List,
-  Target
+  XCircle
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
-import ReleasePlanGrid from '@/components/releases/ReleasePlanGrid';
-import CreateReleasePlanModal from '@/components/releases/CreateReleasePlanModal';
 
 export default function ReleasesPage() {
   const { user } = useAuth();
   const [releases, setReleases] = useState<Release[]>([]);
-  const [releasePlans, setReleasePlans] = useState<ReleasePlan[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ReleaseFilters>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<'releases' | 'plans'>('releases');
-  const [showCreatePlanModal, setShowCreatePlanModal] = useState(false);
 
   const permissions = user ? rolePermissions[user.role] : null;
 
   useEffect(() => {
-    if (viewMode === 'releases') {
-      fetchReleases();
-    } else {
-      fetchReleasePlans();
-    }
-    fetchProjects();
-  }, [currentPage, filters, viewMode]);
+    fetchReleases();
+  }, [currentPage, filters]);
 
   const fetchReleases = async () => {
     try {
@@ -78,59 +63,6 @@ export default function ReleasesPage() {
       toast.error('Failed to fetch releases');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchReleasePlans = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('/api/release-plans');
-      if (!response.ok) throw new Error('Failed to fetch release plans');
-
-      const data = await response.json();
-      setReleasePlans(data.releasePlans);
-    } catch (error) {
-      console.error('Error fetching release plans:', error);
-      toast.error('Failed to fetch release plans');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchProjects = async () => {
-    try {
-      const response = await fetch('/api/projects?active=true');
-      if (!response.ok) throw new Error('Failed to fetch projects');
-
-      const data = await response.json();
-      setProjects(data.projects);
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-      toast.error('Failed to fetch projects');
-    }
-  };
-
-  const handleCreateReleasePlan = async (data: CreateReleasePlanData) => {
-    try {
-      const response = await fetch('/api/release-plans', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create release plan');
-      }
-
-      toast.success('Release plan created successfully');
-      setShowCreatePlanModal(false);
-      fetchReleasePlans();
-    } catch (error: any) {
-      console.error('Error creating release plan:', error);
-      toast.error(error.message || 'Failed to create release plan');
     }
   };
 
@@ -220,60 +152,18 @@ export default function ReleasesPage() {
     <div className="h-full flex flex-col space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-3">
-            <Package className="w-8 h-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">
-              {viewMode === 'releases' ? 'Releases' : 'Release Plans'}
-            </h1>
-          </div>
-          
-          {/* View Mode Toggle */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('releases')}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'releases'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <List className="w-4 h-4" />
-              <span>Releases</span>
-            </button>
-            <button
-              onClick={() => setViewMode('plans')}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'plans'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Grid className="w-4 h-4" />
-              <span>Plans</span>
-            </button>
-          </div>
+        <div className="flex items-center space-x-3">
+          <Package className="w-8 h-8 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-900">Releases</h1>
         </div>
-        
         {permissions?.canManageUsers && (
-          <div className="flex items-center space-x-3">
-            {viewMode === 'plans' && (
-              <button
-                onClick={() => setShowCreatePlanModal(true)}
-                className="btn btn-secondary flex items-center space-x-2"
-              >
-                <Target className="w-4 h-4" />
-                <span>New Plan</span>
-              </button>
-            )}
-            <Link
-              href="/releases/new"
-              className="btn btn-primary flex items-center space-x-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>New Release</span>
-            </Link>
-          </div>
+          <Link
+            href="/releases/new"
+            className="btn btn-primary flex items-center space-x-2"
+          >
+            <Plus className="w-4 h-4" />
+            <span>New Release</span>
+          </Link>
         )}
       </div>
 
@@ -383,23 +273,21 @@ export default function ReleasesPage() {
         </div>
       </div>
 
-      {/* Content */}
+      {/* Releases List */}
       <div className="flex-1 min-h-0">
-        {viewMode === 'releases' ? (
-          // Releases List
-          loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : releases.length === 0 ? (
-            <div className="text-center py-12">
-              <Package className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No releases found</h3>
-              <p className="mt-1 text-gray-500">
-                {permissions?.canManageUsers ? 'Get started by creating a new release.' : 'No releases available at the moment.'}
-              </p>
-            </div>
-          ) : (
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : releases.length === 0 ? (
+          <div className="text-center py-12">
+            <Package className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No releases found</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {permissions?.canManageUsers ? 'Get started by creating a new release.' : 'No releases available at the moment.'}
+            </p>
+          </div>
+        ) : (
           <div className="space-y-4">
             {releases.map((release) => (
               <div key={release._id} className="card hover:shadow-lg transition-shadow">
@@ -487,10 +375,6 @@ export default function ReleasesPage() {
               </div>
             ))}
           </div>
-          )
-        ) : (
-          // Release Plans Grid
-          <ReleasePlanGrid releasePlans={releasePlans} loading={loading} />
         )}
       </div>
 
@@ -518,15 +402,6 @@ export default function ReleasesPage() {
           </button>
         </div>
       )}
-
-      {/* Create Release Plan Modal */}
-      <CreateReleasePlanModal
-        isOpen={showCreatePlanModal}
-        onClose={() => setShowCreatePlanModal(false)}
-        onSubmit={handleCreateReleasePlan}
-        projects={projects}
-        loading={loading}
-      />
     </div>
   );
 }
