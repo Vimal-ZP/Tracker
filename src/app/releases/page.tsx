@@ -9,19 +9,10 @@ import {
   Plus, 
   Search, 
   Filter, 
-  Calendar, 
-  Download, 
-  Eye,
-  Edit,
-  Trash2,
-  Tag,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  XCircle,
   List,
   Grid
 } from 'lucide-react';
+import { ReleasesList } from '@/components/releases';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 
@@ -56,14 +47,17 @@ export default function ReleasesPage() {
       });
 
       const response = await fetch(`/api/releases?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch releases');
-
-      const data = await response.json();
-      setReleases(data.releases);
-      setTotalPages(data.totalPages);
+      if (response.ok) {
+        const data = await response.json();
+        setReleases(data.releases || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+      } else {
+        console.error('Failed to fetch releases');
+        toast.error('Failed to fetch releases');
+      }
     } catch (error) {
       console.error('Error fetching releases:', error);
-      toast.error('Failed to fetch releases');
+      toast.error('Error fetching releases');
     } finally {
       setLoading(false);
     }
@@ -87,65 +81,24 @@ export default function ReleasesPage() {
   };
 
   const handleDelete = async (releaseId: string) => {
-    if (!confirm('Are you sure you want to delete this release?')) return;
+    if (!confirm('Are you sure you want to delete this release?')) {
+      return;
+    }
 
     try {
       const response = await fetch(`/api/releases/${releaseId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
 
-      if (!response.ok) throw new Error('Failed to delete release');
-
-      toast.success('Release deleted successfully');
-      fetchReleases();
+      if (response.ok) {
+        toast.success('Release deleted successfully');
+        fetchReleases();
+      } else {
+        toast.error('Failed to delete release');
+      }
     } catch (error) {
       console.error('Error deleting release:', error);
       toast.error('Failed to delete release');
-    }
-  };
-
-  const getStatusIcon = (status: ReleaseStatus) => {
-    switch (status) {
-      case ReleaseStatus.DRAFT:
-        return <Clock className="w-4 h-4 text-gray-500" />;
-      case ReleaseStatus.BETA:
-        return <AlertCircle className="w-4 h-4 text-yellow-500" />;
-      case ReleaseStatus.STABLE:
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case ReleaseStatus.DEPRECATED:
-        return <XCircle className="w-4 h-4 text-red-500" />;
-      default:
-        return <Clock className="w-4 h-4 text-gray-500" />;
-    }
-  };
-
-  const getStatusColor = (status: ReleaseStatus) => {
-    switch (status) {
-      case ReleaseStatus.DRAFT:
-        return 'bg-gray-100 text-gray-800';
-      case ReleaseStatus.BETA:
-        return 'bg-yellow-100 text-yellow-800';
-      case ReleaseStatus.STABLE:
-        return 'bg-green-100 text-green-800';
-      case ReleaseStatus.DEPRECATED:
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getTypeColor = (type: ReleaseType) => {
-    switch (type) {
-      case ReleaseType.MAJOR:
-        return 'bg-purple-100 text-purple-800';
-      case ReleaseType.MINOR:
-        return 'bg-blue-100 text-blue-800';
-      case ReleaseType.PATCH:
-        return 'bg-green-100 text-green-800';
-      case ReleaseType.HOTFIX:
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -217,6 +170,12 @@ export default function ReleasesPage() {
             </div>
             <div className="flex gap-2">
               <button
+                type="submit"
+                className="btn btn-primary"
+              >
+                Search
+              </button>
+              <button
                 type="button"
                 onClick={() => setShowFilters(!showFilters)}
                 className="btn btn-secondary flex items-center space-x-2"
@@ -224,16 +183,13 @@ export default function ReleasesPage() {
                 <Filter className="w-4 h-4" />
                 <span>Filters</span>
               </button>
-              <button type="submit" className="btn btn-primary">
-                Search
-              </button>
             </div>
           </form>
-
-          {/* Filters Panel */}
+          
+          {/* Advanced Filters */}
           {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Status
@@ -244,13 +200,13 @@ export default function ReleasesPage() {
                     className="input w-full"
                   >
                     <option value="">All Statuses</option>
-                    {Object.values(ReleaseStatus).map((status) => (
-                      <option key={status} value={status}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </option>
-                    ))}
+                    <option value="draft">Draft</option>
+                    <option value="beta">Beta</option>
+                    <option value="stable">Stable</option>
+                    <option value="deprecated">Deprecated</option>
                   </select>
                 </div>
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Type
@@ -261,13 +217,13 @@ export default function ReleasesPage() {
                     className="input w-full"
                   >
                     <option value="">All Types</option>
-                    {Object.values(ReleaseType).map((type) => (
-                      <option key={type} value={type}>
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </option>
-                    ))}
+                    <option value="major">Major</option>
+                    <option value="minor">Minor</option>
+                    <option value="patch">Patch</option>
+                    <option value="hotfix">Hotfix</option>
                   </select>
                 </div>
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     From Date
@@ -279,6 +235,7 @@ export default function ReleasesPage() {
                     className="input w-full"
                   />
                 </div>
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     To Date
@@ -307,216 +264,15 @@ export default function ReleasesPage() {
 
       {/* Releases List */}
       <div className="flex-1 min-h-0">
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          </div>
-        ) : releases.length === 0 ? (
-          <div className="text-center py-12">
-            <Package className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No releases found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {permissions?.canManageUsers ? 'Get started by creating a new release.' : 'No releases available at the moment.'}
-            </p>
-          </div>
-        ) : viewMode === 'card' ? (
-          // Card View
-          <div className="space-y-4">
-            {releases.map((release) => (
-              <div key={release._id} className="card hover:shadow-lg transition-shadow">
-                <div className="card-body">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {release.title}
-                        </h3>
-                        <span className="flex items-center space-x-1">
-                          <Tag className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm font-medium text-gray-600">
-                            v{release.version}
-                          </span>
-                        </span>
-                      </div>
-                      
-                      <p className="text-gray-600 mb-3 line-clamp-2">
-                        {release.description}
-                      </p>
-                      
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>{new Date(release.releaseDate).toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Download className="w-4 h-4" />
-                          <span>{release.downloadCount} downloads</span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <span>by {release.author.name}</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-3">
-                      <div className="flex flex-col items-end space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(release.status)}`}>
-                            {getStatusIcon(release.status)}
-                            <span className="ml-1">{release.status}</span>
-                          </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(release.type)}`}>
-                            {release.type}
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center space-x-2">
-                          <Link
-                            href={`/releases/${release._id}`}
-                            className="btn btn-sm btn-secondary flex items-center space-x-1"
-                          >
-                            <Eye className="w-4 h-4" />
-                            <span>View</span>
-                          </Link>
-                          
-                          {permissions?.canManageUsers && (
-                            <>
-                              <Link
-                                href={`/releases/${release._id}/edit`}
-                                className="btn btn-sm btn-secondary flex items-center space-x-1"
-                              >
-                                <Edit className="w-4 h-4" />
-                                <span>Edit</span>
-                              </Link>
-                              
-                              {user.role === 'super_admin' && (
-                                <button
-                                  onClick={() => handleDelete(release._id)}
-                                  className="btn btn-sm btn-danger flex items-center space-x-1"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                  <span>Delete</span>
-                                </button>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          // List View
-          <div className="card">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Release Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Application Name
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Version
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Downloads
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {releases.map((release) => (
-                    <tr key={release._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                          {new Date(release.releaseDate).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{release.title}</div>
-                        <div className="text-sm text-gray-500 truncate max-w-xs">
-                          {release.description}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="flex items-center">
-                          <Tag className="w-4 h-4 text-gray-400 mr-2" />
-                          v{release.version}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(release.status)}`}>
-                          {getStatusIcon(release.status)}
-                          <span className="ml-1">{release.status}</span>
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(release.type)}`}>
-                          {release.type}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div className="flex items-center">
-                          <Download className="w-4 h-4 text-gray-400 mr-2" />
-                          {release.downloadCount}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end space-x-2">
-                          <Link
-                            href={`/releases/${release._id}`}
-                            className="text-blue-600 hover:text-blue-900"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Link>
-                          
-                          {permissions?.canManageUsers && (
-                            <>
-                              <Link
-                                href={`/releases/${release._id}/edit`}
-                                className="text-gray-600 hover:text-gray-900"
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Link>
-                              
-                              {user.role === 'super_admin' && (
-                                <button
-                                  onClick={() => handleDelete(release._id)}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        <ReleasesList
+          releases={releases}
+          loading={loading}
+          viewMode={viewMode}
+          userRole={user?.role}
+          onView={(release) => window.location.href = `/releases/${release._id}`}
+          onEdit={(release) => window.location.href = `/releases/${release._id}/edit`}
+          onDelete={handleDelete}
+        />
       </div>
 
       {/* Pagination */}
