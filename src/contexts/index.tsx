@@ -7,6 +7,7 @@ import { DashboardProvider } from './DashboardContext';
 import { UIProvider } from './UIContext';
 import { SettingsProvider } from './SettingsContext';
 import { ReportsProvider } from './ReportsContext';
+import { ReleasesProvider } from './ReleasesContext';
 
 interface AppProvidersProps {
     children: React.ReactNode;
@@ -23,6 +24,7 @@ interface AppProvidersProps {
  * 4. UserProvider - User management (depends on auth)
  * 5. DashboardProvider - Dashboard data (depends on auth)
  * 6. ReportsProvider - Reports and analytics (depends on auth)
+ * 7. ReleasesProvider - Release management (depends on auth)
  */
 export function AppProviders({ children }: AppProvidersProps) {
     return (
@@ -32,7 +34,9 @@ export function AppProviders({ children }: AppProvidersProps) {
                     <UserProvider>
                         <DashboardProvider>
                             <ReportsProvider>
-                                {children}
+                                <ReleasesProvider>
+                                    {children}
+                                </ReleasesProvider>
                             </ReportsProvider>
                         </DashboardProvider>
                     </UserProvider>
@@ -49,6 +53,7 @@ export { DashboardProvider } from './DashboardContext';
 export { UIProvider } from './UIContext';
 export { SettingsProvider } from './SettingsContext';
 export { ReportsProvider } from './ReportsContext';
+export { ReleasesProvider } from './ReleasesContext';
 
 // Export hooks for easy access
 export { useAuth } from './AuthContext';
@@ -57,3 +62,4 @@ export { useDashboard } from './DashboardContext';
 export { useUI } from './UIContext';
 export { useSettings } from './SettingsContext';
 export { useReports } from './ReportsContext';
+export { useReleases } from './ReleasesContext';

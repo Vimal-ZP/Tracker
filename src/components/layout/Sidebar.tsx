@@ -11,7 +11,8 @@ import {
     BarChart3,
     Settings,
     Shield,
-    X
+    X,
+    Package
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -40,6 +41,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             href: '/users',
             icon: Users,
             show: permissions.canViewAllUsers,
+        },
+        {
+            name: 'Releases',
+            href: '/releases',
+            icon: Package,
+            show: true, // All users can view releases
         },
         {
             name: 'Reports',
