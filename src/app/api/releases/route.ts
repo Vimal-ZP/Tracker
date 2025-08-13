@@ -167,16 +167,16 @@ export async function POST(request: NextRequest) {
     await release.save();
 
     return NextResponse.json(
-      { 
+      {
         message: 'Release created successfully',
-        release 
+        release
       },
       { status: 201 }
     );
 
   } catch (error: any) {
     console.error('Error creating release:', error);
-    
+
     if (error.name === 'ValidationError') {
       return NextResponse.json(
         { error: 'Validation error', details: error.message },

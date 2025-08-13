@@ -8,6 +8,7 @@ import { UIProvider } from './UIContext';
 import { SettingsProvider } from './SettingsContext';
 import { ReportsProvider } from './ReportsContext';
 import { ReleasesProvider } from './ReleasesContext';
+import { PromptsProvider } from './PromptsContext';
 
 interface AppProvidersProps {
     children: React.ReactNode;
@@ -25,6 +26,7 @@ interface AppProvidersProps {
  * 5. DashboardProvider - Dashboard data (depends on auth)
  * 6. ReportsProvider - Reports and analytics (depends on auth)
  * 7. ReleasesProvider - Release management (depends on auth)
+ * 8. PromptsProvider - Prompt management and AI interactions (depends on auth)
  */
 export function AppProviders({ children }: AppProvidersProps) {
     return (
@@ -35,7 +37,9 @@ export function AppProviders({ children }: AppProvidersProps) {
                         <DashboardProvider>
                             <ReportsProvider>
                                 <ReleasesProvider>
-                                    {children}
+                                    <PromptsProvider>
+                                        {children}
+                                    </PromptsProvider>
                                 </ReleasesProvider>
                             </ReportsProvider>
                         </DashboardProvider>
@@ -54,6 +58,7 @@ export { UIProvider } from './UIContext';
 export { SettingsProvider } from './SettingsContext';
 export { ReportsProvider } from './ReportsContext';
 export { ReleasesProvider } from './ReleasesContext';
+export { PromptsProvider } from './PromptsContext';
 
 // Export hooks for easy access
 export { useAuth } from './AuthContext';
@@ -63,3 +68,4 @@ export { useUI } from './UIContext';
 export { useSettings } from './SettingsContext';
 export { useReports } from './ReportsContext';
 export { useReleases } from './ReleasesContext';
+export { usePrompts } from './PromptsContext';
