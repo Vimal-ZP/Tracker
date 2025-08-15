@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Release, ReleaseStatus, ReleaseType, FeatureCategory, WorkItemType, WorkItemStatus } from '@/types/release';
+import { Release, ReleaseStatus, ReleaseType, FeatureCategory, WorkItemType } from '@/types/release';
 
 export interface ReleaseDocument extends Omit<Release, '_id'>, Document { }
 
@@ -32,30 +32,24 @@ const WorkItemSchema = new Schema({
     required: true,
     trim: true
   },
-  description: {
+  flagName: {
     type: String,
-    required: true,
+    required: false,
     trim: true
   },
-  status: {
+  remarks: {
     type: String,
-    enum: Object.values(WorkItemStatus),
-    required: true,
-    default: WorkItemStatus.TODO
+    required: false,
+    trim: true
+  },
+  hyperlink: {
+    type: String,
+    required: false,
+    trim: true
   },
   parentId: {
     type: String,
     required: false
-  },
-  assignee: {
-    type: String,
-    required: false,
-    trim: true
-  },
-  estimatedHours: {
-    type: Number,
-    required: false,
-    min: 0
   },
   actualHours: {
     type: Number,

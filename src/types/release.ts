@@ -67,11 +67,10 @@ export interface WorkItem {
   _id?: string;
   type: WorkItemType;
   title: string;
-  description: string;
-  status: WorkItemStatus;
+  flagName?: string;
+  remarks?: string;
+  hyperlink?: string;
   parentId?: string;
-  assignee?: string;
-  estimatedHours?: number;
   actualHours?: number;
   createdAt?: Date;
   updatedAt?: Date;

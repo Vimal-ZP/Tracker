@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts';
-import { Release, ReleaseStatus, ReleaseType, FeatureCategory, WorkItem, WorkItemType, WorkItemStatus } from '@/types/release';
+import { Release, ReleaseStatus, ReleaseType, FeatureCategory, WorkItem, WorkItemType } from '@/types/release';
 import { rolePermissions } from '@/types/user';
 import {
   Package,
@@ -22,7 +22,11 @@ import {
   AlertTriangle,
   ExternalLink,
   Plus,
-  Trash2
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  Menu,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
@@ -30,19 +34,50 @@ import { toast } from 'react-hot-toast';
 export default function ReleaseDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [release, setRelease] = useState<Release | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAddingWorkItem, setIsAddingWorkItem] = useState(false);
   const [editingWorkItem, setEditingWorkItem] = useState<WorkItem | null>(null);
+  const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Close drawer on escape key and manage body scroll
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isDrawerOpen) {
+        setIsDrawerOpen(false);
+      }
+    };
+
+    // Prevent body scroll on mobile when drawer is open
+    if (typeof window !== 'undefined') {
+      if (isDrawerOpen && window.innerWidth < 1024) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = 'unset';
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        document.removeEventListener('keydown', handleEscape);
+        document.body.style.overflow = 'unset';
+      }
+    };
+  }, [isDrawerOpen]);
   const [workItemFormData, setWorkItemFormData] = useState<Omit<WorkItem, '_id' | 'createdAt' | 'updatedAt'>>({
     type: WorkItemType.EPIC,
     title: '',
-    description: '',
-    status: WorkItemStatus.TODO,
+    flagName: '',
+    remarks: '',
+    hyperlink: '',
     parentId: undefined,
-    assignee: '',
-    estimatedHours: undefined,
     actualHours: undefined
   });
 
@@ -53,6 +88,17 @@ export default function ReleaseDetailPage() {
       fetchRelease();
     }
   }, [params.id]);
+
+  // Handle editWorkItem query parameter
+  useEffect(() => {
+    const editWorkItemId = searchParams.get('editWorkItem');
+    if (editWorkItemId && release?.workItems) {
+      const workItemToEdit = release.workItems.find(item => item._id === editWorkItemId);
+      if (workItemToEdit) {
+        handleEditWorkItem(workItemToEdit);
+      }
+    }
+  }, [searchParams, release]);
 
   const fetchRelease = async () => {
     try {
@@ -171,11 +217,10 @@ export default function ReleaseDetailPage() {
     setWorkItemFormData({
       type,
       title: '',
-      description: '',
-      status: WorkItemStatus.TODO,
+      flagName: '',
+      remarks: '',
+      hyperlink: '',
       parentId,
-      assignee: '',
-      estimatedHours: undefined,
       actualHours: undefined
     });
   };
@@ -186,11 +231,10 @@ export default function ReleaseDetailPage() {
     setWorkItemFormData({
       type: item.type,
       title: item.title,
-      description: item.description,
-      status: item.status,
+      flagName: item.flagName || '',
+      remarks: item.remarks || '',
+      hyperlink: item.hyperlink || '',
       parentId: item.parentId,
-      assignee: item.assignee || '',
-      estimatedHours: item.estimatedHours,
       actualHours: item.actualHours
     });
   };
@@ -321,20 +365,7 @@ export default function ReleaseDetailPage() {
     }
   };
 
-  const getWorkItemStatusIcon = (status: WorkItemStatus) => {
-    switch (status) {
-      case WorkItemStatus.TODO:
-        return <Clock className="w-4 h-4 text-gray-500" />;
-      case WorkItemStatus.IN_PROGRESS:
-        return <AlertCircle className="w-4 h-4 text-yellow-500" />;
-      case WorkItemStatus.DONE:
-        return <CheckCircle className="w-4 h-4 text-green-500" />;
-      case WorkItemStatus.BLOCKED:
-        return <XCircle className="w-4 h-4 text-red-500" />;
-      default:
-        return <Clock className="w-4 h-4 text-gray-500" />;
-    }
-  };
+
 
 
 
@@ -353,27 +384,89 @@ export default function ReleaseDetailPage() {
   };
 
   const sortWorkItemsForTable = (workItems: WorkItem[]): WorkItem[] => {
-    // Sort by hierarchy: Epics first, then Features, then User Stories, then Bugs
-    // Within each type, sort by creation date
-    const typeOrder = {
-      [WorkItemType.EPIC]: 0,
-      [WorkItemType.FEATURE]: 1,
-      [WorkItemType.USER_STORY]: 2,
-      [WorkItemType.BUG]: 3
+    // Create a hierarchical sort that maintains parent-child relationships
+    const result: WorkItem[] = [];
+    const processed = new Set<string>();
+
+    // Helper function to add item and its children recursively
+    const addItemWithChildren = (item: WorkItem) => {
+      if (processed.has(item._id!)) return;
+
+      processed.add(item._id!);
+      result.push(item);
+
+      // Find and add children in the correct order
+      const children = workItems
+        .filter(child => child.parentId === item._id)
+        .sort((a, b) => {
+          // Sort children by type first, then by title
+          const typeOrder = {
+            [WorkItemType.EPIC]: 0,
+            [WorkItemType.FEATURE]: 1,
+            [WorkItemType.USER_STORY]: 2,
+            [WorkItemType.BUG]: 3
+          };
+          const typeComparison = typeOrder[a.type] - typeOrder[b.type];
+          if (typeComparison !== 0) return typeComparison;
+          return a.title.localeCompare(b.title);
+        });
+
+      children.forEach(child => addItemWithChildren(child));
     };
 
-    return [...workItems].sort((a, b) => {
-      // First sort by type
-      const typeComparison = typeOrder[a.type] - typeOrder[b.type];
-      if (typeComparison !== 0) return typeComparison;
+    // Start with root items (items with no parent)
+    const rootItems = workItems
+      .filter(item => !item.parentId)
+      .sort((a, b) => {
+        // Sort root items by type first, then by title
+        const typeOrder = {
+          [WorkItemType.EPIC]: 0,
+          [WorkItemType.FEATURE]: 1,
+          [WorkItemType.USER_STORY]: 2,
+          [WorkItemType.BUG]: 3
+        };
+        const typeComparison = typeOrder[a.type] - typeOrder[b.type];
+        if (typeComparison !== 0) return typeComparison;
+        return a.title.localeCompare(b.title);
+      });
 
-      // Then sort by hierarchy level (parents before children)
-      const levelA = getWorkItemHierarchyLevel(a, workItems);
-      const levelB = getWorkItemHierarchyLevel(b, workItems);
-      if (levelA !== levelB) return levelA - levelB;
+    // Add each root item and its children
+    rootItems.forEach(rootItem => addItemWithChildren(rootItem));
 
-      // Finally sort by title
-      return a.title.localeCompare(b.title);
+    return result;
+  };
+
+  // Helper functions for collapsible functionality
+  const hasChildren = (itemId: string, workItems: WorkItem[]): boolean => {
+    return workItems.some(item => item.parentId === itemId);
+  };
+
+  const isItemVisible = (item: WorkItem, workItems: WorkItem[]): boolean => {
+    // If item has no parent, it's always visible
+    if (!item.parentId) return true;
+
+    // Check if any ancestor is collapsed
+    let currentParentId = item.parentId;
+    while (currentParentId) {
+      if (collapsedItems.has(currentParentId)) {
+        return false;
+      }
+      const parent = workItems.find(wi => wi._id === currentParentId);
+      currentParentId = parent?.parentId;
+    }
+
+    return true;
+  };
+
+  const toggleCollapse = (itemId: string) => {
+    setCollapsedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
     });
   };
 
@@ -403,7 +496,7 @@ export default function ReleaseDetailPage() {
   }
 
   return (
-    <div className="h-full flex flex-col space-y-6">
+    <div className="h-full flex flex-col space-y-6 overflow-x-hidden">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -429,6 +522,15 @@ export default function ReleaseDetailPage() {
         </div>
 
         <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setIsDrawerOpen(!isDrawerOpen)}
+            className="btn btn-secondary flex items-center space-x-2"
+            title={isDrawerOpen ? 'Close Details' : 'Show More Details'}
+          >
+            {isDrawerOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            <span>{isDrawerOpen ? 'Close' : 'More Details'}</span>
+          </button>
+
           {release.downloadUrl && (
             <button
               onClick={handleDownload}
@@ -460,8 +562,8 @@ export default function ReleaseDetailPage() {
       </div>
 
       {/* Release Info */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="relative overflow-hidden min-h-screen">
+        <div className={`space-y-6 transition-all duration-300 ${isDrawerOpen ? 'lg:pr-80' : ''}`}>
           {/* Description */}
           <div className="card">
             <div className="card-header">
@@ -548,16 +650,51 @@ export default function ReleaseDetailPage() {
                 <h2 className="text-lg font-medium text-gray-900 flex items-center space-x-2">
                   <Package className="w-5 h-5 text-blue-600" />
                   <span>Work Items</span>
+                  {release.workItems && release.workItems.length > 0 && (
+                    <span className="text-sm text-gray-500 font-normal">
+                      ({release.workItems.filter(item => isItemVisible(item, release.workItems)).length} of {release.workItems.length} visible)
+                    </span>
+                  )}
                 </h2>
-                {permissions?.canManageUsers && (
-                  <button
-                    onClick={() => handleAddWorkItem(WorkItemType.EPIC)}
-                    className="btn btn-primary btn-sm flex items-center space-x-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Epic</span>
-                  </button>
-                )}
+                <div className="flex items-center space-x-2">
+                  {/* Expand/Collapse All buttons */}
+                  {release.workItems && release.workItems.length > 0 && (
+                    <>
+                      <button
+                        onClick={() => setCollapsedItems(new Set())}
+                        className="btn btn-secondary btn-sm flex items-center space-x-1"
+                        title="Expand All"
+                      >
+                        <ChevronDown className="w-4 h-4" />
+                        <span>Expand All</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const allParentIds = new Set(
+                            release.workItems
+                              .filter(item => hasChildren(item._id!, release.workItems))
+                              .map(item => item._id!)
+                          );
+                          setCollapsedItems(allParentIds);
+                        }}
+                        className="btn btn-secondary btn-sm flex items-center space-x-1"
+                        title="Collapse All"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                        <span>Collapse All</span>
+                      </button>
+                    </>
+                  )}
+                  {permissions?.canManageUsers && (
+                    <button
+                      onClick={() => handleAddWorkItem(WorkItemType.EPIC)}
+                      className="btn btn-primary btn-sm flex items-center space-x-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      <span>Add Epic</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
             <div className="card-body">
@@ -566,108 +703,154 @@ export default function ReleaseDetailPage() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-3 py-3 text-left text-xs text-gray-500 uppercase tracking-wider w-16">
                           Type
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-4 py-3 text-left text-xs text-gray-500 uppercase tracking-wider w-20">
+                          Id
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">
                           Title
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
+                        <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">
+                          Flag Name
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Assignee
+                        <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">
+                          Remarks
                         </th>
                         {permissions?.canManageUsers && (
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">
                             Actions
                           </th>
                         )}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {sortWorkItemsForTable(release.workItems).map((item) => {
-                        const hierarchyLevel = getWorkItemHierarchyLevel(item, release.workItems);
-                        const indentStyle = { paddingLeft: `${hierarchyLevel * 20 + 24}px` };
+                      {sortWorkItemsForTable(release.workItems)
+                        .filter(item => isItemVisible(item, release.workItems))
+                        .map((item) => {
+                          const hierarchyLevel = getWorkItemHierarchyLevel(item, release.workItems);
+                          const indentStyle = { paddingLeft: `${hierarchyLevel * 16 + 12}px` };
+                          const itemHasChildren = hasChildren(item._id!, release.workItems);
+                          const isCollapsed = collapsedItems.has(item._id!);
 
-                        return (
-                          <tr key={item._id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center space-x-2" style={indentStyle}>
-                                {getWorkItemTypeIcon(item.type)}
-                                <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getWorkItemTypeColor(item.type)}`}>
-                                  {item.type.replace('_', ' ')}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="text-sm font-medium text-gray-900">{item.title}</div>
-                              <div className="text-sm text-gray-500 truncate max-w-xs" title={item.description}>
-                                {item.description}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="flex items-center space-x-2">
-                                {getWorkItemStatusIcon(item.status)}
-                                <span className="text-sm text-gray-900 capitalize">
-                                  {item.status.replace('_', ' ')}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {item.assignee || '-'}
-                            </td>
-                            {permissions?.canManageUsers && (
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <div className="flex items-center space-x-2">
-                                  <button
-                                    onClick={() => handleEditWorkItem(item)}
-                                    className="text-blue-600 hover:text-blue-800"
-                                    title="Edit"
+                          return (
+                            <tr key={item._id} className="hover:bg-gray-50">
+                              <td className="px-3 py-4 whitespace-nowrap">
+                                <div className="flex items-center" style={indentStyle}>
+                                  {/* Collapse/Expand button */}
+                                  {itemHasChildren ? (
+                                    <button
+                                      onClick={() => toggleCollapse(item._id!)}
+                                      className="p-1 hover:bg-gray-200 rounded transition-colors"
+                                      title={isCollapsed ? 'Expand' : 'Collapse'}
+                                    >
+                                      {isCollapsed ? (
+                                        <ChevronRight className="w-4 h-4 text-gray-500" />
+                                      ) : (
+                                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                                      )}
+                                    </button>
+                                  ) : (
+                                    <div className="w-6"></div> // Spacer for alignment
+                                  )}
+
+                                  {/* Add hierarchy visual indicators */}
+                                  {hierarchyLevel > 0 && (
+                                    <div className="flex items-center">
+                                      {Array.from({ length: hierarchyLevel }, (_, i) => (
+                                        <div key={i} className="w-4 h-4 flex items-center justify-center">
+                                          {i === hierarchyLevel - 1 ? (
+                                            <div className="w-2 h-2 border-l-2 border-b-2 border-gray-300"></div>
+                                          ) : (
+                                            <div className="w-0.5 h-4 bg-gray-300"></div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                  <div
+                                    className="flex items-center"
+                                    title={item.type.replace('_', ' ').toUpperCase()}
                                   >
-                                    <Edit className="w-4 h-4" />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDeleteWorkItem(item._id!)}
-                                    className="text-red-600 hover:text-red-800"
-                                    title="Delete"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </button>
-                                  {/* Add child buttons based on type */}
-                                  {item.type === WorkItemType.EPIC && (
-                                    <button
-                                      onClick={() => handleAddWorkItem(WorkItemType.FEATURE, item._id)}
-                                      className="text-blue-600 hover:text-blue-800"
-                                      title="Add Feature"
-                                    >
-                                      <Plus className="w-4 h-4" />
-                                    </button>
-                                  )}
-                                  {item.type === WorkItemType.FEATURE && (
-                                    <button
-                                      onClick={() => handleAddWorkItem(WorkItemType.USER_STORY, item._id)}
-                                      className="text-green-600 hover:text-green-800"
-                                      title="Add User Story"
-                                    >
-                                      <Plus className="w-4 h-4" />
-                                    </button>
-                                  )}
-                                  {item.type === WorkItemType.USER_STORY && (
-                                    <button
-                                      onClick={() => handleAddWorkItem(WorkItemType.BUG, item._id)}
-                                      className="text-red-600 hover:text-red-800"
-                                      title="Add Bug"
-                                    >
-                                      <Plus className="w-4 h-4" />
-                                    </button>
-                                  )}
+                                    {getWorkItemTypeIcon(item.type)}
+                                  </div>
                                 </div>
                               </td>
-                            )}
-                          </tr>
-                        );
-                      })}
+                              <td className="px-4 py-4 whitespace-nowrap text-sm">
+                                {item._id ? (
+                                  <Link
+                                    href={`/releases/${params.id}/workitem/${item._id}`}
+                                    className="text-blue-600 hover:text-blue-800 hover:underline"
+                                  >
+                                    {item._id.slice(-8)}
+                                  </Link>
+                                ) : (
+                                  <span className="text-gray-900">-</span>
+                                )}
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="text-sm text-gray-900">{item.title}</div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {item.flagName || '-'}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-900">
+                                <div className="max-w-xs truncate" title={item.remarks}>
+                                  {item.remarks || '-'}
+                                </div>
+                              </td>
+                              {permissions?.canManageUsers && (
+                                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                  <div className="flex items-center space-x-2">
+                                    <button
+                                      onClick={() => handleEditWorkItem(item)}
+                                      className="text-blue-600 hover:text-blue-800"
+                                      title="Edit"
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteWorkItem(item._id!)}
+                                      className="text-red-600 hover:text-red-800"
+                                      title="Delete"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                    {/* Add child buttons based on type */}
+                                    {item.type === WorkItemType.EPIC && (
+                                      <button
+                                        onClick={() => handleAddWorkItem(WorkItemType.FEATURE, item._id)}
+                                        className="text-blue-600 hover:text-blue-800"
+                                        title="Add Feature"
+                                      >
+                                        <Plus className="w-4 h-4" />
+                                      </button>
+                                    )}
+                                    {item.type === WorkItemType.FEATURE && (
+                                      <button
+                                        onClick={() => handleAddWorkItem(WorkItemType.USER_STORY, item._id)}
+                                        className="text-green-600 hover:text-green-800"
+                                        title="Add User Story"
+                                      >
+                                        <Plus className="w-4 h-4" />
+                                      </button>
+                                    )}
+                                    {item.type === WorkItemType.USER_STORY && (
+                                      <button
+                                        onClick={() => handleAddWorkItem(WorkItemType.BUG, item._id)}
+                                        className="text-red-600 hover:text-red-800"
+                                        title="Add Bug"
+                                      >
+                                        <Plus className="w-4 h-4" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              )}
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 </div>
@@ -729,44 +912,41 @@ export default function ReleaseDetailPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Status
-                      </label>
-                      <select
-                        value={workItemFormData.status}
-                        onChange={(e) => setWorkItemFormData({ ...workItemFormData, status: e.target.value as WorkItemStatus })}
-                        className="input w-full"
-                      >
-                        <option value={WorkItemStatus.TODO}>To Do</option>
-                        <option value={WorkItemStatus.IN_PROGRESS}>In Progress</option>
-                        <option value={WorkItemStatus.DONE}>Done</option>
-                        <option value={WorkItemStatus.BLOCKED}>Blocked</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Assignee
+                        Flag Name
                       </label>
                       <input
                         type="text"
-                        value={workItemFormData.assignee || ''}
-                        onChange={(e) => setWorkItemFormData({ ...workItemFormData, assignee: e.target.value })}
+                        value={workItemFormData.flagName || ''}
+                        onChange={(e) => setWorkItemFormData({ ...workItemFormData, flagName: e.target.value })}
                         className="input w-full"
-                        placeholder="Enter assignee name"
+                        placeholder="Enter flag name"
                       />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Estimated Hours
+                        Remarks
                       </label>
                       <input
-                        type="number"
-                        value={workItemFormData.estimatedHours || ''}
-                        onChange={(e) => setWorkItemFormData({ ...workItemFormData, estimatedHours: e.target.value ? Number(e.target.value) : undefined })}
+                        type="text"
+                        value={workItemFormData.remarks || ''}
+                        onChange={(e) => setWorkItemFormData({ ...workItemFormData, remarks: e.target.value })}
                         className="input w-full"
-                        placeholder="Enter estimated hours"
-                        min="0"
+                        placeholder="Enter remarks"
                       />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Hyperlink
+                      </label>
+                      <input
+                        type="url"
+                        value={workItemFormData.hyperlink || ''}
+                        onChange={(e) => setWorkItemFormData({ ...workItemFormData, hyperlink: e.target.value })}
+                        className="input w-full"
+                        placeholder="Enter hyperlink URL (optional)"
+                      />
+                    </div>
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Actual Hours
@@ -781,23 +961,12 @@ export default function ReleaseDetailPage() {
                       />
                     </div>
                   </div>
-                  <div className="mt-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Description *
-                    </label>
-                    <textarea
-                      value={workItemFormData.description}
-                      onChange={(e) => setWorkItemFormData({ ...workItemFormData, description: e.target.value })}
-                      className="input w-full"
-                      rows={3}
-                      placeholder="Enter description"
-                    />
-                  </div>
+
                   <div className="flex items-center space-x-3 mt-6">
                     <button
                       onClick={handleSaveWorkItem}
                       className="btn btn-primary"
-                      disabled={!workItemFormData.title || !workItemFormData.description}
+                      disabled={!workItemFormData.title}
                     >
                       {editingWorkItem ? 'Update Work Item' : 'Add Work Item'}
                     </button>
@@ -814,99 +983,129 @@ export default function ReleaseDetailPage() {
           </div>
         </div>
 
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Release Details */}
-          <div className="card">
-            <div className="card-header">
-              <h2 className="text-lg font-medium text-gray-900">Release Details</h2>
-            </div>
-            <div className="card-body space-y-4">
-              <div className="flex items-center space-x-3">
-                <Calendar className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Release Date</p>
-                  <p className="text-sm text-gray-600">
-                    {new Date(release.releaseDate).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+        {/* Mobile Overlay */}
+        {isDrawerOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setIsDrawerOpen(false)}
+          />
+        )}
+
+        {/* Drawer */}
+        <div className={`
+          fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 border-l border-gray-200
+          lg:absolute lg:top-0 lg:right-0 lg:h-full lg:w-80
+          transform transition-transform duration-300 ease-in-out overflow-hidden
+          ${isDrawerOpen ? 'translate-x-0' : 'translate-x-full'}
+        `}>
+          {/* Drawer Header */}
+          <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-900">Release Details</h3>
+            <button
+              onClick={() => setIsDrawerOpen(false)}
+              className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+              title="Close Details"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+          </div>
+
+          {/* Drawer Content */}
+          <div className="overflow-y-auto h-full pb-20">
+            <div className="p-6 space-y-6">
+              {/* Release Details */}
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="text-lg font-medium text-gray-900">Release Details</h2>
+                </div>
+                <div className="card-body space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <Calendar className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Release Date</p>
+                      <p className="text-sm text-gray-600">
+                        {new Date(release.releaseDate).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+
+
+                  <div className="flex items-center space-x-3">
+                    <User className="w-5 h-5 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Author</p>
+                      <p className="text-sm text-gray-600">{release.author.name}</p>
+                    </div>
+                  </div>
+
+                  {release.downloadUrl && (
+                    <div className="pt-4 border-t border-gray-200">
+                      <a
+                        href={release.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        <span>Download Link</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Publication Status */}
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="text-lg font-medium text-gray-900">Publication Status</h2>
+                </div>
+                <div className="card-body">
+                  <div className="flex items-center space-x-2">
+                    {release.isPublished ? (
+                      <>
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                        <span className="text-sm font-medium text-green-700">Published</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="w-5 h-5 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-700">Draft</span>
+                      </>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {release.isPublished
+                      ? 'This release is publicly available'
+                      : 'This release is not yet published'
+                    }
                   </p>
                 </div>
               </div>
 
-
-
-              <div className="flex items-center space-x-3">
-                <User className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Author</p>
-                  <p className="text-sm text-gray-600">{release.author.name}</p>
+              {/* Timestamps */}
+              <div className="card">
+                <div className="card-header">
+                  <h2 className="text-lg font-medium text-gray-900">Timestamps</h2>
                 </div>
-              </div>
-
-              {release.downloadUrl && (
-                <div className="pt-4 border-t border-gray-200">
-                  <a
-                    href={release.downloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Download Link</span>
-                  </a>
+                <div className="card-body space-y-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Created</p>
+                    <p className="text-sm text-gray-600">
+                      {new Date(release.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Last Updated</p>
+                    <p className="text-sm text-gray-600">
+                      {new Date(release.updatedAt).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
-
-          {/* Publication Status */}
-          <div className="card">
-            <div className="card-header">
-              <h2 className="text-lg font-medium text-gray-900">Publication Status</h2>
-            </div>
-            <div className="card-body">
-              <div className="flex items-center space-x-2">
-                {release.isPublished ? (
-                  <>
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                    <span className="text-sm font-medium text-green-700">Published</span>
-                  </>
-                ) : (
-                  <>
-                    <Clock className="w-5 h-5 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700">Draft</span>
-                  </>
-                )}
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                {release.isPublished
-                  ? 'This release is publicly available'
-                  : 'This release is not yet published'
-                }
-              </p>
-            </div>
-          </div>
-
-          {/* Timestamps */}
-          <div className="card">
-            <div className="card-header">
-              <h2 className="text-lg font-medium text-gray-900">Timestamps</h2>
-            </div>
-            <div className="card-body space-y-3">
-              <div>
-                <p className="text-sm font-medium text-gray-900">Created</p>
-                <p className="text-sm text-gray-600">
-                  {new Date(release.createdAt).toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900">Last Updated</p>
-                <p className="text-sm text-gray-600">
-                  {new Date(release.updatedAt).toLocaleString()}
-                </p>
               </div>
             </div>
           </div>
