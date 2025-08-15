@@ -26,10 +26,21 @@ import {
   ChevronDown,
   ChevronRight,
   Menu,
-  X
+  X,
+  Copy,
+  Eye,
+  Mountain,
+  Zap,
+  FileText,
+  Shield,
+  Layers,
+  Sparkles,
+  BookOpen
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
+import WorkItemModal, { WorkItemFormData } from '@/components/releases/WorkItemModal';
 
 export default function ReleaseDetailPage() {
   const params = useParams();
@@ -42,6 +53,14 @@ export default function ReleaseDetailPage() {
   const [editingWorkItem, setEditingWorkItem] = useState<WorkItem | null>(null);
   const [collapsedItems, setCollapsedItems] = useState<Set<string>>(new Set());
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<WorkItem | null>(null);
+  const [showWorkItemModal, setShowWorkItemModal] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'createChild'>('create');
+  const [modalWorkItem, setModalWorkItem] = useState<WorkItem | null>(null);
+  const [modalParentItem, setModalParentItem] = useState<WorkItem | null>(null);
 
   // Close drawer on escape key and manage body scroll
   useEffect(() => {
@@ -286,6 +305,17 @@ export default function ReleaseDetailPage() {
   const handleDeleteWorkItem = async (itemId: string) => {
     if (!release) return;
 
+    // Find the item to get its title for confirmation
+    const itemToDelete = release.workItems.find(item => item._id === itemId);
+    if (!itemToDelete) return;
+
+    setItemToDelete(itemToDelete);
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDeleteWorkItem = async () => {
+    if (!release || !itemToDelete) return;
+
     try {
       // Remove the item and all its children
       const removeItemAndChildren = (items: WorkItem[], targetId: string): WorkItem[] => {
@@ -297,13 +327,13 @@ export default function ReleaseDetailPage() {
           while (currentParentId) {
             if (currentParentId === targetId) return false;
             const parent = items.find(p => p._id === currentParentId);
-            currentParentId = parent?.parentId;
+            currentParentId = parent?.parentId || '';
           }
           return true;
         });
       };
 
-      const updatedWorkItems = removeItemAndChildren(release.workItems || [], itemId);
+      const updatedWorkItems = removeItemAndChildren(release.workItems || [], itemToDelete._id!);
 
       const response = await fetch(`/api/releases/${params.id}`, {
         method: 'PUT',
@@ -326,6 +356,8 @@ export default function ReleaseDetailPage() {
     } catch (error) {
       console.error('Error deleting work item:', error);
       toast.error('Failed to delete work item');
+    } finally {
+      setItemToDelete(null);
     }
   };
 
@@ -334,34 +366,217 @@ export default function ReleaseDetailPage() {
     setEditingWorkItem(null);
   };
 
+  // Modal handlers
+  const handleOpenEditModal = (item: WorkItem) => {
+    setModalMode('edit');
+    setModalWorkItem(item);
+    setModalParentItem(null);
+    setShowWorkItemModal(true);
+  };
+
+  const handleOpenCreateChildModal = (parentItem: WorkItem) => {
+    setModalMode('createChild');
+    setModalWorkItem(null);
+    setModalParentItem(parentItem);
+    setShowWorkItemModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowWorkItemModal(false);
+    setModalMode('create');
+    setModalWorkItem(null);
+    setModalParentItem(null);
+  };
+
+  const handleModalSubmit = async (formData: WorkItemFormData) => {
+    if (!release) return;
+
+    try {
+      let updatedWorkItems;
+
+      if (modalMode === 'edit' && modalWorkItem) {
+        // Update existing work item
+        updatedWorkItems = release.workItems.map(item =>
+          item._id === modalWorkItem._id
+            ? {
+              ...item,
+              title: formData.title,
+              flagName: formData.flagName,
+              remarks: formData.remarks,
+              hyperlink: formData.hyperlink,
+              parentId: formData.parentId || undefined
+            }
+            : item
+        );
+      } else {
+        // Create new work item
+        const newWorkItem: Omit<WorkItem, '_id'> = {
+          type: formData.type,
+          title: formData.title,
+          flagName: formData.flagName,
+          remarks: formData.remarks,
+          hyperlink: formData.hyperlink,
+          parentId: formData.parentId || undefined
+        };
+
+        updatedWorkItems = [...(release.workItems || []), newWorkItem];
+      }
+
+      const response = await fetch(`/api/releases/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...release,
+          workItems: updatedWorkItems
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update release');
+      }
+
+      const updatedRelease = await response.json();
+      setRelease(updatedRelease.release);
+      handleCloseModal();
+
+      toast.success(modalMode === 'edit' ? 'Work item updated successfully' : 'Work item created successfully');
+    } catch (error) {
+      console.error('Error saving work item:', error);
+      toast.error('Failed to save work item');
+    }
+  };
+
+  const handleDuplicateWorkItem = (item: WorkItem) => {
+    setIsAddingWorkItem(true);
+    setEditingWorkItem(null);
+    setWorkItemFormData({
+      type: item.type,
+      title: `${item.title} (Copy)`,
+      flagName: item.flagName || '',
+      remarks: item.remarks || '',
+      hyperlink: item.hyperlink || '',
+      parentId: item.parentId,
+      actualHours: undefined // Reset hours for duplicate
+    });
+  };
+
+  // Bulk operations
+  const handleSelectItem = (itemId: string) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(itemId)) {
+      newSelected.delete(itemId);
+    } else {
+      newSelected.add(itemId);
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (!release?.workItems) return;
+
+    if (selectedItems.size === release.workItems.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(release.workItems.map(item => item._id!)));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!release || selectedItems.size === 0) return;
+
+    setShowBulkDeleteConfirmation(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    if (!release || selectedItems.size === 0) return;
+
+    try {
+      // Remove selected items and their children
+      const removeSelectedAndChildren = (items: WorkItem[]): WorkItem[] => {
+        return items.filter(item => {
+          // If item is selected, remove it
+          if (selectedItems.has(item._id!)) return false;
+
+          // If item's parent is selected (or any ancestor), remove it
+          let currentParentId = item.parentId;
+          while (currentParentId) {
+            if (selectedItems.has(currentParentId)) return false;
+            const parent = items.find(p => p._id === currentParentId);
+            currentParentId = parent?.parentId || '';
+          }
+          return true;
+        });
+      };
+
+      const updatedWorkItems = removeSelectedAndChildren(release.workItems);
+
+      const response = await fetch(`/api/releases/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...release,
+          workItems: updatedWorkItems,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete work items');
+      }
+
+      const updatedRelease = await response.json();
+      setRelease(updatedRelease.release);
+      setSelectedItems(new Set());
+      toast.success(`Successfully deleted ${Array.from(selectedItems).length} work item(s)`);
+    } catch (error) {
+      console.error('Error deleting work items:', error);
+      toast.error('Failed to delete work items');
+    }
+  };
+
   // Helper functions for work items
-  const getWorkItemTypeIcon = (type: WorkItemType) => {
-    switch (type) {
+  const getWorkItemTypeIcon = (type: WorkItemType | string) => {
+    const normalizedType = typeof type === 'string' ? type.toLowerCase() : type;
+
+    switch (normalizedType) {
       case WorkItemType.EPIC:
-        return <Package className="w-4 h-4 text-purple-500" />;
+      case 'epic':
+        return <Layers className="w-4 h-4 text-purple-600" />; // Azure DevOps Epic style
       case WorkItemType.FEATURE:
-        return <Star className="w-4 h-4 text-blue-500" />;
+      case 'feature':
+        return <Sparkles className="w-4 h-4 text-blue-500" />; // Azure DevOps Feature style
       case WorkItemType.USER_STORY:
-        return <User className="w-4 h-4 text-green-500" />;
+      case 'user_story':
+        return <BookOpen className="w-4 h-4 text-green-500" />; // Azure DevOps User Story style
       case WorkItemType.BUG:
-        return <Bug className="w-4 h-4 text-red-500" />;
+      case 'bug':
+        return <AlertCircle className="w-4 h-4 text-red-500" />; // Azure DevOps Bug style
       default:
         return <Package className="w-4 h-4 text-gray-500" />;
     }
   };
 
-  const getWorkItemTypeColor = (type: WorkItemType) => {
-    switch (type) {
+  const getWorkItemTypeColor = (type: WorkItemType | string) => {
+    const normalizedType = typeof type === 'string' ? type.toLowerCase() : type;
+
+    switch (normalizedType) {
       case WorkItemType.EPIC:
-        return 'bg-purple-100 text-purple-800';
+      case 'epic':
+        return 'bg-purple-50 text-purple-700 border-purple-200'; // Azure DevOps Epic colors
       case WorkItemType.FEATURE:
-        return 'bg-blue-100 text-blue-800';
+      case 'feature':
+        return 'bg-blue-50 text-blue-700 border-blue-200'; // Azure DevOps Feature colors
       case WorkItemType.USER_STORY:
-        return 'bg-green-100 text-green-800';
+      case 'user_story':
+        return 'bg-green-50 text-green-700 border-green-200'; // Azure DevOps User Story colors
       case WorkItemType.BUG:
-        return 'bg-red-100 text-red-800';
+      case 'bug':
+        return 'bg-red-50 text-red-700 border-red-200'; // Azure DevOps Bug colors
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
@@ -377,7 +592,7 @@ export default function ReleaseDetailPage() {
     while (currentParentId) {
       level++;
       const parent = workItems.find(wi => wi._id === currentParentId);
-      currentParentId = parent?.parentId;
+      currentParentId = parent?.parentId || '';
     }
 
     return level;
@@ -452,7 +667,7 @@ export default function ReleaseDetailPage() {
         return false;
       }
       const parent = workItems.find(wi => wi._id === currentParentId);
-      currentParentId = parent?.parentId;
+      currentParentId = parent?.parentId || '';
     }
 
     return true;
@@ -655,8 +870,24 @@ export default function ReleaseDetailPage() {
                       ({release.workItems.filter(item => isItemVisible(item, release.workItems)).length} of {release.workItems.length} visible)
                     </span>
                   )}
+                  {selectedItems.size > 0 && (
+                    <span className="text-sm text-blue-600 font-medium">
+                      ({selectedItems.size} selected)
+                    </span>
+                  )}
                 </h2>
                 <div className="flex items-center space-x-2">
+                  {/* Bulk Actions */}
+                  {selectedItems.size > 0 && permissions?.canManageUsers && (
+                    <button
+                      onClick={handleBulkDelete}
+                      className="btn btn-danger btn-sm flex items-center space-x-2"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete Selected ({selectedItems.size})</span>
+                    </button>
+                  )}
+
                   {/* Expand/Collapse All buttons */}
                   {release.workItems && release.workItems.length > 0 && (
                     <>
@@ -687,7 +918,12 @@ export default function ReleaseDetailPage() {
                   )}
                   {permissions?.canManageUsers && (
                     <button
-                      onClick={() => handleAddWorkItem(WorkItemType.EPIC)}
+                      onClick={() => {
+                        setModalMode('createEpic');
+                        setModalWorkItem(null);
+                        setModalParentItem(null);
+                        setShowWorkItemModal(true);
+                      }}
                       className="btn btn-primary btn-sm flex items-center space-x-2"
                     >
                       <Plus className="w-4 h-4" />
@@ -703,6 +939,16 @@ export default function ReleaseDetailPage() {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
+                        {permissions?.canManageUsers && (
+                          <th className="px-3 py-3 text-left text-xs text-gray-500 uppercase tracking-wider w-12">
+                            <input
+                              type="checkbox"
+                              checked={release?.workItems && selectedItems.size === release.workItems.length && release.workItems.length > 0}
+                              onChange={handleSelectAll}
+                              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                          </th>
+                        )}
                         <th className="px-3 py-3 text-left text-xs text-gray-500 uppercase tracking-wider w-16">
                           Type
                         </th>
@@ -736,6 +982,16 @@ export default function ReleaseDetailPage() {
 
                           return (
                             <tr key={item._id} className="hover:bg-gray-50">
+                              {permissions?.canManageUsers && (
+                                <td className="px-3 py-4 whitespace-nowrap text-sm">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedItems.has(item._id!)}
+                                    onChange={() => handleSelectItem(item._id!)}
+                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                  />
+                                </td>
+                              )}
                               <td className="px-3 py-4 whitespace-nowrap">
                                 <div className="flex items-center" style={indentStyle}>
                                   {/* Collapse/Expand button */}
@@ -804,7 +1060,7 @@ export default function ReleaseDetailPage() {
                                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                                   <div className="flex items-center space-x-2">
                                     <button
-                                      onClick={() => handleEditWorkItem(item)}
+                                      onClick={() => handleOpenEditModal(item)}
                                       className="text-blue-600 hover:text-blue-800"
                                       title="Edit"
                                     >
@@ -817,30 +1073,15 @@ export default function ReleaseDetailPage() {
                                     >
                                       <Trash2 className="w-4 h-4" />
                                     </button>
-                                    {/* Add child buttons based on type */}
-                                    {item.type === WorkItemType.EPIC && (
+                                    {/* Create child button - only show if item can have children (not for bugs) */}
+                                    {item.type?.toLowerCase() !== 'bug' && (
                                       <button
-                                        onClick={() => handleAddWorkItem(WorkItemType.FEATURE, item._id)}
-                                        className="text-blue-600 hover:text-blue-800"
-                                        title="Add Feature"
-                                      >
-                                        <Plus className="w-4 h-4" />
-                                      </button>
-                                    )}
-                                    {item.type === WorkItemType.FEATURE && (
-                                      <button
-                                        onClick={() => handleAddWorkItem(WorkItemType.USER_STORY, item._id)}
+                                        onClick={() => handleOpenCreateChildModal(item)}
                                         className="text-green-600 hover:text-green-800"
-                                        title="Add User Story"
-                                      >
-                                        <Plus className="w-4 h-4" />
-                                      </button>
-                                    )}
-                                    {item.type === WorkItemType.USER_STORY && (
-                                      <button
-                                        onClick={() => handleAddWorkItem(WorkItemType.BUG, item._id)}
-                                        className="text-red-600 hover:text-red-800"
-                                        title="Add Bug"
+                                        title={`Add ${item.type?.toLowerCase() === 'epic' ? 'Feature' :
+                                          item.type?.toLowerCase() === 'feature' ? 'User Story' :
+                                            item.type?.toLowerCase() === 'user_story' ? 'Bug' : 'Child'
+                                          }`}
                                       >
                                         <Plus className="w-4 h-4" />
                                       </button>
@@ -1111,6 +1352,66 @@ export default function ReleaseDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Delete Work Item Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={showDeleteConfirmation}
+        onClose={() => {
+          setShowDeleteConfirmation(false);
+          setItemToDelete(null);
+        }}
+        onConfirm={confirmDeleteWorkItem}
+        title="Delete Work Item"
+        message={`Are you sure you want to delete "${itemToDelete?.title}"?`}
+        details={itemToDelete && release?.workItems ? (() => {
+          const countChildren = (items: WorkItem[], parentId: string): number => {
+            return items.filter(item => item.parentId === parentId).reduce((count, child) => {
+              return count + 1 + countChildren(items, child._id!);
+            }, 0);
+          };
+          const childrenCount = countChildren(release.workItems, itemToDelete._id!);
+          return childrenCount > 0
+            ? `This will also delete ${childrenCount} child item(s).\n\nThis action cannot be undone.`
+            : 'This action cannot be undone.';
+        })() : 'This action cannot be undone.'}
+        confirmText="Delete Work Item"
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={showBulkDeleteConfirmation}
+        onClose={() => setShowBulkDeleteConfirmation(false)}
+        onConfirm={confirmBulkDelete}
+        title="Delete Multiple Work Items"
+        message={`Are you sure you want to delete ${selectedItems.size} work item(s)?`}
+        details={(() => {
+          const selectedItemsArray = Array.from(selectedItems);
+          const itemTitles = selectedItemsArray
+            .map(id => release?.workItems.find(item => item._id === id)?.title)
+            .filter(Boolean)
+            .slice(0, 3);
+          const titleDisplay = itemTitles.length > 0
+            ? itemTitles.join(', ') + (selectedItemsArray.length > 3 ? ` and ${selectedItemsArray.length - 3} more` : '')
+            : 'selected items';
+          return `Items to delete: ${titleDisplay}\n\nThis will also delete any child items.\n\nThis action cannot be undone.`;
+        })()}
+        confirmText={`Delete ${selectedItems.size} Item(s)`}
+        cancelText="Cancel"
+        type="danger"
+      />
+
+      {/* Work Item Modal */}
+      <WorkItemModal
+        isOpen={showWorkItemModal}
+        onClose={handleCloseModal}
+        onSubmit={handleModalSubmit}
+        workItem={modalWorkItem}
+        parentItem={modalParentItem}
+        mode={modalMode}
+        availableParents={release?.workItems || []}
+      />
     </div>
   );
 }

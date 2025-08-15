@@ -65,6 +65,7 @@ export enum WorkItemStatus {
 
 export interface WorkItem {
   _id?: string;
+  id?: string;
   type: WorkItemType;
   title: string;
   flagName?: string;

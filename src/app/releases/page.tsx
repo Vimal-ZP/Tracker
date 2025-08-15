@@ -13,6 +13,7 @@ import {
   Grid
 } from 'lucide-react';
 import { ReleasesList, NewReleaseModal } from '@/components/releases';
+import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 
@@ -58,7 +59,7 @@ const dummyReleases: Release[] = [
       email: 'john.doe@example.com'
     },
     downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.1.0',
-    downloadCount: 1250,
+    workItems: [],
     isPublished: true,
     createdAt: new Date('2024-01-10'),
     updatedAt: new Date('2024-01-15')
@@ -85,13 +86,14 @@ const dummyReleases: Release[] = [
       'Resolved CSRF token validation issues'
     ],
     breakingChanges: [],
+    workItems: [],
     author: {
       _id: 'user2',
       name: 'Jane Smith',
       email: 'jane.smith@example.com'
     },
     downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.0.5',
-    downloadCount: 2100,
+
     isPublished: true,
     createdAt: new Date('2024-01-05'),
     updatedAt: new Date('2024-01-08')
@@ -137,7 +139,7 @@ const dummyReleases: Release[] = [
       email: 'john.doe@example.com'
     },
     downloadUrl: 'https://github.com/example/tracker/releases/tag/v3.0.0-beta.1',
-    downloadCount: 450,
+    workItems: [],
     isPublished: true,
     createdAt: new Date('2024-01-18'),
     updatedAt: new Date('2024-01-20')
@@ -170,13 +172,14 @@ const dummyReleases: Release[] = [
       'Corrected sorting behavior in data grids'
     ],
     breakingChanges: [],
+    workItems: [],
     author: {
       _id: 'user3',
       name: 'Mike Johnson',
       email: 'mike.johnson@example.com'
     },
     downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.0.4',
-    downloadCount: 1800,
+
     isPublished: true,
     createdAt: new Date('2023-12-15'),
     updatedAt: new Date('2023-12-20')
@@ -212,13 +215,14 @@ const dummyReleases: Release[] = [
       'Resolved conflicts in concurrent editing scenarios'
     ],
     breakingChanges: [],
+    workItems: [],
     author: {
       _id: 'user2',
       name: 'Jane Smith',
       email: 'jane.smith@example.com'
     },
     downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.2.0-rc.1',
-    downloadCount: 320,
+
     isPublished: true,
     createdAt: new Date('2024-01-22'),
     updatedAt: new Date('2024-01-25')
@@ -245,13 +249,14 @@ const dummyReleases: Release[] = [
       'Patched security vulnerabilities in old dependencies'
     ],
     breakingChanges: [],
+    workItems: [],
     author: {
       _id: 'user3',
       name: 'Mike Johnson',
       email: 'mike.johnson@example.com'
     },
     downloadUrl: 'https://github.com/example/tracker/releases/tag/v1.9.8',
-    downloadCount: 890,
+
     isPublished: true,
     createdAt: new Date('2023-11-10'),
     updatedAt: new Date('2023-11-15')
@@ -271,13 +276,14 @@ const dummyReleases: Release[] = [
       'Resolved race condition in concurrent database writes'
     ],
     breakingChanges: [],
+    workItems: [],
     author: {
       _id: 'user1',
       name: 'John Doe',
       email: 'john.doe@example.com'
     },
     downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.1.1-hotfix',
-    downloadCount: 1950,
+
     isPublished: true,
     createdAt: new Date('2024-01-16'),
     updatedAt: new Date('2024-01-16')
@@ -317,7 +323,7 @@ const dummyReleases: Release[] = [
       name: 'Jane Smith',
       email: 'jane.smith@example.com'
     },
-    downloadCount: 0,
+    workItems: [],
     isPublished: false,
     createdAt: new Date('2024-01-30'),
     updatedAt: new Date('2024-01-30')
@@ -335,6 +341,8 @@ export default function ReleasesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'card' | 'table' | 'compact'>('card');
   const [showNewReleaseModal, setShowNewReleaseModal] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [releaseToDelete, setReleaseToDelete] = useState<Release | null>(null);
 
   const permissions = user ? rolePermissions[user.role] : null;
 
@@ -396,12 +404,18 @@ export default function ReleasesPage() {
   };
 
   const handleDelete = async (releaseId: string) => {
-    if (!confirm('Are you sure you want to delete this release?')) {
-      return;
-    }
+    const release = releases.find(r => r._id === releaseId);
+    if (!release) return;
+
+    setReleaseToDelete(release);
+    setShowDeleteConfirmation(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!releaseToDelete) return;
 
     try {
-      const response = await fetch(`/api/releases/${releaseId}`, {
+      const response = await fetch(`/api/releases/${releaseToDelete._id}`, {
         method: 'DELETE',
       });
 
@@ -415,6 +429,8 @@ export default function ReleasesPage() {
     } catch (error) {
       console.error('Error deleting release:', error);
       toast.error('Failed to delete release');
+    } finally {
+      setReleaseToDelete(null);
     }
   };
 
@@ -673,6 +689,25 @@ export default function ReleasesPage() {
         isOpen={showNewReleaseModal}
         onClose={() => setShowNewReleaseModal(false)}
         onSubmit={handleNewReleaseSubmit}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={showDeleteConfirmation}
+        onClose={() => {
+          setShowDeleteConfirmation(false);
+          setReleaseToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Release"
+        message={`Are you sure you want to delete "${releaseToDelete?.title}"?`}
+        details={releaseToDelete?.workItems && releaseToDelete.workItems.length > 0
+          ? `This release contains ${releaseToDelete.workItems.length} work item(s) that will also be deleted.\n\nThis action cannot be undone.`
+          : 'This action cannot be undone.'
+        }
+        confirmText="Delete Release"
+        cancelText="Cancel"
+        type="danger"
       />
     </div>
   );

@@ -154,7 +154,7 @@ const ReleaseSchema = new Schema({
 }, {
   timestamps: true,
   toJSON: {
-    transform: function (doc, ret) {
+    transform: function (doc: any, ret: any) {
       ret._id = ret._id.toString();
       return ret;
     }

@@ -55,7 +55,7 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
             newErrors.projectName = 'Project name is required';
         }
 
-        if (formData.version.trim() && !/^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/.test(formData.version)) {
+        if (formData.version && formData.version.trim() && !/^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/.test(formData.version)) {
             newErrors.version = 'Version must follow semantic versioning format (e.g., 1.0.0)';
         }
 
