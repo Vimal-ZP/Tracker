@@ -6,6 +6,7 @@ export interface AuthenticatedRequest extends NextRequest {
     user?: {
         userId: string;
         email: string;
+        name: string;
         role: UserRole;
     };
 }
@@ -34,6 +35,7 @@ export function withAuth(handler: (req: AuthenticatedRequest) => Promise<NextRes
             req.user = {
                 userId: payload.userId,
                 email: payload.email,
+                name: payload.name || 'Unknown',
                 role: payload.role,
             };
 

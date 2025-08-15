@@ -10,6 +10,7 @@ if (!JWT_SECRET) {
 export interface JWTPayload {
     userId: string;
     email: string;
+    name: string;
     role: UserRole;
     iat?: number;
     exp?: number;
@@ -19,6 +20,7 @@ export function generateToken(user: User): string {
     const payload: JWTPayload = {
         userId: user._id,
         email: user.email,
+        name: user.name,
         role: user.role,
     };
 

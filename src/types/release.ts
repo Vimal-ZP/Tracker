@@ -10,6 +10,7 @@ export interface Release {
   features: ReleaseFeature[];
   bugFixes: string[];
   breakingChanges: string[];
+  workItems: WorkItem[];
   author: {
     _id: string;
     name: string;
@@ -48,6 +49,34 @@ export enum FeatureCategory {
   PERFORMANCE = 'performance'
 }
 
+export enum WorkItemType {
+  EPIC = 'epic',
+  FEATURE = 'feature',
+  USER_STORY = 'user_story',
+  BUG = 'bug'
+}
+
+export enum WorkItemStatus {
+  TODO = 'todo',
+  IN_PROGRESS = 'in_progress',
+  DONE = 'done',
+  BLOCKED = 'blocked'
+}
+
+export interface WorkItem {
+  _id?: string;
+  type: WorkItemType;
+  title: string;
+  description: string;
+  status: WorkItemStatus;
+  parentId?: string;
+  assignee?: string;
+  estimatedHours?: number;
+  actualHours?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export interface CreateReleaseData {
   version?: string;
   title: string;
@@ -59,6 +88,7 @@ export interface CreateReleaseData {
   features: ReleaseFeature[];
   bugFixes: string[];
   breakingChanges: string[];
+  workItems: WorkItem[];
   downloadUrl?: string;
   isPublished: boolean;
 }

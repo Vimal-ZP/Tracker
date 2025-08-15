@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Release from '@/models/Release';
+import User from '@/models/User';
 import { verifyToken } from '@/lib/auth';
 import { ReleaseStatus, ReleaseType } from '@/types/release';
 
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
       features,
       bugFixes,
       breakingChanges,
+      workItems,
       isPublished
     } = body;
 
@@ -146,6 +148,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Get author name - fallback to database if not in token
+    let authorName = decoded.name;
+    if (!authorName) {
+      const user = await User.findById(decoded.userId);
+      authorName = user?.name || 'Unknown';
+    }
+
     // Create new release
     const release = new Release({
       version,
@@ -158,9 +167,10 @@ export async function POST(request: NextRequest) {
       features: features || [],
       bugFixes: bugFixes || [],
       breakingChanges: breakingChanges || [],
+      workItems: workItems || [],
       author: {
         _id: decoded.userId,
-        name: decoded.name || 'Unknown',
+        name: authorName,
         email: decoded.email
       },
       isPublished: isPublished || false

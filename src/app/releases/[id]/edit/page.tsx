@@ -242,7 +242,17 @@ export default function EditReleasePage() {
         <div className="h-full flex flex-col space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
+                    <Package className="w-8 h-8 text-blue-600" />
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Edit Release</h1>
+                        {release.version && (
+                            <p className="text-sm text-gray-500">Version {release.version}</p>
+                        )}
+                    </div>
+                </div>
+
+                <div className="flex items-center space-x-3">
                     <Link
                         href={`/releases/${release._id}`}
                         className="btn btn-secondary flex items-center space-x-2"
@@ -250,15 +260,6 @@ export default function EditReleasePage() {
                         <ArrowLeft className="w-4 h-4" />
                         <span>Back</span>
                     </Link>
-                    <div className="flex items-center space-x-3">
-                        <Package className="w-8 h-8 text-blue-600" />
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Edit Release</h1>
-                            {release.version && (
-                                <p className="text-sm text-gray-500">Version {release.version}</p>
-                            )}
-                        </div>
-                    </div>
                 </div>
             </div>
 

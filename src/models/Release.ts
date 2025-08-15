@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Release, ReleaseStatus, ReleaseType, FeatureCategory } from '@/types/release';
+import { Release, ReleaseStatus, ReleaseType, FeatureCategory, WorkItemType, WorkItemStatus } from '@/types/release';
 
 export interface ReleaseDocument extends Omit<Release, '_id'>, Document { }
 
@@ -19,6 +19,51 @@ const ReleaseFeatureSchema = new Schema({
     enum: Object.values(FeatureCategory),
     required: true
   }
+});
+
+const WorkItemSchema = new Schema({
+  type: {
+    type: String,
+    enum: Object.values(WorkItemType),
+    required: true
+  },
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  description: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  status: {
+    type: String,
+    enum: Object.values(WorkItemStatus),
+    required: true,
+    default: WorkItemStatus.TODO
+  },
+  parentId: {
+    type: String,
+    required: false
+  },
+  assignee: {
+    type: String,
+    required: false,
+    trim: true
+  },
+  estimatedHours: {
+    type: Number,
+    required: false,
+    min: 0
+  },
+  actualHours: {
+    type: Number,
+    required: false,
+    min: 0
+  }
+}, {
+  timestamps: true
 });
 
 const ReleaseSchema = new Schema({
@@ -80,6 +125,7 @@ const ReleaseSchema = new Schema({
     type: String,
     trim: true
   }],
+  workItems: [WorkItemSchema],
   author: {
     _id: {
       type: Schema.Types.ObjectId,

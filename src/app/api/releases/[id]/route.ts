@@ -76,6 +76,7 @@ export async function PUT(
       features,
       bugFixes,
       breakingChanges,
+      workItems,
       isPublished
     } = body;
 
@@ -114,6 +115,7 @@ export async function PUT(
     if (features !== undefined) updateData.features = features;
     if (bugFixes !== undefined) updateData.bugFixes = bugFixes;
     if (breakingChanges !== undefined) updateData.breakingChanges = breakingChanges;
+    if (workItems !== undefined) updateData.workItems = workItems;
     if (isPublished !== undefined) updateData.isPublished = isPublished;
 
     const updatedRelease = await Release.findByIdAndUpdate(
