@@ -1,7 +1,8 @@
 export interface Release {
   _id: string;
-  version: string;
+  version?: string;
   title: string;
+  projectName: string;
   description: string;
   releaseDate: Date;
   status: ReleaseStatus;
@@ -15,7 +16,6 @@ export interface Release {
     email: string;
   };
   downloadUrl?: string;
-  downloadCount: number;
   isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -49,8 +49,9 @@ export enum FeatureCategory {
 }
 
 export interface CreateReleaseData {
-  version: string;
+  version?: string;
   title: string;
+  projectName: string;
   description: string;
   releaseDate: Date;
   status: ReleaseStatus;

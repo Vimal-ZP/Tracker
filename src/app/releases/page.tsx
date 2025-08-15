@@ -2,19 +2,327 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts';
-import { Release, ReleaseStatus, ReleaseType, ReleaseFilters } from '@/types/release';
+import { Release, ReleaseStatus, ReleaseType, ReleaseFilters, FeatureCategory } from '@/types/release';
 import { rolePermissions } from '@/types/user';
-import { 
-  Package, 
-  Plus, 
-  Search, 
-  Filter, 
+import {
+  Package,
+  Plus,
+  Search,
+  Filter,
   List,
   Grid
 } from 'lucide-react';
-import { ReleasesList } from '@/components/releases';
+import { ReleasesList, NewReleaseModal } from '@/components/releases';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+
+// Dummy data for releases
+const dummyReleases: Release[] = [
+  {
+    _id: '1',
+    version: '2.1.0',
+    title: 'Major Feature Update',
+    projectName: 'NRE',
+    description: 'This release introduces several new features including advanced analytics, improved user interface, and enhanced security measures. We have also optimized performance across all modules.',
+    releaseDate: new Date('2024-01-15'),
+    status: ReleaseStatus.STABLE,
+    type: ReleaseType.MINOR,
+    features: [
+      {
+        title: 'Advanced Analytics Dashboard',
+        description: 'New comprehensive analytics with real-time data visualization',
+        category: FeatureCategory.NEW
+      },
+      {
+        title: 'Enhanced Security',
+        description: 'Improved authentication and authorization mechanisms',
+        category: FeatureCategory.SECURITY
+      },
+      {
+        title: 'Performance Optimization',
+        description: 'Reduced load times by 40% across all pages',
+        category: FeatureCategory.PERFORMANCE
+      }
+    ],
+    bugFixes: [
+      'Fixed memory leak in data processing module',
+      'Resolved UI rendering issues on mobile devices',
+      'Fixed authentication timeout errors'
+    ],
+    breakingChanges: [
+      'API endpoint /api/v1/users has been deprecated, use /api/v2/users instead'
+    ],
+    author: {
+      _id: 'user1',
+      name: 'John Doe',
+      email: 'john.doe@example.com'
+    },
+    downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.1.0',
+    downloadCount: 1250,
+    isPublished: true,
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-01-15')
+  },
+  {
+    _id: '2',
+    version: '2.0.5',
+    title: 'Critical Security Patch',
+    projectName: 'Portal Plus',
+    description: 'Important security update addressing vulnerabilities in user authentication and data validation. All users are strongly recommended to update immediately.',
+    releaseDate: new Date('2024-01-08'),
+    status: ReleaseStatus.STABLE,
+    type: ReleaseType.PATCH,
+    features: [
+      {
+        title: 'Security Hardening',
+        description: 'Enhanced input validation and sanitization',
+        category: FeatureCategory.SECURITY
+      }
+    ],
+    bugFixes: [
+      'Fixed SQL injection vulnerability in search functionality',
+      'Patched XSS vulnerability in user profile section',
+      'Resolved CSRF token validation issues'
+    ],
+    breakingChanges: [],
+    author: {
+      _id: 'user2',
+      name: 'Jane Smith',
+      email: 'jane.smith@example.com'
+    },
+    downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.0.5',
+    downloadCount: 2100,
+    isPublished: true,
+    createdAt: new Date('2024-01-05'),
+    updatedAt: new Date('2024-01-08')
+  },
+  {
+    _id: '3',
+    version: '3.0.0-beta.1',
+    title: 'Next Generation Beta',
+    projectName: 'Fast 2.0',
+    description: 'Beta release of the next major version featuring a completely redesigned architecture, new AI-powered features, and modern UI components.',
+    releaseDate: new Date('2024-01-20'),
+    status: ReleaseStatus.BETA,
+    type: ReleaseType.MAJOR,
+    features: [
+      {
+        title: 'AI-Powered Insights',
+        description: 'Machine learning algorithms for predictive analytics',
+        category: FeatureCategory.NEW
+      },
+      {
+        title: 'Modern UI Framework',
+        description: 'Complete redesign with improved accessibility',
+        category: FeatureCategory.IMPROVED
+      },
+      {
+        title: 'Microservices Architecture',
+        description: 'Scalable and maintainable service-oriented design',
+        category: FeatureCategory.IMPROVED
+      }
+    ],
+    bugFixes: [
+      'Improved error handling in async operations',
+      'Fixed race conditions in data synchronization'
+    ],
+    breakingChanges: [
+      'Complete API restructure - migration guide available',
+      'Database schema changes require data migration',
+      'Configuration file format has changed'
+    ],
+    author: {
+      _id: 'user1',
+      name: 'John Doe',
+      email: 'john.doe@example.com'
+    },
+    downloadUrl: 'https://github.com/example/tracker/releases/tag/v3.0.0-beta.1',
+    downloadCount: 450,
+    isPublished: true,
+    createdAt: new Date('2024-01-18'),
+    updatedAt: new Date('2024-01-20')
+  },
+  {
+    _id: '4',
+    version: '2.0.4',
+    title: 'Performance and Stability Update',
+    projectName: 'E-Vite',
+    description: 'Focus on improving application performance and stability with various optimizations and bug fixes.',
+    releaseDate: new Date('2023-12-20'),
+    status: ReleaseStatus.STABLE,
+    type: ReleaseType.PATCH,
+    features: [
+      {
+        title: 'Database Query Optimization',
+        description: 'Improved query performance for large datasets',
+        category: FeatureCategory.PERFORMANCE
+      },
+      {
+        title: 'Caching Improvements',
+        description: 'Enhanced caching strategy for better response times',
+        category: FeatureCategory.PERFORMANCE
+      }
+    ],
+    bugFixes: [
+      'Fixed pagination issues in large data tables',
+      'Resolved memory leaks in background processes',
+      'Fixed timezone handling in date calculations',
+      'Corrected sorting behavior in data grids'
+    ],
+    breakingChanges: [],
+    author: {
+      _id: 'user3',
+      name: 'Mike Johnson',
+      email: 'mike.johnson@example.com'
+    },
+    downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.0.4',
+    downloadCount: 1800,
+    isPublished: true,
+    createdAt: new Date('2023-12-15'),
+    updatedAt: new Date('2023-12-20')
+  },
+  {
+    _id: '5',
+    version: '2.2.0-rc.1',
+    title: 'Release Candidate - New Features',
+    projectName: 'NVE',
+    description: 'Release candidate for version 2.2.0 introducing new collaboration features and improved workflow management.',
+    releaseDate: new Date('2024-01-25'),
+    status: ReleaseStatus.BETA,
+    type: ReleaseType.MINOR,
+    features: [
+      {
+        title: 'Team Collaboration Tools',
+        description: 'Real-time collaboration and commenting system',
+        category: FeatureCategory.NEW
+      },
+      {
+        title: 'Workflow Automation',
+        description: 'Automated workflows for common tasks',
+        category: FeatureCategory.NEW
+      },
+      {
+        title: 'Enhanced Notifications',
+        description: 'Improved notification system with customizable preferences',
+        category: FeatureCategory.IMPROVED
+      }
+    ],
+    bugFixes: [
+      'Fixed issues with file upload in certain browsers',
+      'Resolved conflicts in concurrent editing scenarios'
+    ],
+    breakingChanges: [],
+    author: {
+      _id: 'user2',
+      name: 'Jane Smith',
+      email: 'jane.smith@example.com'
+    },
+    downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.2.0-rc.1',
+    downloadCount: 320,
+    isPublished: true,
+    createdAt: new Date('2024-01-22'),
+    updatedAt: new Date('2024-01-25')
+  },
+  {
+    _id: '6',
+    version: '1.9.8',
+    title: 'Legacy Support Update',
+    projectName: 'FMS',
+    description: 'Final update for the 1.x series with essential bug fixes and security patches for users not ready to upgrade to 2.x.',
+    releaseDate: new Date('2023-11-15'),
+    status: ReleaseStatus.DEPRECATED,
+    type: ReleaseType.PATCH,
+    features: [
+      {
+        title: 'Legacy Browser Support',
+        description: 'Extended support for older browser versions',
+        category: FeatureCategory.IMPROVED
+      }
+    ],
+    bugFixes: [
+      'Fixed compatibility issues with Internet Explorer 11',
+      'Resolved date formatting issues in legacy systems',
+      'Patched security vulnerabilities in old dependencies'
+    ],
+    breakingChanges: [],
+    author: {
+      _id: 'user3',
+      name: 'Mike Johnson',
+      email: 'mike.johnson@example.com'
+    },
+    downloadUrl: 'https://github.com/example/tracker/releases/tag/v1.9.8',
+    downloadCount: 890,
+    isPublished: true,
+    createdAt: new Date('2023-11-10'),
+    updatedAt: new Date('2023-11-15')
+  },
+  {
+    _id: '7',
+    version: '2.1.1-hotfix',
+    title: 'Critical Hotfix',
+    projectName: 'NRE',
+    description: 'Emergency hotfix addressing a critical issue discovered in version 2.1.0 that could cause data corruption in specific scenarios.',
+    releaseDate: new Date('2024-01-16'),
+    status: ReleaseStatus.STABLE,
+    type: ReleaseType.HOTFIX,
+    features: [],
+    bugFixes: [
+      'Fixed critical data corruption issue in batch processing',
+      'Resolved race condition in concurrent database writes'
+    ],
+    breakingChanges: [],
+    author: {
+      _id: 'user1',
+      name: 'John Doe',
+      email: 'john.doe@example.com'
+    },
+    downloadUrl: 'https://github.com/example/tracker/releases/tag/v2.1.1-hotfix',
+    downloadCount: 1950,
+    isPublished: true,
+    createdAt: new Date('2024-01-16'),
+    updatedAt: new Date('2024-01-16')
+  },
+  {
+    _id: '8',
+    version: '2.3.0',
+    title: 'Work in Progress - Mobile Support',
+    projectName: 'Portal Plus',
+    description: 'Upcoming release focusing on mobile responsiveness and native mobile app support. Currently in development.',
+    releaseDate: new Date('2024-02-15'),
+    status: ReleaseStatus.DRAFT,
+    type: ReleaseType.MINOR,
+    features: [
+      {
+        title: 'Mobile-First Design',
+        description: 'Responsive design optimized for mobile devices',
+        category: FeatureCategory.NEW
+      },
+      {
+        title: 'Progressive Web App',
+        description: 'PWA capabilities for offline functionality',
+        category: FeatureCategory.NEW
+      },
+      {
+        title: 'Touch Gestures',
+        description: 'Native touch gesture support for mobile interactions',
+        category: FeatureCategory.NEW
+      }
+    ],
+    bugFixes: [],
+    breakingChanges: [
+      'CSS class names have been restructured for better mobile support'
+    ],
+    author: {
+      _id: 'user2',
+      name: 'Jane Smith',
+      email: 'jane.smith@example.com'
+    },
+    downloadCount: 0,
+    isPublished: false,
+    createdAt: new Date('2024-01-30'),
+    updatedAt: new Date('2024-01-30')
+  }
+];
 
 export default function ReleasesPage() {
   const { user } = useAuth();
@@ -25,7 +333,8 @@ export default function ReleasesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState<'card' | 'list'>('card');
+  const [viewMode, setViewMode] = useState<'card' | 'table' | 'compact'>('card');
+  const [showNewReleaseModal, setShowNewReleaseModal] = useState(false);
 
   const permissions = user ? rolePermissions[user.role] : null;
 
@@ -50,14 +359,20 @@ export default function ReleasesPage() {
       if (response.ok) {
         const data = await response.json();
         setReleases(data.releases || []);
-        setTotalPages(data.pagination?.totalPages || 1);
+        setTotalPages(data.totalPages || 1);
       } else {
         console.error('Failed to fetch releases');
         toast.error('Failed to fetch releases');
+        // Fallback to dummy data if API fails
+        setReleases(dummyReleases.slice(0, 10));
+        setTotalPages(Math.ceil(dummyReleases.length / 10));
       }
     } catch (error) {
       console.error('Error fetching releases:', error);
       toast.error('Error fetching releases');
+      // Fallback to dummy data if API fails
+      setReleases(dummyReleases.slice(0, 10));
+      setTotalPages(Math.ceil(dummyReleases.length / 10));
     } finally {
       setLoading(false);
     }
@@ -94,11 +409,66 @@ export default function ReleasesPage() {
         toast.success('Release deleted successfully');
         fetchReleases();
       } else {
-        toast.error('Failed to delete release');
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Failed to delete release');
       }
     } catch (error) {
       console.error('Error deleting release:', error);
       toast.error('Failed to delete release');
+    }
+  };
+
+  const handleNewReleaseSubmit = async (formData: {
+    releaseName: string;
+    projectName: string;
+    version?: string;
+    releaseDate: string;
+    description: string;
+    status: ReleaseStatus;
+    type: ReleaseType;
+    isPublished: boolean;
+  }) => {
+    try {
+      // Prepare release data for API
+      const releaseData = {
+        version: formData.version,
+        title: formData.releaseName,
+        projectName: formData.projectName,
+        description: formData.description,
+        releaseDate: formData.releaseDate,
+        status: formData.status,
+        type: formData.type,
+        features: [],
+        bugFixes: [],
+        breakingChanges: [],
+        isPublished: formData.isPublished
+      };
+
+      // Submit to API
+      const response = await fetch('/api/releases', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(releaseData)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create release');
+      }
+
+      const result = await response.json();
+
+      toast.success('Release created successfully!');
+
+      // Refresh the releases list
+      fetchReleases();
+
+    } catch (error: any) {
+      console.error('Error creating release:', error);
+      toast.error(error.message || 'Failed to create release');
+      throw error; // Re-throw to let the modal handle the error state
     }
   };
 
@@ -113,42 +483,40 @@ export default function ReleasesPage() {
             <Package className="w-8 h-8 text-blue-600" />
             <h1 className="text-2xl font-bold text-gray-900">Releases</h1>
           </div>
-          
+
           {/* View Mode Toggle */}
           <div className="flex items-center bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode('card')}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'card'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'card'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+                }`}
             >
               <Grid className="w-4 h-4" />
               <span>Cards</span>
             </button>
             <button
-              onClick={() => setViewMode('list')}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+              onClick={() => setViewMode('table')}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'table'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+                }`}
             >
               <List className="w-4 h-4" />
-              <span>List</span>
+              <span>Table</span>
             </button>
           </div>
         </div>
-        
-        {permissions?.canManageUsers && (
-          <Link
-            href="/releases/new"
+
+        {permissions?.canCreateUsers && (
+          <button
+            onClick={() => setShowNewReleaseModal(true)}
             className="btn btn-primary flex items-center space-x-2"
           >
             <Plus className="w-4 h-4" />
             <span>New Release</span>
-          </Link>
+          </button>
         )}
       </div>
 
@@ -185,7 +553,7 @@ export default function ReleasesPage() {
               </button>
             </div>
           </form>
-          
+
           {/* Advanced Filters */}
           {showFilters && (
             <div className="mt-6 pt-6 border-t border-gray-200">
@@ -206,7 +574,7 @@ export default function ReleasesPage() {
                     <option value="deprecated">Deprecated</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Type
@@ -223,7 +591,7 @@ export default function ReleasesPage() {
                     <option value="hotfix">Hotfix</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     From Date
@@ -235,7 +603,7 @@ export default function ReleasesPage() {
                     className="input w-full"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     To Date
@@ -285,11 +653,11 @@ export default function ReleasesPage() {
           >
             Previous
           </button>
-          
+
           <span className="text-sm text-gray-600">
             Page {currentPage} of {totalPages}
           </span>
-          
+
           <button
             onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
@@ -299,6 +667,13 @@ export default function ReleasesPage() {
           </button>
         </div>
       )}
+
+      {/* New Release Modal */}
+      <NewReleaseModal
+        isOpen={showNewReleaseModal}
+        onClose={() => setShowNewReleaseModal(false)}
+        onSubmit={handleNewReleaseSubmit}
+      />
     </div>
   );
 }

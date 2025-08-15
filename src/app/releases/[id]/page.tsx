@@ -5,10 +5,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { Release, ReleaseStatus, ReleaseType, FeatureCategory } from '@/types/release';
 import { rolePermissions } from '@/types/user';
-import { 
-  Package, 
-  Calendar, 
-  Download, 
+import {
+  Package,
+  Calendar,
+  Download,
   Edit,
   ArrowLeft,
   Tag,
@@ -67,21 +67,9 @@ export default function ReleaseDetailPage() {
     if (!release?.downloadUrl) return;
 
     try {
-      // Increment download count
-      await fetch(`/api/releases/${params.id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ action: 'increment_download' })
-      });
-
       // Open download URL
       window.open(release.downloadUrl, '_blank');
-      
-      // Update local state
-      setRelease(prev => prev ? { ...prev, downloadCount: prev.downloadCount + 1 } : null);
-      
+
       toast.success('Download started');
     } catch (error) {
       console.error('Error handling download:', error);
@@ -191,10 +179,12 @@ export default function ReleaseDetailPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{release.title}</h1>
               <div className="flex items-center space-x-2 mt-1">
-                <span className="flex items-center space-x-1 text-sm text-gray-600">
-                  <Tag className="w-4 h-4" />
-                  <span className="font-medium">v{release.version}</span>
-                </span>
+                {release.version && (
+                  <span className="flex items-center space-x-1 text-sm text-gray-600">
+                    <Tag className="w-4 h-4" />
+                    <span className="font-medium">v{release.version}</span>
+                  </span>
+                )}
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(release.status)}`}>
                   {getStatusIcon(release.status)}
                   <span className="ml-1">{release.status}</span>
@@ -206,7 +196,7 @@ export default function ReleaseDetailPage() {
             </div>
           </div>
         </div>
-        
+
         <div className="flex items-center space-x-3">
           {release.downloadUrl && (
             <button
@@ -217,7 +207,7 @@ export default function ReleaseDetailPage() {
               <span>Download</span>
             </button>
           )}
-          
+
           {permissions?.canManageUsers && (
             <Link
               href={`/releases/${release._id}/edit`}
@@ -335,13 +325,7 @@ export default function ReleaseDetailPage() {
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3">
-                <Download className="w-5 h-5 text-gray-400" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900">Downloads</p>
-                  <p className="text-sm text-gray-600">{release.downloadCount.toLocaleString()}</p>
-                </div>
-              </div>
+
 
               <div className="flex items-center space-x-3">
                 <User className="w-5 h-5 text-gray-400" />
@@ -387,7 +371,7 @@ export default function ReleaseDetailPage() {
                 )}
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                {release.isPublished 
+                {release.isPublished
                   ? 'This release is publicly available'
                   : 'This release is not yet published'
                 }

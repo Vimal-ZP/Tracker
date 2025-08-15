@@ -68,6 +68,7 @@ export async function PUT(
     const {
       version,
       title,
+      projectName,
       description,
       releaseDate,
       status,
@@ -75,7 +76,6 @@ export async function PUT(
       features,
       bugFixes,
       breakingChanges,
-      downloadUrl,
       isPublished
     } = body;
 
@@ -90,9 +90,9 @@ export async function PUT(
 
     // If version is being changed, check if new version already exists
     if (version && version !== existingRelease.version) {
-      const versionExists = await Release.findOne({ 
-        version, 
-        _id: { $ne: params.id } 
+      const versionExists = await Release.findOne({
+        version,
+        _id: { $ne: params.id }
       });
       if (versionExists) {
         return NextResponse.json(
@@ -106,6 +106,7 @@ export async function PUT(
     const updateData: any = {};
     if (version !== undefined) updateData.version = version;
     if (title !== undefined) updateData.title = title;
+    if (projectName !== undefined) updateData.projectName = projectName;
     if (description !== undefined) updateData.description = description;
     if (releaseDate !== undefined) updateData.releaseDate = new Date(releaseDate);
     if (status !== undefined) updateData.status = status;
@@ -113,7 +114,6 @@ export async function PUT(
     if (features !== undefined) updateData.features = features;
     if (bugFixes !== undefined) updateData.bugFixes = bugFixes;
     if (breakingChanges !== undefined) updateData.breakingChanges = breakingChanges;
-    if (downloadUrl !== undefined) updateData.downloadUrl = downloadUrl;
     if (isPublished !== undefined) updateData.isPublished = isPublished;
 
     const updatedRelease = await Release.findByIdAndUpdate(
@@ -129,7 +129,7 @@ export async function PUT(
 
   } catch (error: any) {
     console.error('Error updating release:', error);
-    
+
     if (error.name === 'ValidationError') {
       return NextResponse.json(
         { error: 'Validation error', details: error.message },
@@ -199,47 +199,4 @@ export async function DELETE(
   }
 }
 
-// PATCH /api/releases/[id] - Increment download count
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    await connectDB();
 
-    const body = await request.json();
-    const { action } = body;
-
-    if (action === 'increment_download') {
-      const updatedRelease = await Release.findByIdAndUpdate(
-        params.id,
-        { $inc: { downloadCount: 1 } },
-        { new: true }
-      );
-
-      if (!updatedRelease) {
-        return NextResponse.json(
-          { error: 'Release not found' },
-          { status: 404 }
-        );
-      }
-
-      return NextResponse.json({
-        message: 'Download count incremented',
-        downloadCount: updatedRelease.downloadCount
-      });
-    }
-
-    return NextResponse.json(
-      { error: 'Invalid action' },
-      { status: 400 }
-    );
-
-  } catch (error) {
-    console.error('Error updating release:', error);
-    return NextResponse.json(
-      { error: 'Failed to update release' },
-      { status: 500 }
-    );
-  }
-}

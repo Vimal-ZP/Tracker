@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
     const {
       version,
       title,
+      projectName,
       description,
       releaseDate,
       status,
@@ -123,31 +124,33 @@ export async function POST(request: NextRequest) {
       features,
       bugFixes,
       breakingChanges,
-      downloadUrl,
       isPublished
     } = body;
 
     // Validate required fields
-    if (!version || !title || !description || !type) {
+    if (!title || !projectName || !description || !type) {
       return NextResponse.json(
-        { error: 'Missing required fields: version, title, description, type' },
+        { error: 'Missing required fields: title, projectName, description, type' },
         { status: 400 }
       );
     }
 
-    // Check if version already exists
-    const existingRelease = await Release.findOne({ version });
-    if (existingRelease) {
-      return NextResponse.json(
-        { error: 'Release version already exists' },
-        { status: 400 }
-      );
+    // Check if version already exists (only if version is provided)
+    if (version) {
+      const existingRelease = await Release.findOne({ version });
+      if (existingRelease) {
+        return NextResponse.json(
+          { error: 'Release version already exists' },
+          { status: 400 }
+        );
+      }
     }
 
     // Create new release
     const release = new Release({
       version,
       title,
+      projectName,
       description,
       releaseDate: releaseDate ? new Date(releaseDate) : new Date(),
       status: status || ReleaseStatus.DRAFT,
@@ -160,7 +163,6 @@ export async function POST(request: NextRequest) {
         name: decoded.name || 'Unknown',
         email: decoded.email
       },
-      downloadUrl,
       isPublished: isPublished || false
     });
 

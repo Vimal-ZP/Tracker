@@ -16,9 +16,60 @@ import {
 } from 'lucide-react';
 
 export default function DashboardPage() {
-    const { user } = useAuth();
+    const { user, loading } = useAuth();
 
-    if (!user) return null;
+    // Show loading spinner while checking authentication
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full border-2 border-gray-300 border-t-primary-600 w-8 h-8"></div>
+            </div>
+        );
+    }
+
+    // Show demo dashboard if no user (for testing purposes)
+    if (!user) {
+        return (
+            <div className="h-full flex flex-col space-y-6">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-sm flex-shrink-0">
+                    <div className="px-6 py-8 text-white">
+                        <h1 className="text-3xl font-bold">
+                            Welcome to Tracker Dashboard!
+                        </h1>
+                        <p className="mt-2 text-blue-100">
+                            Demo mode - Please login to access full features.
+                        </p>
+                        <div className="mt-4">
+                            <a
+                                href="/login"
+                                className="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+                            >
+                                Go to Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h3 className="text-lg font-medium text-gray-900">Total Users</h3>
+                        <p className="text-3xl font-bold text-blue-600 mt-2">--</p>
+                        <p className="text-sm text-gray-500 mt-1">Login to view data</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h3 className="text-lg font-medium text-gray-900">Active Sessions</h3>
+                        <p className="text-3xl font-bold text-green-600 mt-2">--</p>
+                        <p className="text-sm text-gray-500 mt-1">Login to view data</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-lg shadow">
+                        <h3 className="text-lg font-medium text-gray-900">System Status</h3>
+                        <p className="text-3xl font-bold text-yellow-600 mt-2">Demo</p>
+                        <p className="text-sm text-gray-500 mt-1">Login for real status</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const permissions = rolePermissions[user.role];
 

@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { Release, ReleaseStatus, ReleaseType, FeatureCategory } from '@/types/release';
 
-export interface ReleaseDocument extends Omit<Release, '_id'>, Document {}
+export interface ReleaseDocument extends Omit<Release, '_id'>, Document { }
 
 const ReleaseFeatureSchema = new Schema({
   title: {
@@ -24,11 +24,13 @@ const ReleaseFeatureSchema = new Schema({
 const ReleaseSchema = new Schema({
   version: {
     type: String,
-    required: true,
+    required: false,
     unique: true,
+    sparse: true, // Allow multiple documents with null/undefined version
     trim: true,
     validate: {
-      validator: function(v: string) {
+      validator: function (v: string) {
+        if (!v) return true; // Optional field
         // Validate semantic versioning format (e.g., 1.0.0, 2.1.3-beta.1)
         return /^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/.test(v);
       },
@@ -40,6 +42,12 @@ const ReleaseSchema = new Schema({
     required: true,
     trim: true,
     maxlength: 200
+  },
+  projectName: {
+    type: String,
+    required: true,
+    trim: true,
+    enum: ['NRE', 'NVE', 'E-Vite', 'Portal Plus', 'Fast 2.0', 'FMS']
   },
   description: {
     type: String,
@@ -91,18 +99,14 @@ const ReleaseSchema = new Schema({
     type: String,
     trim: true,
     validate: {
-      validator: function(v: string) {
+      validator: function (v: string) {
         if (!v) return true; // Optional field
         return /^https?:\/\/.+/.test(v);
       },
       message: 'Download URL must be a valid HTTP/HTTPS URL'
     }
   },
-  downloadCount: {
-    type: Number,
-    default: 0,
-    min: 0
-  },
+
   isPublished: {
     type: Boolean,
     default: false
@@ -110,7 +114,7 @@ const ReleaseSchema = new Schema({
 }, {
   timestamps: true,
   toJSON: {
-    transform: function(doc, ret) {
+    transform: function (doc, ret) {
       ret._id = ret._id.toString();
       return ret;
     }
@@ -130,7 +134,7 @@ ReleaseSchema.index({ status: 1, releaseDate: -1 });
 ReleaseSchema.index({ isPublished: 1, releaseDate: -1 });
 
 // Pre-save middleware to ensure published releases have stable status
-ReleaseSchema.pre('save', function(next) {
+ReleaseSchema.pre('save', function (next) {
   if (this.isPublished && this.status === ReleaseStatus.DRAFT) {
     this.status = ReleaseStatus.STABLE;
   }
@@ -138,15 +142,15 @@ ReleaseSchema.pre('save', function(next) {
 });
 
 // Static methods
-ReleaseSchema.statics.findPublished = function() {
+ReleaseSchema.statics.findPublished = function () {
   return this.find({ isPublished: true }).sort({ releaseDate: -1 });
 };
 
-ReleaseSchema.statics.findByStatus = function(status: ReleaseStatus) {
+ReleaseSchema.statics.findByStatus = function (status: ReleaseStatus) {
   return this.find({ status }).sort({ releaseDate: -1 });
 };
 
-ReleaseSchema.statics.findLatest = function(limit: number = 5) {
+ReleaseSchema.statics.findLatest = function (limit: number = 5) {
   return this.find({ isPublished: true })
     .sort({ releaseDate: -1 })
     .limit(limit);

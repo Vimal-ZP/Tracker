@@ -2,15 +2,14 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { 
-  Calendar, 
-  Download, 
-  Package, 
-  Tag, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
-  XCircle 
+import {
+  Calendar,
+  Package,
+  Tag,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  XCircle
 } from 'lucide-react';
 import { Release, ReleaseStatus, ReleaseType } from '@/types/release';
 
@@ -27,32 +26,32 @@ interface ReleasesListSimpleProps {
 const getStatusDisplay = (status: ReleaseStatus) => {
   switch (status) {
     case 'draft':
-      return { 
-        color: 'text-gray-600 bg-gray-100', 
+      return {
+        color: 'text-gray-600 bg-gray-100',
         icon: <Clock className="w-3 h-3" />,
         label: 'Draft'
       };
     case 'beta':
-      return { 
-        color: 'text-yellow-600 bg-yellow-100', 
+      return {
+        color: 'text-yellow-600 bg-yellow-100',
         icon: <AlertCircle className="w-3 h-3" />,
         label: 'Beta'
       };
     case 'stable':
-      return { 
-        color: 'text-green-600 bg-green-100', 
+      return {
+        color: 'text-green-600 bg-green-100',
         icon: <CheckCircle className="w-3 h-3" />,
         label: 'Stable'
       };
     case 'deprecated':
-      return { 
-        color: 'text-red-600 bg-red-100', 
+      return {
+        color: 'text-red-600 bg-red-100',
         icon: <XCircle className="w-3 h-3" />,
         label: 'Deprecated'
       };
     default:
-      return { 
-        color: 'text-gray-600 bg-gray-100', 
+      return {
+        color: 'text-gray-600 bg-gray-100',
         icon: <Clock className="w-3 h-3" />,
         label: 'Unknown'
       };
@@ -89,7 +88,7 @@ const getRelativeTime = (date: Date | string): string => {
   const now = new Date();
   const releaseDate = new Date(date);
   const diffInDays = Math.floor((now.getTime() - releaseDate.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   if (diffInDays === 0) return 'Today';
   if (diffInDays === 1) return 'Yesterday';
   if (diffInDays < 7) return `${diffInDays}d ago`;
@@ -106,7 +105,7 @@ export default function ReleasesListSimple({
   maxItems,
   className = ''
 }: ReleasesListSimpleProps) {
-  
+
   if (loading) {
     return (
       <div className={`space-y-3 ${className}`}>
@@ -145,10 +144,10 @@ export default function ReleasesListSimple({
     <div className={`space-y-3 ${className}`}>
       {displayReleases.map((release) => {
         const statusDisplay = getStatusDisplay(release.status);
-        
+
         return (
           <div key={release._id} className="group">
-            <Link 
+            <Link
               href={`/releases/${release._id}`}
               className="block p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md hover:border-gray-300 transition-all duration-200"
             >
@@ -157,7 +156,7 @@ export default function ReleasesListSimple({
                 <div className="flex-shrink-0 mt-0.5">
                   <Package className="w-5 h-5 text-blue-600" />
                 </div>
-                
+
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   {/* Title and Version */}
@@ -165,19 +164,21 @@ export default function ReleasesListSimple({
                     <h3 className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                       {release.title}
                     </h3>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
-                      <Tag className="w-3 h-3 mr-1" />
-                      v{release.version}
-                    </span>
+                    {release.version && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                        <Tag className="w-3 h-3 mr-1" />
+                        v{release.version}
+                      </span>
+                    )}
                   </div>
-                  
+
                   {/* Description */}
                   {showDescription && release.description && (
                     <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                       {release.description}
                     </p>
                   )}
-                  
+
                   {/* Meta Information */}
                   <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                     {/* Status */}
@@ -185,12 +186,12 @@ export default function ReleasesListSimple({
                       {statusDisplay.icon}
                       <span className="ml-1">{statusDisplay.label}</span>
                     </span>
-                    
+
                     {/* Type */}
                     <span className={`inline-flex items-center px-2 py-0.5 rounded font-medium ${getTypeColor(release.type)}`}>
                       {release.type}
                     </span>
-                    
+
                     {/* Date */}
                     <span className="flex items-center">
                       <Calendar className="w-3 h-3 mr-1" />
@@ -199,17 +200,11 @@ export default function ReleasesListSimple({
                         ({getRelativeTime(release.releaseDate)})
                       </span>
                     </span>
-                    
-                    {/* Downloads */}
-                    {showStats && (
-                      <span className="flex items-center">
-                        <Download className="w-3 h-3 mr-1" />
-                        {release.downloadCount?.toLocaleString() || 0}
-                      </span>
-                    )}
+
+
                   </div>
                 </div>
-                
+
                 {/* Arrow indicator */}
                 <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                   <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,12 +216,12 @@ export default function ReleasesListSimple({
           </div>
         );
       })}
-      
+
       {/* Show more link if there are more items */}
       {maxItems && releases.length > maxItems && (
         <div className="text-center pt-2">
-          <Link 
-            href="/releases" 
+          <Link
+            href="/releases"
             className="text-sm text-blue-600 hover:text-blue-800 font-medium"
           >
             View all {releases.length} releases →

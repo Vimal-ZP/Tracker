@@ -2,16 +2,15 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { 
-  Calendar, 
-  Download, 
-  Eye, 
-  Edit, 
-  Trash2, 
-  Tag, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
+import {
+  Calendar,
+  Eye,
+  Edit,
+  Trash2,
+  Tag,
+  Clock,
+  CheckCircle,
+  AlertCircle,
   XCircle,
   Package,
   User,
@@ -94,7 +93,7 @@ const formatRelativeTime = (date: Date | string): string => {
   const now = new Date();
   const releaseDate = new Date(date);
   const diffInDays = Math.floor((now.getTime() - releaseDate.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   if (diffInDays === 0) return 'Today';
   if (diffInDays === 1) return 'Yesterday';
   if (diffInDays < 7) return `${diffInDays} days ago`;
@@ -177,9 +176,6 @@ export default function ReleasesList({
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Downloads
-                </th>
                 {showActions && (
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -206,7 +202,7 @@ export default function ReleasesList({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center text-sm text-gray-900">
                       <Tag className="w-4 h-4 text-gray-400 mr-2" />
-                      v{release.version}
+                      {release.version ? `v${release.version}` : '-'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -231,12 +227,6 @@ export default function ReleasesList({
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div className="flex items-center">
-                      <Download className="w-4 h-4 text-gray-400 mr-2" />
-                      {release.downloadCount?.toLocaleString() || 0}
-                    </div>
-                  </td>
                   {showActions && (
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
@@ -247,7 +237,7 @@ export default function ReleasesList({
                         >
                           <Eye className="w-4 h-4" />
                         </button>
-                        
+
                         {canEdit && (
                           <button
                             onClick={() => onEdit?.(release)}
@@ -257,7 +247,7 @@ export default function ReleasesList({
                             <Edit className="w-4 h-4" />
                           </button>
                         )}
-                        
+
                         {canDelete && (
                           <button
                             onClick={() => onDelete?.(release._id)}
@@ -302,14 +292,11 @@ export default function ReleasesList({
                   <span className="text-xs text-gray-500">
                     {formatRelativeTime(release.releaseDate)}
                   </span>
-                  <span className="text-xs text-gray-500 flex items-center">
-                    <Download className="w-3 h-3 mr-1" />
-                    {release.downloadCount?.toLocaleString() || 0}
-                  </span>
+
                 </div>
               </div>
             </div>
-            
+
             {showActions && (
               <div className="flex items-center space-x-1 ml-4">
                 <button
@@ -319,7 +306,7 @@ export default function ReleasesList({
                 >
                   <Eye className="w-4 h-4" />
                 </button>
-                
+
                 {canEdit && (
                   <button
                     onClick={() => onEdit?.(release)}
@@ -329,7 +316,7 @@ export default function ReleasesList({
                     <Edit className="w-4 h-4" />
                   </button>
                 )}
-                
+
                 {canDelete && (
                   <button
                     onClick={() => onDelete?.(release._id)}
@@ -365,31 +352,28 @@ export default function ReleasesList({
                     <span className="ml-1 capitalize">{release.status}</span>
                   </span>
                 </div>
-                
+
                 <p className="text-gray-600 mb-4 line-clamp-2">
                   {release.description}
                 </p>
-                
+
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <Tag className="w-4 h-4 mr-1" />
-                    <span>v{release.version}</span>
-                  </div>
-                  
+                  {release.version && (
+                    <div className="flex items-center">
+                      <Tag className="w-4 h-4 mr-1" />
+                      <span>v{release.version}</span>
+                    </div>
+                  )}
+
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-1" />
                     <span>{formatDate(release.releaseDate)}</span>
                   </div>
-                  
-                  <div className="flex items-center">
-                    <Download className="w-4 h-4 mr-1" />
-                    <span>{release.downloadCount?.toLocaleString() || 0} downloads</span>
-                  </div>
-                  
+
                   <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getTypeColor(release.type)}`}>
                     {release.type}
                   </span>
-                  
+
                   {release.createdBy && (
                     <div className="flex items-center">
                       <User className="w-4 h-4 mr-1" />
@@ -398,7 +382,7 @@ export default function ReleasesList({
                   )}
                 </div>
               </div>
-              
+
               {showActions && (
                 <div className="flex items-center space-x-2 ml-4">
                   <button
@@ -409,7 +393,7 @@ export default function ReleasesList({
                     <Eye className="w-4 h-4" />
                     <span>View</span>
                   </button>
-                  
+
                   {canEdit && (
                     <button
                       onClick={() => onEdit?.(release)}
@@ -420,7 +404,7 @@ export default function ReleasesList({
                       <span>Edit</span>
                     </button>
                   )}
-                  
+
                   {canDelete && (
                     <button
                       onClick={() => onDelete?.(release._id)}
