@@ -130,6 +130,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Clear user state immediately
             setUser(null);
             
+            // Ensure auth state is properly set for logout
+            setLoading(false);
+            setIsInitialized(true);
+            
             // Clear API client token
             apiClient.logout();
             
@@ -149,6 +153,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.error('AuthContext: Error during logout:', error);
             // Even if there's an error, ensure user is logged out
             setUser(null);
+            setLoading(false);
+            setIsInitialized(true);
+            
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('auth_token');
             }

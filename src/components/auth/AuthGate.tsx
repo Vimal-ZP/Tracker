@@ -63,12 +63,20 @@ export default function AuthGate({ children }: AuthGateProps) {
 
     // Show loading until auth is resolved and routing decisions are made
     if (!isInitialized || loading || !isReady) {
+        console.log('AuthGate: Showing loading spinner', {
+            isInitialized,
+            loading,
+            isReady,
+            pathname
+        });
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
                 <LoadingSpinner size="lg" />
             </div>
         );
     }
+
+    console.log('AuthGate: Rendering children', { pathname, user: !!user });
 
     return <>{children}</>;
 }
