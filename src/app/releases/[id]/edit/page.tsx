@@ -18,7 +18,7 @@ import { toast } from 'react-hot-toast';
 
 interface EditReleaseFormData {
     title: string;
-    projectName: string;
+    applicationName: string;
     description: string;
     releaseDate: string;
 
@@ -43,7 +43,7 @@ export default function EditReleasePage() {
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState<EditReleaseFormData>({
         title: '',
-        projectName: '',
+        applicationName: '',
         description: '',
         releaseDate: '',
 
@@ -82,7 +82,7 @@ export default function EditReleasePage() {
             // Populate form data
             setFormData({
                 title: data.title || '',
-                projectName: data.projectName || '',
+                applicationName: data.applicationName || '',
                 description: data.description || '',
                 releaseDate: data.releaseDate ? new Date(data.releaseDate).toISOString().split('T')[0] : '',
 
@@ -288,17 +288,17 @@ export default function EditReleasePage() {
                                 </div>
 
                                 <div>
-                                    <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Project Name *
+                                    <label htmlFor="applicationName" className="block text-sm font-medium text-gray-700 mb-2">
+                                        Application Name *
                                     </label>
                                     <select
-                                        id="projectName"
-                                        value={formData.projectName}
-                                        onChange={(e) => handleInputChange('projectName', e.target.value)}
+                                        id="applicationName"
+                                        value={formData.applicationName}
+                                        onChange={(e) => handleInputChange('applicationName', e.target.value)}
                                         className="input w-full"
                                         required
                                     >
-                                        <option value="">Select a project...</option>
+                                        <option value="">Select an application...</option>
                                         <option value="NRE">NRE</option>
                                         <option value="NVE">NVE</option>
                                         <option value="E-Vite">E-Vite</option>

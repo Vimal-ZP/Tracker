@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { Release, ReleaseType, ReleaseFilters, FeatureCategory } from '@/types/release';
-import { rolePermissions, getUserAccessibleProjects, AVAILABLE_PROJECTS } from '@/types/user';
+import { rolePermissions, getUserAccessibleApplications, AVAILABLE_APPLICATIONS } from '@/types/user';
 import {
   Package,
   Plus,
@@ -24,7 +24,7 @@ const dummyReleases: Release[] = [
     _id: '1',
     version: '2.1.0',
     title: 'Major Feature Update',
-    projectName: 'NRE',
+    applicationName: 'NRE',
     description: 'This release introduces several new features including advanced analytics, improved user interface, and enhanced security measures. We have also optimized performance across all modules.',
     releaseDate: new Date('2024-01-15'),
 
@@ -69,7 +69,7 @@ const dummyReleases: Release[] = [
     _id: '2',
     version: '2.0.5',
     title: 'Critical Security Patch',
-    projectName: 'Portal Plus',
+    applicationName: 'Portal Plus',
     description: 'Important security update addressing vulnerabilities in user authentication and data validation. All users are strongly recommended to update immediately.',
     releaseDate: new Date('2024-01-08'),
 
@@ -103,7 +103,7 @@ const dummyReleases: Release[] = [
     _id: '3',
     version: '3.0.0-beta.1',
     title: 'Next Generation Beta',
-    projectName: 'Fast 2.0',
+    applicationName: 'Fast 2.0',
     description: 'Beta release of the next major version featuring a completely redesigned architecture, new AI-powered features, and modern UI components.',
     releaseDate: new Date('2024-01-20'),
 
@@ -149,7 +149,7 @@ const dummyReleases: Release[] = [
     _id: '4',
     version: '2.0.4',
     title: 'Performance and Stability Update',
-    projectName: 'E-Vite',
+    applicationName: 'E-Vite',
     description: 'Focus on improving application performance and stability with various optimizations and bug fixes.',
     releaseDate: new Date('2023-12-20'),
 
@@ -189,7 +189,7 @@ const dummyReleases: Release[] = [
     _id: '5',
     version: '2.2.0-rc.1',
     title: 'Release Candidate - New Features',
-    projectName: 'NVE',
+    applicationName: 'NVE',
     description: 'Release candidate for version 2.2.0 introducing new collaboration features and improved workflow management.',
     releaseDate: new Date('2024-01-25'),
 
@@ -232,7 +232,7 @@ const dummyReleases: Release[] = [
     _id: '6',
     version: '1.9.8',
     title: 'Legacy Support Update',
-    projectName: 'FMS',
+    applicationName: 'FMS',
     description: 'Final update for the 1.x series with essential bug fixes and security patches for users not ready to upgrade to 2.x.',
     releaseDate: new Date('2023-11-15'),
 
@@ -266,7 +266,7 @@ const dummyReleases: Release[] = [
     _id: '7',
     version: '2.1.1-hotfix',
     title: 'Critical Hotfix',
-    projectName: 'NRE',
+    applicationName: 'NRE',
     description: 'Emergency hotfix addressing a critical issue discovered in version 2.1.0 that could cause data corruption in specific scenarios.',
     releaseDate: new Date('2024-01-16'),
 
@@ -293,7 +293,7 @@ const dummyReleases: Release[] = [
     _id: '8',
     version: '2.3.0',
     title: 'Work in Progress - Mobile Support',
-    projectName: 'Portal Plus',
+    applicationName: 'Portal Plus',
     description: 'Upcoming release focusing on mobile responsiveness and native mobile app support. Currently in development.',
     releaseDate: new Date('2024-02-15'),
 
@@ -347,7 +347,7 @@ export default function ReleasesPage() {
   const [releaseToDelete, setReleaseToDelete] = useState<Release | null>(null);
 
   const permissions = user ? rolePermissions[user.role] : null;
-  const accessibleProjects = user ? getUserAccessibleProjects(user) : [];
+  const accessibleApplications = user ? getUserAccessibleApplications(user) : [];
 
   useEffect(() => {
     fetchReleases();
@@ -361,7 +361,7 @@ export default function ReleasesPage() {
         limit: '10',
 
         ...(filters.type && { type: filters.type }),
-        ...(filters.projectName && { projectName: filters.projectName }),
+        ...(filters.applicationName && { applicationName: filters.applicationName }),
         ...(filters.search && { search: filters.search }),
         ...(filters.releaseDate && { releaseDate: filters.releaseDate.toISOString() })
       });
@@ -439,7 +439,7 @@ export default function ReleasesPage() {
 
   const handleNewReleaseSubmit = async (formData: {
     releaseName: string;
-    projectName: string;
+    applicationName: string;
     version?: string;
     releaseDate: string;
     description: string;
@@ -452,7 +452,7 @@ export default function ReleasesPage() {
       const releaseData = {
         version: formData.version,
         title: formData.releaseName,
-        projectName: formData.projectName,
+        applicationName: formData.applicationName,
         description: formData.description,
         releaseDate: formData.releaseDate,
 
@@ -580,17 +580,17 @@ export default function ReleasesPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Project
+                    Application
                   </label>
                   <select
-                    value={filters.projectName || ''}
-                    onChange={(e) => handleFilterChange('projectName', e.target.value || undefined)}
+                    value={filters.applicationName || ''}
+                    onChange={(e) => handleFilterChange('applicationName', e.target.value || undefined)}
                     className="input w-full"
                   >
-                    <option value="">All Projects</option>
-                    {accessibleProjects.map((project) => (
-                      <option key={project} value={project}>
-                        {project}
+                    <option value="">All Applications</option>
+                    {accessibleApplications.map((application) => (
+                      <option key={application} value={application}>
+                        {application}
                       </option>
                     ))}
                   </select>

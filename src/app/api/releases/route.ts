@@ -4,7 +4,7 @@ import Release from '@/models/Release';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/auth';
 import { ReleaseType } from '@/types/release';
-import { getUserAccessibleProjects } from '@/types/user';
+import { getUserAccessibleApplications } from '@/types/user';
 
 // GET /api/releases - Get all releases with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -37,29 +37,29 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user's accessible projects
-    const accessibleProjects = getUserAccessibleProjects(user);
+    // Get user's accessible applications
+    const accessibleApplications = getUserAccessibleApplications(user);
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
 
     const type = searchParams.get('type') as ReleaseType;
-    const projectName = searchParams.get('projectName');
+    const applicationName = searchParams.get('applicationName');
     const search = searchParams.get('search');
     const releaseDate = searchParams.get('releaseDate');
     const published = searchParams.get('published');
 
-    // Build query with project filtering
-    let projectFilter = accessibleProjects;
+    // Build query with application filtering
+    let applicationFilter = accessibleApplications;
 
-    // If user specifies a specific project, filter further (but only if they have access)
-    if (projectName && accessibleProjects.includes(projectName)) {
-      projectFilter = [projectName];
+    // If user specifies a specific application, filter further (but only if they have access)
+    if (applicationName && accessibleApplications.includes(applicationName)) {
+      applicationFilter = [applicationName];
     }
 
     const query: any = {
-      projectName: { $in: projectFilter }
+      applicationName: { $in: applicationFilter }
     };
 
     if (type) {
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
       const filterDate = new Date(releaseDate);
       const startOfDay = new Date(filterDate.setHours(0, 0, 0, 0));
       const endOfDay = new Date(filterDate.setHours(23, 59, 59, 999));
-      
+
       query.releaseDate = {
         $gte: startOfDay,
         $lte: endOfDay
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     const {
       version,
       title,
-      projectName,
+      applicationName,
       description,
       releaseDate,
 
@@ -176,18 +176,18 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!title || !projectName || !description || !type) {
+    if (!title || !applicationName || !description || !type) {
       return NextResponse.json(
-        { error: 'Missing required fields: title, projectName, description, type' },
+        { error: 'Missing required fields: title, applicationName, description, type' },
         { status: 400 }
       );
     }
 
-    // Check if user has access to the specified project
-    const accessibleProjects = getUserAccessibleProjects(user);
-    if (!accessibleProjects.includes(projectName)) {
+    // Check if user has access to the specified application
+    const accessibleApplications = getUserAccessibleApplications(user);
+    if (!accessibleApplications.includes(applicationName)) {
       return NextResponse.json(
-        { error: 'Access denied. You do not have permission to create releases for this project.' },
+        { error: 'Access denied. You do not have permission to create releases for this application.' },
         { status: 403 }
       );
     }
@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
     const release = new Release({
       version,
       title,
-      projectName,
+      applicationName,
       description,
       releaseDate: releaseDate ? new Date(releaseDate) : new Date(),
 

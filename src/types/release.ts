@@ -2,7 +2,7 @@ export interface Release {
   _id: string;
   version?: string;
   title: string;
-  projectName: string;
+  applicationName: string;
   description: string;
   releaseDate: Date;
   type: ReleaseType;
@@ -75,7 +75,7 @@ export interface WorkItem {
 export interface CreateReleaseData {
   version?: string;
   title: string;
-  projectName: string;
+  applicationName: string;
   description: string;
   releaseDate: Date;
   type: ReleaseType;
@@ -93,7 +93,7 @@ export interface UpdateReleaseData extends Partial<CreateReleaseData> {
 
 export interface ReleaseFilters {
   type?: ReleaseType;
-  projectName?: string;
+  applicationName?: string;
   search?: string;
   releaseDate?: Date;
 }

@@ -10,7 +10,7 @@ export interface User {
     name: string;
     role: UserRole;
     isActive: boolean;
-    assignedProjects: string[];
+    assignedApplications: string[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -20,7 +20,7 @@ export interface CreateUserData {
     name: string;
     password: string;
     role: UserRole;
-    assignedProjects?: string[];
+    assignedApplications?: string[];
 }
 
 export interface LoginCredentials {
@@ -46,27 +46,30 @@ export interface UserPermissions {
     canEditReleases: boolean;
 }
 
-// Available projects in the system
-export const AVAILABLE_PROJECTS = ['NRE', 'NVE', 'E-Vite', 'Portal Plus', 'Fast 2.0', 'FMS'] as const;
+// Available applications in the system
+export const AVAILABLE_APPLICATIONS = ['NRE', 'NVE', 'E-Vite', 'Portal Plus', 'Fast 2.0', 'FMS'] as const;
 
-// Helper function to get user's accessible projects
-export const getUserAccessibleProjects = (user: User): string[] => {
-    if (user.role === UserRole.SUPER_ADMIN) {
-        return [...AVAILABLE_PROJECTS]; // Super Admin has access to all projects by default
+// Helper function to get user's accessible applications
+export const getUserAccessibleApplications = (user: User): string[] => {
+    if (!user) {
+        return [];
     }
-    return user.assignedProjects || [];
+    if (user.role === UserRole.SUPER_ADMIN) {
+        return [...AVAILABLE_APPLICATIONS]; // Super Admin has access to all applications by default
+    }
+    return Array.isArray(user.assignedApplications) ? user.assignedApplications : [];
 };
 
-// Helper function to check if user has access to a specific project
-export const userHasProjectAccess = (user: User, projectName: string): boolean => {
-    const accessibleProjects = getUserAccessibleProjects(user);
-    return accessibleProjects.includes(projectName);
+// Helper function to check if user has access to a specific application
+export const userHasApplicationAccess = (user: User, applicationName: string): boolean => {
+    const accessibleApplications = getUserAccessibleApplications(user);
+    return accessibleApplications.includes(applicationName);
 };
 
-// Helper function to check if user has access to any of the specified projects
-export const userHasAnyProjectAccess = (user: User, projectNames: string[]): boolean => {
-    const accessibleProjects = getUserAccessibleProjects(user);
-    return projectNames.some(project => accessibleProjects.includes(project));
+// Helper function to check if user has access to any of the specified applications
+export const userHasAnyApplicationAccess = (user: User, applicationNames: string[]): boolean => {
+    const accessibleApplications = getUserAccessibleApplications(user);
+    return applicationNames.some(application => accessibleApplications.includes(application));
 };
 
 export const rolePermissions: Record<UserRole, UserPermissions> = {

@@ -1,37 +1,27 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 import { useAuth } from '@/contexts';
 import { useUI } from '@/contexts/UIContext';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import AuthDebug from '@/components/debug/AuthDebug';
 
 interface LayoutProps {
     children: React.ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-    const router = useRouter();
     const { user, loading } = useAuth();
     const { isSidebarOpen, openSidebar, closeSidebar, globalLoading } = useUI();
 
-    // Redirect to login if user becomes null (after logout)
-    useEffect(() => {
-        console.log('Layout: User state changed', { user: !!user, loading });
-        if (!loading && !user && typeof window !== 'undefined') {
-            const currentPath = window.location.pathname;
-            console.log('Layout: User is null, current path:', currentPath);
-            // Only redirect if not already on login/register pages
-            if (currentPath !== '/login' && currentPath !== '/register') {
-                console.log('Layout: Redirecting to login');
-                router.push('/login');
-            }
-        }
-    }, [user, loading, router]);
+    // Get current path
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+    const isAuthPage = currentPath === '/login' || currentPath === '/register';
 
-    if (loading || globalLoading) {
+    // Show loading spinner for global loading
+    if (globalLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <LoadingSpinner size="lg" />
@@ -39,12 +29,13 @@ export default function Layout({ children }: LayoutProps) {
         );
     }
 
-    if (!user) {
+    // If we're on auth pages, show minimal layout
+    if (isAuthPage) {
         return <>{children}</>;
     }
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50">
+        <div className={`h-screen flex flex-col bg-gray-50 ${user ? 'auth-loaded' : 'auth-loading'}`}>
             <Navbar onToggleSidebar={openSidebar} />
 
             <div className="flex flex-1 overflow-hidden">
@@ -61,6 +52,7 @@ export default function Layout({ children }: LayoutProps) {
                     </div>
                 </main>
             </div>
+            <AuthDebug />
         </div>
     );
 }

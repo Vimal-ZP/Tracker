@@ -546,7 +546,7 @@ export default function ReleaseDetailPage() {
     }
 
     try {
-      exportWorkItemsToExcel(release.workItems, release.title, release.projectName);
+      exportWorkItemsToExcel(release.workItems, release.title, release.applicationName);
       const stats = getExportStats(release.workItems);
       toast.success(`Successfully exported ${stats.total} work items to Excel`);
       setShowExportDropdown(false); // Close dropdown after export
@@ -563,7 +563,7 @@ export default function ReleaseDetailPage() {
     }
 
     try {
-      exportWorkItemsToCSV(release.workItems, release.title, release.projectName);
+      exportWorkItemsToCSV(release.workItems, release.title, release.applicationName);
       const stats = getExportStats(release.workItems);
       toast.success(`Successfully exported ${stats.total} work items to CSV`);
       setShowExportDropdown(false); // Close dropdown after export
@@ -768,7 +768,7 @@ export default function ReleaseDetailPage() {
               <h1 className="text-2xl font-bold text-gray-900">{release.title}</h1>
               <div className="flex items-center text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
                 <Building className="w-4 h-4 mr-1" />
-                <span>{release.projectName}</span>
+                <span>{release.applicationName}</span>
               </div>
             </div>
             <div className="flex items-center space-x-2 mt-1">

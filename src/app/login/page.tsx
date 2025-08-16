@@ -18,14 +18,7 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Partial<LoginCredentials>>({});
 
-    // Redirect if already logged in
-    React.useEffect(() => {
-        console.log('Login page - user state changed:', user);
-        if (user) {
-            console.log('User is logged in, redirecting to dashboard');
-            router.push('/dashboard');
-        }
-    }, [user, router]);
+    // Note: Redirect logic is now handled by AuthGate component
 
     const validateForm = () => {
         const newErrors: Partial<LoginCredentials> = {};
@@ -53,13 +46,13 @@ export default function LoginPage() {
         try {
             console.log('Attempting login...');
             await login(formData);
-            console.log('Login successful, redirecting to dashboard');
-            router.push('/dashboard');
+            console.log('Login successful - AuthGate will handle redirect');
+            // Don't redirect here - AuthGate will handle it automatically
+            setLoading(false);
         } catch (error) {
             console.error('Login failed:', error);
-            // Error is handled by the AuthContext
-        } finally {
             setLoading(false);
+            // Error is handled by the AuthContext
         }
     };
 

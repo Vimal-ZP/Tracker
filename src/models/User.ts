@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { UserRole, AVAILABLE_PROJECTS } from '@/types/user';
+import { UserRole, AVAILABLE_APPLICATIONS } from '@/types/user';
 
 export interface IUser extends Document {
     email: string;
@@ -8,7 +8,7 @@ export interface IUser extends Document {
     password: string;
     role: UserRole;
     isActive: boolean;
-    assignedProjects: string[];
+    assignedApplications: string[];
     createdAt: Date;
     updatedAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
@@ -45,17 +45,17 @@ const UserSchema = new Schema<IUser>({
         type: Boolean,
         default: true
     },
-    assignedProjects: {
+    assignedApplications: {
         type: [String],
         default: [],
         validate: {
-            validator: function (projects: string[]) {
-                return projects.every(project => AVAILABLE_PROJECTS.includes(project as any));
+            validator: function (applications: string[]) {
+                return applications.every(application => AVAILABLE_APPLICATIONS.includes(application as any));
             },
-            message: `Invalid project name. Valid projects are: ${AVAILABLE_PROJECTS.join(', ')}`
+            message: `Invalid application name. Valid applications are: ${AVAILABLE_APPLICATIONS.join(', ')}`
         }
-        // Note: Super Admin users have access to all projects by default (empty array)
-        // Admin and Basic users need explicit project assignments
+        // Note: Super Admin users have access to all applications by default (empty array)
+        // Admin and Basic users need explicit application assignments
     }
 }, {
     timestamps: true
@@ -83,6 +83,12 @@ UserSchema.methods.comparePassword = async function (candidatePassword: string):
 UserSchema.methods.toJSON = function () {
     const userObject = this.toObject();
     delete userObject.password;
+
+    // Ensure assignedApplications is always an array
+    if (!Array.isArray(userObject.assignedApplications)) {
+        userObject.assignedApplications = [];
+    }
+
     return userObject;
 };
 

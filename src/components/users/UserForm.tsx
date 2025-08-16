@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { CreateUserData, UserRole, User, AVAILABLE_PROJECTS } from '@/types/user';
+import { CreateUserData, UserRole, User, AVAILABLE_APPLICATIONS } from '@/types/user';
 import { useAuth } from '@/contexts/AuthContext';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { User as UserIcon, Mail, Lock, FolderOpen, ChevronDown, X } from 'lucide-react';
@@ -16,16 +16,16 @@ interface UserFormProps {
 
 export default function UserForm({ user, onSubmit, onCancel, isEditing = false }: UserFormProps) {
     const { user: currentUser } = useAuth();
-    const [formData, setFormData] = useState<CreateUserData & { assignedProjects: string[] }>({
+    const [formData, setFormData] = useState<CreateUserData & { assignedApplications: string[] }>({
         email: user?.email || '',
         name: user?.name || '',
         password: '',
         role: user?.role || UserRole.BASIC,
-        assignedProjects: user?.assignedProjects || [],
+        assignedApplications: Array.isArray(user?.assignedApplications) ? user.assignedApplications : [],
     });
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Partial<CreateUserData>>({});
-    const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+    const [showApplicationDropdown, setShowApplicationDropdown] = useState(false);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
     const dropdownRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -34,37 +34,37 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
     const canManageRoles = currentUser?.role === UserRole.SUPER_ADMIN ||
         (currentUser?.role === UserRole.ADMIN && formData.role !== UserRole.SUPER_ADMIN);
 
-    const canManageProjects = currentUser?.role === UserRole.SUPER_ADMIN;
+    const canManageApplications = currentUser?.role === UserRole.SUPER_ADMIN;
 
-    const availableProjects = AVAILABLE_PROJECTS;
+    const availableApplications = AVAILABLE_APPLICATIONS;
 
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (showProjectDropdown) {
+            if (showApplicationDropdown) {
                 const target = event.target as Node;
                 const isClickOnButton = buttonRef.current && buttonRef.current.contains(target);
                 const isClickOnDropdown = portalDropdownRef.current && portalDropdownRef.current.contains(target);
 
                 if (!isClickOnButton && !isClickOnDropdown) {
-                    setShowProjectDropdown(false);
+                    setShowApplicationDropdown(false);
                 }
             }
         };
 
-        if (showProjectDropdown) {
+        if (showApplicationDropdown) {
             document.addEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showProjectDropdown]);
+    }, [showApplicationDropdown]);
 
     // Update dropdown position on window resize
     useEffect(() => {
         const handleResize = () => {
-            if (showProjectDropdown && buttonRef.current) {
+            if (showApplicationDropdown && buttonRef.current) {
                 const rect = buttonRef.current.getBoundingClientRect();
                 setDropdownPosition({
                     top: rect.bottom + window.scrollY,
@@ -74,7 +74,7 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
             }
         };
 
-        if (showProjectDropdown) {
+        if (showApplicationDropdown) {
             window.addEventListener('resize', handleResize);
             window.addEventListener('scroll', handleResize);
         }
@@ -83,7 +83,7 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('scroll', handleResize);
         };
-    }, [showProjectDropdown]);
+    }, [showApplicationDropdown]);
 
     const validateForm = () => {
         const newErrors: Partial<CreateUserData> = {};
@@ -139,24 +139,24 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
         }
     };
 
-    const handleProjectToggle = (project: string) => {
+    const handleApplicationToggle = (application: string) => {
         setFormData(prev => ({
             ...prev,
-            assignedProjects: prev.assignedProjects.includes(project)
-                ? prev.assignedProjects.filter(p => p !== project)
-                : [...prev.assignedProjects, project]
+            assignedApplications: prev.assignedApplications.includes(application)
+                ? prev.assignedApplications.filter(a => a !== application)
+                : [...prev.assignedApplications, application]
         }));
     };
 
-    const handleRemoveProject = (project: string) => {
+    const handleRemoveApplication = (application: string) => {
         setFormData(prev => ({
             ...prev,
-            assignedProjects: prev.assignedProjects.filter(p => p !== project)
+            assignedApplications: prev.assignedApplications.filter(a => a !== application)
         }));
     };
 
     const handleDropdownToggle = () => {
-        if (!showProjectDropdown && buttonRef.current) {
+        if (!showApplicationDropdown && buttonRef.current) {
             const rect = buttonRef.current.getBoundingClientRect();
             setDropdownPosition({
                 top: rect.bottom + window.scrollY,
@@ -164,7 +164,7 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
                 width: rect.width
             });
         }
-        setShowProjectDropdown(!showProjectDropdown);
+        setShowApplicationDropdown(!showApplicationDropdown);
     };
 
     const getRoleDisplayName = (role: UserRole) => {
@@ -274,27 +274,27 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
                 </div>
             )}
 
-            {canManageProjects && (formData.role === UserRole.ADMIN || formData.role === UserRole.BASIC) && (
+            {canManageApplications && (formData.role === UserRole.ADMIN || formData.role === UserRole.BASIC) && (
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         <div className="flex items-center">
                             <FolderOpen className="h-4 w-4 mr-2" />
-                            Assigned Projects
+                            Assigned Applications
                         </div>
                     </label>
 
-                    {/* Selected Projects Display */}
-                    {formData.assignedProjects.length > 0 && (
+                    {/* Selected Applications Display */}
+                    {formData.assignedApplications.length > 0 && (
                         <div className="mb-2 flex flex-wrap gap-2">
-                            {formData.assignedProjects.map((project) => (
+                            {formData.assignedApplications.map((application) => (
                                 <span
-                                    key={project}
+                                    key={application}
                                     className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
                                 >
-                                    {project}
+                                    {application}
                                     <button
                                         type="button"
-                                        onClick={() => handleRemoveProject(project)}
+                                        onClick={() => handleRemoveApplication(application)}
                                         className="ml-2 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-blue-200 focus:outline-none focus:bg-blue-200"
                                     >
                                         <X className="w-3 h-3" />
@@ -313,9 +313,9 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
                             className="relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         >
                             <span className="block truncate text-gray-500">
-                                {formData.assignedProjects.length === 0
-                                    ? "Select projects..."
-                                    : `${formData.assignedProjects.length} project${formData.assignedProjects.length === 1 ? '' : 's'} selected`
+                                {formData.assignedApplications.length === 0
+                                    ? "Select applications..."
+                                    : `${formData.assignedApplications.length} application${formData.assignedApplications.length === 1 ? '' : 's'} selected`
                                 }
                             </span>
                             <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -326,9 +326,9 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
 
                     </div>
 
-                    {formData.assignedProjects.length === 0 && (
+                    {formData.assignedApplications.length === 0 && (
                         <p className="mt-2 text-sm text-amber-600">
-                            No projects assigned. User will have limited access.
+                            No applications assigned. User will have limited access.
                         </p>
                     )}
                 </div>
@@ -357,7 +357,7 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
             </div>
 
             {/* Portal-based dropdown to avoid modal overflow issues */}
-            {showProjectDropdown && typeof window !== 'undefined' && createPortal(
+            {showApplicationDropdown && typeof window !== 'undefined' && createPortal(
                 <div
                     ref={portalDropdownRef}
                     className="fixed z-[9999] bg-white shadow-lg h-32 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-y-auto focus:outline-none sm:text-sm border border-gray-200"
@@ -367,22 +367,22 @@ export default function UserForm({ user, onSubmit, onCancel, isEditing = false }
                         width: dropdownPosition.width,
                     }}
                 >
-                    {availableProjects.map((project) => (
+                    {availableApplications.map((application) => (
                         <div
-                            key={project}
+                            key={application}
                             onClick={() => {
-                                handleProjectToggle(project);
+                                handleApplicationToggle(application);
                             }}
-                            className={`cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-50 ${formData.assignedProjects.includes(project)
+                            className={`cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-50 ${formData.assignedApplications.includes(application)
                                 ? 'text-blue-900 bg-blue-50'
                                 : 'text-gray-900'
                                 }`}
                         >
-                            <span className={`block truncate ${formData.assignedProjects.includes(project) ? 'font-semibold' : 'font-normal'
+                            <span className={`block truncate ${formData.assignedApplications.includes(application) ? 'font-semibold' : 'font-normal'
                                 }`}>
-                                {project}
+                                {application}
                             </span>
-                            {formData.assignedProjects.includes(project) && (
+                            {formData.assignedApplications.includes(application) && (
                                 <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-600">
                                     <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { withRoleAuth, AuthenticatedRequest } from '@/lib/middleware';
-import { UserRole, CreateUserData, AVAILABLE_PROJECTS } from '@/types/user';
+import { UserRole, CreateUserData, AVAILABLE_APPLICATIONS } from '@/types/user';
 
 // GET /api/users - Get all users (Admin and Super Admin only)
 async function getHandler(req: AuthenticatedRequest) {
@@ -65,7 +65,7 @@ async function postHandler(req: AuthenticatedRequest) {
         await connectDB();
 
         const body: CreateUserData = await req.json();
-        const { email, name, password, role = UserRole.BASIC, assignedProjects = [] } = body;
+        const { email, name, password, role = UserRole.BASIC, assignedApplications = [] } = body;
 
         // Validate input
         if (!email || !name || !password) {
@@ -83,20 +83,20 @@ async function postHandler(req: AuthenticatedRequest) {
             );
         }
 
-        // Only Super Admin can assign projects
-        if (assignedProjects.length > 0 && req.user?.role !== UserRole.SUPER_ADMIN) {
+        // Only Super Admin can assign applications
+        if (assignedApplications.length > 0 && req.user?.role !== UserRole.SUPER_ADMIN) {
             return NextResponse.json(
-                { error: 'Only Super Admin can assign projects to users' },
+                { error: 'Only Super Admin can assign applications to users' },
                 { status: 403 }
             );
         }
 
-        // Validate assigned projects
-        if (assignedProjects.length > 0) {
-            const invalidProjects = assignedProjects.filter(project => !AVAILABLE_PROJECTS.includes(project as any));
-            if (invalidProjects.length > 0) {
+        // Validate assigned applications
+        if (assignedApplications.length > 0) {
+            const invalidApplications = assignedApplications.filter(application => !AVAILABLE_APPLICATIONS.includes(application as any));
+            if (invalidApplications.length > 0) {
                 return NextResponse.json(
-                    { error: `Invalid project names: ${invalidProjects.join(', ')}. Valid projects are: ${AVAILABLE_PROJECTS.join(', ')}` },
+                    { error: `Invalid application names: ${invalidApplications.join(', ')}. Valid applications are: ${AVAILABLE_APPLICATIONS.join(', ')}` },
                     { status: 400 }
                 );
             }
@@ -118,7 +118,7 @@ async function postHandler(req: AuthenticatedRequest) {
             password,
             role,
             isActive: true,
-            assignedProjects: role === UserRole.SUPER_ADMIN ? [] : (assignedProjects || []) // Super Admin doesn't need assigned projects, others get explicit assignments
+            assignedApplications: role === UserRole.SUPER_ADMIN ? [] : (assignedApplications || []) // Super Admin doesn't need assigned applications, others get explicit assignments
         });
 
         await user.save();

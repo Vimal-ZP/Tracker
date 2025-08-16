@@ -7,7 +7,7 @@ import { ReleaseType } from '@/types/release';
 
 interface NewReleaseFormData {
     releaseName: string;
-    projectName: string;
+    applicationName: string;
     version?: string;
     releaseDate: string;
     description: string;
@@ -24,7 +24,7 @@ interface NewReleaseModalProps {
 export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleaseModalProps) {
     const [formData, setFormData] = useState<NewReleaseFormData>({
         releaseName: '',
-        projectName: '',
+        applicationName: '',
         version: '',
         releaseDate: '',
         description: '',
@@ -49,8 +49,8 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
             newErrors.releaseName = 'Release name is required';
         }
 
-        if (!formData.projectName.trim()) {
-            newErrors.projectName = 'Project name is required';
+        if (!formData.applicationName.trim()) {
+            newErrors.applicationName = 'Application name is required';
         }
 
         if (formData.version && formData.version.trim() && !/^\d+\.\d+\.\d+(-[a-zA-Z0-9.-]+)?$/.test(formData.version)) {
@@ -87,7 +87,7 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
             // Reset form after successful submission
             setFormData({
                 releaseName: '',
-                projectName: '',
+                applicationName: '',
                 version: '',
                 releaseDate: '',
                 description: '',
@@ -108,7 +108,7 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
         if (!isSubmitting) {
             setFormData({
                 releaseName: '',
-                projectName: '',
+                applicationName: '',
                 version: '',
                 releaseDate: '',
                 description: '',
@@ -148,24 +148,24 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
                     )}
                 </div>
 
-                {/* Project Name */}
+                {/* Application Name */}
                 <div>
-                    <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="applicationName" className="block text-sm font-medium text-gray-700 mb-2">
                         <div className="flex items-center space-x-2">
                             <Building className="w-4 h-4 text-gray-500" />
-                            <span>Project Name</span>
+                            <span>Application Name</span>
                             <span className="text-red-500">*</span>
                         </div>
                     </label>
                     <select
-                        id="projectName"
-                        value={formData.projectName}
-                        onChange={(e) => handleInputChange('projectName', e.target.value)}
-                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.projectName ? 'border-red-500' : 'border-gray-300'
+                        id="applicationName"
+                        value={formData.applicationName}
+                        onChange={(e) => handleInputChange('applicationName', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.applicationName ? 'border-red-500' : 'border-gray-300'
                             }`}
                         disabled={isSubmitting}
                     >
-                        <option value="">Select a project...</option>
+                        <option value="">Select an application...</option>
                         <option value="NRE">NRE</option>
                         <option value="NVE">NVE</option>
                         <option value="E-Vite">E-Vite</option>
@@ -173,8 +173,8 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
                         <option value="Fast 2.0">Fast 2.0</option>
                         <option value="FMS">FMS</option>
                     </select>
-                    {errors.projectName && (
-                        <p className="mt-1 text-sm text-red-600">{errors.projectName}</p>
+                    {errors.applicationName && (
+                        <p className="mt-1 text-sm text-red-600">{errors.applicationName}</p>
                     )}
                 </div>
 

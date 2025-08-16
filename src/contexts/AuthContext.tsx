@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 interface AuthContextType {
     user: User | null;
     loading: boolean;
+    isInitialized: boolean;
     login: (credentials: LoginCredentials) => Promise<void>;
     register: (userData: CreateUserData) => Promise<void>;
     logout: () => void;
@@ -18,45 +19,66 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(() => {
+        // Synchronous check - only show loading if we have a token to validate
+        if (typeof window !== 'undefined') {
+            const hasToken = localStorage.getItem('auth_token') || 
+                            document.cookie.match(/auth_token=([^;]+)/);
+            return !!hasToken;
+        }
+        return true;
+    });
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
-        checkAuth();
-    }, []);
-
-    const checkAuth = async () => {
-        try {
-            // Try to get token from localStorage first, then from cookies
-            let token = localStorage.getItem('auth_token');
-
-            if (!token && typeof document !== 'undefined') {
-                // Fallback to cookie if localStorage doesn't have token
-                const cookieMatch = document.cookie.match(/auth_token=([^;]+)/);
-                token = cookieMatch ? cookieMatch[1] : null;
-
-                // If found in cookie, sync to localStorage
-                if (token) {
-                    localStorage.setItem('auth_token', token);
-                }
+        // Immediate synchronous check to prevent flash
+        const initAuth = async () => {
+            if (typeof window === 'undefined') {
+                setLoading(false);
+                setIsInitialized(true);
+                return;
             }
 
-            if (token) {
+            // Check for token immediately
+            const token = localStorage.getItem('auth_token') ||
+                document.cookie.match(/auth_token=([^;]+)/)?.[1];
+
+            if (!token) {
+                // No token, user is definitely not authenticated
+                setUser(null);
+                setLoading(false);
+                setIsInitialized(true);
+                return;
+            }
+
+            // We have a token, validate it
+            try {
                 apiClient.setToken(token);
                 const response = await apiClient.getProfile();
+
+                // Validate user object structure
+                if (response.user && !Array.isArray(response.user.assignedApplications)) {
+                    response.user.assignedApplications = [];
+                }
+
                 setUser(response.user);
-            }
-        } catch (error) {
-            console.error('Auth check failed:', error);
-            localStorage.removeItem('auth_token');
-            // Clear cookie
-            if (typeof document !== 'undefined') {
+            } catch (error) {
+                console.error('Auth validation failed:', error);
+                // Token is invalid, clear it
+                localStorage.removeItem('auth_token');
                 document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                apiClient.setToken(null);
+                setUser(null);
+            } finally {
+                setLoading(false);
+                setIsInitialized(true);
             }
-            apiClient.setToken(null);
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+
+        initAuth();
+    }, []);
+
+
 
     const login = async (credentials: LoginCredentials) => {
         try {
@@ -64,16 +86,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setLoading(true);
             const response = await apiClient.login(credentials);
             console.log('AuthContext: Login API response received', response.user);
+
+            // Validate user object structure
+            if (response.user && !Array.isArray(response.user.assignedApplications)) {
+                console.warn('AuthContext: assignedApplications is not an array, fixing...', response.user.assignedApplications);
+                response.user.assignedApplications = [];
+            }
+
+            // Set user state and mark as initialized
             setUser(response.user);
+            setIsInitialized(true);
+            setLoading(false);
+
             console.log('AuthContext: User state updated');
             toast.success('Login successful!');
+
         } catch (error: any) {
             console.error('AuthContext: Login failed', error);
+            setLoading(false);
             toast.error(error.message || 'Login failed');
             throw error;
-        } finally {
-            setLoading(false);
-            console.log('AuthContext: Login process completed');
         }
     };
 
@@ -116,6 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const value = {
         user,
         loading,
+        isInitialized,
         login,
         register,
         logout,

@@ -46,8 +46,8 @@ export default function DashboardPage() {
         }
     };
 
-    // Function to get project color based on project name
-    const getProjectColor = (projectName: string) => {
+    // Function to get application color based on application name
+    const getApplicationColor = (applicationName: string) => {
         const colors = [
             { bg: 'bg-blue-100', text: 'text-blue-800', dot: 'bg-blue-500' },
             { bg: 'bg-green-100', text: 'text-green-800', dot: 'bg-green-500' },
@@ -59,10 +59,10 @@ export default function DashboardPage() {
             { bg: 'bg-yellow-100', text: 'text-yellow-800', dot: 'bg-yellow-500' },
         ];
 
-        // Create a simple hash from project name to ensure consistent colors
+        // Create a simple hash from application name to ensure consistent colors
         let hash = 0;
-        for (let i = 0; i < projectName.length; i++) {
-            const char = projectName.charCodeAt(i);
+        for (let i = 0; i < applicationName.length; i++) {
+            const char = applicationName.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
             hash = hash & hash; // Convert to 32-bit integer
         }
@@ -217,7 +217,7 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="h-full flex flex-col space-y-6">
+        <div className="h-full flex flex-col space-y-6" data-testid="dashboard">
             {/* Welcome Header */}
             <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg shadow-sm flex-shrink-0">
                 <div className="px-6 py-8 text-white">
@@ -295,9 +295,9 @@ export default function DashboardPage() {
                                                             {new Date(release.releaseDate).toLocaleDateString()}
                                                         </div>
                                                         <div className="flex items-center">
-                                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getProjectColor(release.projectName).bg} ${getProjectColor(release.projectName).text}`}>
-                                                                <span className={`w-2 h-2 rounded-full ${getProjectColor(release.projectName).dot} mr-1`}></span>
-                                                                {release.projectName}
+                                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getApplicationColor(release.applicationName).bg} ${getApplicationColor(release.applicationName).text}`}>
+                                                                <span className={`w-2 h-2 rounded-full ${getApplicationColor(release.applicationName).dot} mr-1`}></span>
+                                                                {release.applicationName}
                                                             </span>
                                                         </div>
                                                     </div>

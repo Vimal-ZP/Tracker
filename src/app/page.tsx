@@ -6,18 +6,19 @@ import { useAuth } from '@/contexts';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function HomePage() {
-    const { user, loading } = useAuth();
+    const { user, loading, isInitialized } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
-        if (!loading) {
+        // Only redirect after auth is fully initialized
+        if (isInitialized && !loading) {
             if (user) {
-                router.push('/dashboard');
+                router.replace('/dashboard');
             } else {
-                router.push('/login');
+                router.replace('/login');
             }
         }
-    }, [user, loading, router]);
+    }, [user, loading, isInitialized, router]);
 
     return (
         <div className="min-h-screen flex items-center justify-center">

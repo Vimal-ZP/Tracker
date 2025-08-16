@@ -163,7 +163,7 @@ export default function ReleasesList({
                   Release
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Project
+                  Application
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Version
@@ -203,7 +203,7 @@ export default function ReleasesList({
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center text-sm text-gray-900">
                       <Building className="w-4 h-4 text-gray-400 mr-2" />
-                      {release.projectName}
+                      {release.applicationName}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -325,7 +325,7 @@ export default function ReleasesList({
                 <div className="flex items-center space-x-4 mt-1">
                   <div className="flex items-center text-xs text-gray-600">
                     <Building className="w-3 h-3 mr-1" />
-                    <span>{release.projectName}</span>
+                    <span>{release.applicationName}</span>
                   </div>
                   {(() => {
                     const counts = getWorkItemCounts(release.workItems);
@@ -421,7 +421,7 @@ export default function ReleasesList({
                   </h3>
                   <div className="flex items-center text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
                     <Building className="w-4 h-4 mr-1" />
-                    <span>{release.projectName}</span>
+                    <span>{release.applicationName}</span>
                   </div>
                 </div>
 

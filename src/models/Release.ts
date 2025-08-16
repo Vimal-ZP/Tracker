@@ -87,7 +87,7 @@ const ReleaseSchema = new Schema({
     trim: true,
     maxlength: 200
   },
-  projectName: {
+  applicationName: {
     type: String,
     required: true,
     trim: true,

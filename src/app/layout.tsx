@@ -4,6 +4,9 @@ import './globals.css';
 import { AppProviders } from '@/contexts';
 import { Toaster } from 'react-hot-toast';
 import Layout from '@/components/layout/Layout';
+import ErrorBoundary from '@/components/ui/ErrorBoundary';
+import AuthInitializer from '@/components/auth/AuthInitializer';
+import AuthGate from '@/components/auth/AuthGate';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,11 +22,39 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
+            <head>
+                <script
+                    dangerouslySetInnerHTML={{
+                        __html: `
+                            // Pre-authentication check to prevent any flash
+                            (function() {
+                                if (typeof window !== 'undefined') {
+                                    const hasToken = localStorage.getItem('auth_token') || 
+                                                   document.cookie.match(/auth_token=([^;]+)/);
+                                    
+                                    // Add a class to body to indicate auth state
+                                    if (hasToken) {
+                                        document.documentElement.classList.add('has-token');
+                                    } else {
+                                        document.documentElement.classList.add('no-token');
+                                    }
+                                }
+                            })();
+                        `,
+                    }}
+                />
+            </head>
             <body className={inter.className}>
                 <AppProviders>
-                    <Layout>
-                        {children}
-                    </Layout>
+                    <ErrorBoundary>
+                        <AuthInitializer>
+                            <AuthGate>
+                                <Layout>
+                                    {children}
+                                </Layout>
+                            </AuthGate>
+                        </AuthInitializer>
+                    </ErrorBoundary>
                     <Toaster
                         position="top-right"
                         toastOptions={{

@@ -3,7 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Release from '@/models/Release';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/auth';
-import { getUserAccessibleProjects } from '@/types/user';
+import { getUserAccessibleApplications } from '@/types/user';
 
 // GET /api/releases/[id] - Get a specific release
 export async function GET(
@@ -48,9 +48,9 @@ export async function GET(
       );
     }
 
-    // Check if user has access to this release's project
-    const accessibleProjects = getUserAccessibleProjects(user);
-    if (!accessibleProjects.includes(release.projectName)) {
+    // Check if user has access to this release's application
+    const accessibleApplications = getUserAccessibleApplications(user);
+    if (!accessibleApplications.includes(release.applicationName)) {
       return NextResponse.json(
         { error: 'Access denied. You do not have permission to view this release.' },
         { status: 403 }
@@ -119,9 +119,9 @@ export async function PUT(
       );
     }
 
-    // Check if user has access to this release's project
-    const accessibleProjects = getUserAccessibleProjects(user);
-    if (!accessibleProjects.includes(existingRelease.projectName)) {
+    // Check if user has access to this release's application
+    const accessibleApplications = getUserAccessibleApplications(user);
+    if (!accessibleApplications.includes(existingRelease.applicationName)) {
       return NextResponse.json(
         { error: 'Access denied. You do not have permission to update this release.' },
         { status: 403 }
@@ -132,7 +132,7 @@ export async function PUT(
     const {
       version,
       title,
-      projectName,
+      applicationName,
       description,
       releaseDate,
 
@@ -164,7 +164,7 @@ export async function PUT(
     const updateData: any = {};
     if (version !== undefined) updateData.version = version;
     if (title !== undefined) updateData.title = title;
-    if (projectName !== undefined) updateData.projectName = projectName;
+    if (applicationName !== undefined) updateData.applicationName = applicationName;
     if (description !== undefined) updateData.description = description;
     if (releaseDate !== undefined) updateData.releaseDate = new Date(releaseDate);
 
@@ -254,9 +254,9 @@ export async function DELETE(
       );
     }
 
-    // Check if user has access to this release's project
-    const accessibleProjects = getUserAccessibleProjects(user);
-    if (!accessibleProjects.includes(releaseToDelete.projectName)) {
+    // Check if user has access to this release's application
+    const accessibleApplications = getUserAccessibleApplications(user);
+    if (!accessibleApplications.includes(releaseToDelete.applicationName)) {
       return NextResponse.json(
         { error: 'Access denied. You do not have permission to delete this release.' },
         { status: 403 }
