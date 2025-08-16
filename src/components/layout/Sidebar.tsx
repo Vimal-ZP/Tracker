@@ -10,7 +10,6 @@ import {
     Users,
     BarChart3,
     Settings,
-    Shield,
     X,
     Package
 } from 'lucide-react';
@@ -37,12 +36,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             show: true,
         },
         {
-            name: 'Users',
-            href: '/users',
-            icon: Users,
-            show: permissions.canViewAllUsers,
-        },
-        {
             name: 'Releases',
             href: '/releases',
             icon: Package,
@@ -53,6 +46,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             href: '/reports',
             icon: BarChart3,
             show: permissions.canViewReports,
+        },
+        {
+            name: 'Users',
+            href: '/users',
+            icon: Users,
+            show: permissions.canViewAllUsers,
         },
         {
             name: 'Settings',
@@ -77,11 +76,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 isOpen ? 'translate-x-0' : '-translate-x-full'
             )}>
                 {/* Mobile header */}
-                <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 lg:hidden flex-shrink-0">
-                    <div className="flex items-center">
-                        <Shield className="h-8 w-8 text-primary-600" />
-                        <span className="ml-2 text-xl font-bold text-gray-900">Tracker</span>
-                    </div>
+                <div className="flex items-center justify-end h-16 px-6 border-b border-gray-200 lg:hidden flex-shrink-0">
                     <button
                         onClick={onClose}
                         className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
@@ -90,11 +85,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </button>
                 </div>
 
-                {/* Desktop logo - hidden on mobile */}
-                <div className="hidden lg:flex items-center h-16 px-6 border-b border-gray-200 flex-shrink-0">
-                    <Shield className="h-8 w-8 text-primary-600" />
-                    <span className="ml-2 text-xl font-bold text-gray-900">Tracker</span>
-                </div>
+
 
                 {/* Navigation */}
                 <nav className="flex-1 overflow-y-auto py-6 px-4">
@@ -127,22 +118,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </ul>
                 </nav>
 
-                {/* User info at bottom */}
-                <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-gray-50">
-                    <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                            <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                                <span className="text-sm font-semibold text-primary-700">
-                                    {user.name.charAt(0).toUpperCase()}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="ml-3 flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </>
     );

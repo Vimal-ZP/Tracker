@@ -11,10 +11,11 @@ interface RouteParams {
 }
 
 // GET /api/users/[id] - Get user by ID
-async function getHandler(req: AuthenticatedRequest, { params }: RouteParams) {
+async function getHandler(req: AuthenticatedRequest, context: RouteParams) {
     try {
         await connectDB();
 
+        const { params } = context;
         const { id } = params;
 
         const user = await User.findById(id).select('-password');
@@ -37,10 +38,11 @@ async function getHandler(req: AuthenticatedRequest, { params }: RouteParams) {
 }
 
 // PUT /api/users/[id] - Update user
-async function putHandler(req: AuthenticatedRequest, { params }: RouteParams) {
+async function putHandler(req: AuthenticatedRequest, context: RouteParams) {
     try {
         await connectDB();
 
+        const { params } = context;
         const { id } = params;
         const body = await req.json();
         const { name, email, role, isActive } = body;
@@ -111,10 +113,11 @@ async function putHandler(req: AuthenticatedRequest, { params }: RouteParams) {
 }
 
 // DELETE /api/users/[id] - Delete user (Super Admin only)
-async function deleteHandler(req: AuthenticatedRequest, { params }: RouteParams) {
+async function deleteHandler(req: AuthenticatedRequest, context: RouteParams) {
     try {
         await connectDB();
 
+        const { params } = context;
         const { id } = params;
 
         const user = await User.findById(id);

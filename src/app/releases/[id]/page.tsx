@@ -62,7 +62,7 @@ export default function ReleaseDetailPage() {
   const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<WorkItem | null>(null);
   const [showWorkItemModal, setShowWorkItemModal] = useState(false);
-  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'createChild' | 'createEpic'>('create');
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'createChild' | 'createEpic' | 'createIncident'>('create');
   const [modalWorkItem, setModalWorkItem] = useState<WorkItem | null>(null);
   const [modalParentItem, setModalParentItem] = useState<WorkItem | null>(null);
   const [showExportDropdown, setShowExportDropdown] = useState(false);
@@ -574,6 +574,14 @@ export default function ReleaseDetailPage() {
   };
 
   // Helper functions for work items
+  const getHierarchicalWorkItems = (workItems: WorkItem[]) => {
+    return workItems.filter(item => item.type !== WorkItemType.INCIDENT);
+  };
+
+  const getIncidentWorkItems = (workItems: WorkItem[]) => {
+    return workItems.filter(item => item.type === WorkItemType.INCIDENT);
+  };
+
   const getWorkItemTypeIcon = (type: WorkItemType | string) => {
     const normalizedType = typeof type === 'string' ? type.toLowerCase() : type;
 
@@ -590,6 +598,9 @@ export default function ReleaseDetailPage() {
       case WorkItemType.BUG:
       case 'bug':
         return <AlertCircle className="w-4 h-4 text-red-500" />; // Azure DevOps Bug style
+      case WorkItemType.INCIDENT:
+      case 'incident':
+        return <AlertTriangle className="w-4 h-4 text-orange-500" />; // Incident style
       default:
         return <Package className="w-4 h-4 text-gray-500" />;
     }
@@ -1060,15 +1071,15 @@ export default function ReleaseDetailPage() {
                           Remarks
                         </th>
                         {permissions?.canManageUsers && (
-                          <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase tracking-wider">
+                          <th className="px-3 py-3 text-right text-xs text-gray-500 uppercase tracking-wider w-24">
                             Actions
                           </th>
                         )}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {sortWorkItemsForTable(release.workItems)
-                        .filter(item => isItemVisible(item, release.workItems))
+                      {sortWorkItemsForTable(getHierarchicalWorkItems(release.workItems))
+                        .filter(item => isItemVisible(item, getHierarchicalWorkItems(release.workItems)))
                         .map((item) => {
                           const hierarchyLevel = getWorkItemHierarchyLevel(item, release.workItems);
                           const indentStyle = { paddingLeft: `${hierarchyLevel * 16 + 12}px` };
@@ -1146,19 +1157,32 @@ export default function ReleaseDetailPage() {
                                 )}
                               </td>
                               <td className="px-6 py-4">
-                                <div className="text-sm text-gray-900">{item.title}</div>
+                                <div
+                                  className="text-sm text-gray-900 truncate max-w-xs cursor-help"
+                                  title={item.title}
+                                >
+                                  {item.title}
+                                </div>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {item.flagName || '-'}
+                                <div
+                                  className="truncate max-w-xs cursor-help"
+                                  title={item.flagName || '-'}
+                                >
+                                  {item.flagName || '-'}
+                                </div>
                               </td>
                               <td className="px-6 py-4 text-sm text-gray-900">
-                                <div className="max-w-xs truncate" title={item.remarks}>
+                                <div
+                                  className="max-w-xs truncate cursor-help"
+                                  title={item.remarks || '-'}
+                                >
                                   {item.remarks || '-'}
                                 </div>
                               </td>
                               {permissions?.canManageUsers && (
-                                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                  <div className="flex items-center space-x-2">
+                                <td className="px-3 py-4 whitespace-nowrap text-sm text-right w-24">
+                                  <div className="flex items-center justify-end space-x-1">
                                     <button
                                       onClick={() => handleOpenEditModal(item)}
                                       className="text-blue-600 hover:text-blue-800"
@@ -1320,6 +1344,172 @@ export default function ReleaseDetailPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Incidents Section */}
+          <div className="card mt-6">
+            <div className="card-header">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-medium text-gray-900 flex items-center space-x-2">
+                  <AlertTriangle className="w-5 h-5 text-orange-600" />
+                  <span>Incidents</span>
+                  <span className="text-sm text-gray-500 font-normal">
+                    ({getIncidentWorkItems(release.workItems || []).length})
+                  </span>
+                </h2>
+                {permissions?.canManageUsers && (
+                  <button
+                    onClick={() => {
+                      setModalMode('createIncident');
+                      setModalWorkItem(null);
+                      setModalParentItem(null);
+                      setShowWorkItemModal(true);
+                    }}
+                    className="btn btn-primary btn-sm flex items-center space-x-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add Incident</span>
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="card-body">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      {permissions?.canManageUsers && (
+                        <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <input
+                            type="checkbox"
+                            checked={false}
+                            onChange={() => { }}
+                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                        </th>
+                      )}
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Type
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Title
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Flag Name
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Remarks
+                      </th>
+                      {permissions?.canManageUsers && (
+                        <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                          Actions
+                        </th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {getIncidentWorkItems(release.workItems || []).length === 0 ? (
+                      <tr>
+                        <td colSpan={permissions?.canManageUsers ? 7 : 6} className="px-6 py-8 text-center">
+                          <div className="flex flex-col items-center space-y-3">
+                            <AlertTriangle className="w-12 h-12 text-gray-300" />
+                            <div>
+                              <p className="text-sm font-medium text-gray-900">No incidents yet</p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      getIncidentWorkItems(release.workItems || []).map((item) => (
+                        <tr key={item._id} className="hover:bg-gray-50">
+                          {permissions?.canManageUsers && (
+                            <td className="px-3 py-4 whitespace-nowrap text-sm">
+                              <input
+                                type="checkbox"
+                                checked={selectedItems.has(item._id!)}
+                                onChange={() => handleSelectItem(item._id!)}
+                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                              />
+                            </td>
+                          )}
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              {getWorkItemTypeIcon(item.type)}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm">
+                            {item.id && item.hyperlink ? (
+                              <a
+                                href={item.hyperlink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                                title={`Open ${item.id} in new tab`}
+                              >
+                                {item.id}
+                              </a>
+                            ) : item.id ? (
+                              <span className="text-gray-900">{item.id}</span>
+                            ) : (
+                              <span className="text-gray-900">-</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-900">
+                            <div
+                              className="truncate max-w-xs cursor-help"
+                              title={item.title}
+                            >
+                              {item.title}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div
+                              className="truncate max-w-xs cursor-help"
+                              title={item.flagName || '-'}
+                            >
+                              {item.flagName || '-'}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 text-sm text-gray-500">
+                            <div
+                              className="truncate max-w-xs cursor-help"
+                              title={item.remarks || '-'}
+                            >
+                              {item.remarks || '-'}
+                            </div>
+                          </td>
+                          {permissions?.canManageUsers && (
+                            <td className="px-3 py-4 whitespace-nowrap text-sm font-medium text-right w-24">
+                              <div className="flex items-center justify-end space-x-1">
+                                <button
+                                  onClick={() => handleOpenEditModal(item)}
+                                  className="text-blue-600 hover:text-blue-900"
+                                  title="Edit incident"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setItemToDelete(item);
+                                    setShowDeleteConfirmation(true);
+                                  }}
+                                  className="text-red-600 hover:text-red-900"
+                                  title="Delete incident"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      )))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

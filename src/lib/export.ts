@@ -13,6 +13,8 @@ const getWorkItemTypeDisplay = (type: WorkItemType): string => {
             return 'User Story';
         case WorkItemType.BUG:
             return 'Bug';
+        case WorkItemType.INCIDENT:
+            return 'Incident';
         default:
             return type;
     }
@@ -59,7 +61,8 @@ const flattenWorkItems = (workItems: WorkItem[]): any[] => {
                         [WorkItemType.EPIC]: 0,
                         [WorkItemType.FEATURE]: 1,
                         [WorkItemType.USER_STORY]: 2,
-                        [WorkItemType.BUG]: 3
+                        [WorkItemType.BUG]: 3,
+                        [WorkItemType.INCIDENT]: 4
                     };
                     const typeComparison = typeOrder[a.type] - typeOrder[b.type];
                     if (typeComparison !== 0) return typeComparison;
@@ -78,7 +81,8 @@ const flattenWorkItems = (workItems: WorkItem[]): any[] => {
                     [WorkItemType.EPIC]: 0,
                     [WorkItemType.FEATURE]: 1,
                     [WorkItemType.USER_STORY]: 2,
-                    [WorkItemType.BUG]: 3
+                    [WorkItemType.BUG]: 3,
+                    [WorkItemType.INCIDENT]: 4
                 };
                 const typeComparison = typeOrder[a.type] - typeOrder[b.type];
                 if (typeComparison !== 0) return typeComparison;
@@ -219,7 +223,8 @@ export const getExportStats = (workItems: WorkItem[]) => {
         epics: 0,
         features: 0,
         userStories: 0,
-        bugs: 0
+        bugs: 0,
+        incidents: 0
     };
 
     workItems.forEach(item => {
@@ -235,6 +240,9 @@ export const getExportStats = (workItems: WorkItem[]) => {
                 break;
             case WorkItemType.BUG:
                 stats.bugs++;
+                break;
+            case WorkItemType.INCIDENT:
+                stats.incidents++;
                 break;
         }
     });

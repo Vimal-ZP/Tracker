@@ -47,7 +47,8 @@ export enum WorkItemType {
   EPIC = 'epic',
   FEATURE = 'feature',
   USER_STORY = 'user_story',
-  BUG = 'bug'
+  BUG = 'bug',
+  INCIDENT = 'incident'
 }
 
 export enum WorkItemStatus {

@@ -10,7 +10,7 @@ interface WorkItemModalProps {
     onSubmit: (formData: WorkItemFormData) => void;
     workItem?: WorkItem | null;
     parentItem?: WorkItem | null;
-    mode: 'create' | 'edit' | 'createChild' | 'createEpic';
+    mode: 'create' | 'edit' | 'createChild' | 'createEpic' | 'createIncident';
     availableParents?: WorkItem[];
 }
 
@@ -91,6 +91,17 @@ export default function WorkItemModal({
                 hyperlink: '',
                 parentId: ''
             });
+        } else if (mode === 'createIncident') {
+            // Create Incident mode - type fixed to Incident
+            setFormData({
+                type: WorkItemType.INCIDENT,
+                id: '',
+                title: '',
+                flagName: '',
+                remarks: '',
+                hyperlink: '',
+                parentId: ''
+            });
         } else {
             // Create mode
             setFormData({
@@ -160,6 +171,8 @@ export default function WorkItemModal({
                 return `Add ${formData.type.replace('_', ' ')}`;
             case 'createEpic':
                 return 'Add New Epic';
+            case 'createIncident':
+                return 'Add New Incident';
             case 'create':
             default:
                 return `Add New ${formData.type.replace('_', ' ')}`;
@@ -173,6 +186,7 @@ export default function WorkItemModal({
 
         return availableParents.filter(parent => {
             if (formData.type === WorkItemType.EPIC) return false; // Epics have no parents
+            if (formData.type === WorkItemType.INCIDENT) return false; // Incidents have no parents (standalone)
             if (formData.type === WorkItemType.FEATURE) return parent.type === WorkItemType.EPIC;
             if (formData.type === WorkItemType.USER_STORY) return parent.type === WorkItemType.FEATURE;
             if (formData.type === WorkItemType.BUG) return parent.type === WorkItemType.USER_STORY;
@@ -209,13 +223,14 @@ export default function WorkItemModal({
                             <select
                                 value={formData.type}
                                 onChange={(e) => setFormData({ ...formData, type: e.target.value as WorkItemType })}
-                                className={`input w-full ${(mode === 'createChild' || mode === 'createEpic') ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-                                disabled={mode === 'edit' || mode === 'createChild' || mode === 'createEpic'}
+                                className={`input w-full ${(mode === 'createChild' || mode === 'createEpic' || mode === 'createIncident') ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                                disabled={mode === 'edit' || mode === 'createChild' || mode === 'createEpic' || mode === 'createIncident'}
                             >
                                 <option value={WorkItemType.EPIC}>Epic</option>
                                 <option value={WorkItemType.FEATURE}>Feature</option>
                                 <option value={WorkItemType.USER_STORY}>User Story</option>
                                 <option value={WorkItemType.BUG}>Bug</option>
+                                <option value={WorkItemType.INCIDENT}>Incident</option>
                             </select>
 
 

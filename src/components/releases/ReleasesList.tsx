@@ -19,7 +19,8 @@ import {
   Zap,
   FileText,
   Bug,
-  Building
+  Building,
+  AlertTriangle
 } from 'lucide-react';
 import { Release, ReleaseType, WorkItemType } from '@/types/release';
 import { UserRole } from '@/types/user';
@@ -42,7 +43,8 @@ const getWorkItemCounts = (workItems: any[] = []) => {
     epic: 0,
     feature: 0,
     user_story: 0,
-    bug: 0
+    bug: 0,
+    incident: 0
   };
 
   workItems.forEach(item => {
@@ -66,6 +68,8 @@ const getWorkItemIcon = (type: string) => {
       return <FileText className="w-3 h-3" />;
     case 'bug':
       return <Bug className="w-3 h-3" />;
+    case 'incident':
+      return <AlertTriangle className="w-3 h-3" />;
     default:
       return <FileText className="w-3 h-3" />;
   }
@@ -237,6 +241,12 @@ export default function ReleasesList({
                               <span className="ml-1">{counts.bug}</span>
                             </div>
                           )}
+                          {counts.incident > 0 && (
+                            <div className="flex items-center text-orange-600">
+                              {getWorkItemIcon('incident')}
+                              <span className="ml-1">{counts.incident}</span>
+                            </div>
+                          )}
                           {Object.values(counts).every(count => count === 0) && (
                             <span className="text-gray-400">No items</span>
                           )}
@@ -344,6 +354,12 @@ export default function ReleasesList({
                           <div className="flex items-center text-red-600">
                             {getWorkItemIcon('bug')}
                             <span className="ml-1">{counts.bug}</span>
+                          </div>
+                        )}
+                        {counts.incident > 0 && (
+                          <div className="flex items-center text-orange-600">
+                            {getWorkItemIcon('incident')}
+                            <span className="ml-1">{counts.incident}</span>
                           </div>
                         )}
                       </div>
@@ -472,6 +488,13 @@ export default function ReleasesList({
                             {getWorkItemIcon('bug')}
                             <span className="ml-1 font-medium">{counts.bug}</span>
                             <span className="ml-1 text-gray-500">Bug{counts.bug > 1 ? 's' : ''}</span>
+                          </div>
+                        )}
+                        {counts.incident > 0 && (
+                          <div className="flex items-center text-orange-600">
+                            {getWorkItemIcon('incident')}
+                            <span className="ml-1 font-medium">{counts.incident}</span>
+                            <span className="ml-1 text-gray-500">Incident{counts.incident > 1 ? 's' : ''}</span>
                           </div>
                         )}
                       </div>

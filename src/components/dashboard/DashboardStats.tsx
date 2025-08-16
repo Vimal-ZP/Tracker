@@ -57,31 +57,45 @@ export default function DashboardStats() {
     // Basic users see limited stats
     if (user.role === UserRole.BASIC) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatsCard
-                    title="Your Role"
-                    value="Basic User"
-                    icon={Users}
-                    color="green"
-                />
-                <StatsCard
-                    title="Account Status"
-                    value={user.isActive ? "Active" : "Inactive"}
-                    icon={Activity}
-                    color={user.isActive ? "green" : "red"}
-                />
-                <StatsCard
-                    title="Member Since"
-                    value={new Date(user.createdAt).getFullYear()}
-                    icon={TrendingUp}
-                    color="blue"
-                />
-                <StatsCard
-                    title="Access Level"
-                    value="Standard"
-                    icon={Shield}
-                    color="purple"
-                />
+            <div className="card">
+                <div className="card-header">
+                    <h2 className="text-lg font-medium text-gray-900 flex items-center">
+                        <Users className="w-5 h-5 mr-2 text-blue-600" />
+                        User Details
+                    </h2>
+                </div>
+                <div className="card-body">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                                <Users className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div className="text-sm text-gray-500 mb-1">Your Role</div>
+                            <div className="text-lg font-semibold text-gray-900">Basic User</div>
+                        </div>
+                        <div className="flex flex-col items-center text-center">
+                            <div className={`w-12 h-12 ${user.isActive ? 'bg-green-100' : 'bg-red-100'} rounded-full flex items-center justify-center mb-3`}>
+                                <Activity className={`w-6 h-6 ${user.isActive ? 'text-green-600' : 'text-red-600'}`} />
+                            </div>
+                            <div className="text-sm text-gray-500 mb-1">Account Status</div>
+                            <div className="text-lg font-semibold text-gray-900">{user.isActive ? "Active" : "Inactive"}</div>
+                        </div>
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                                <TrendingUp className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div className="text-sm text-gray-500 mb-1">Member Since</div>
+                            <div className="text-lg font-semibold text-gray-900">{new Date(user.createdAt).getFullYear()}</div>
+                        </div>
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                                <Shield className="w-6 h-6 text-purple-600" />
+                            </div>
+                            <div className="text-sm text-gray-500 mb-1">Access Level</div>
+                            <div className="text-lg font-semibold text-gray-900">Standard</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -103,39 +117,55 @@ export default function DashboardStats() {
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard
-                title="Total Users"
-                value={stats.totalUsers}
-                change={{
-                    value: "+12%",
-                    type: "increase"
-                }}
-                icon={Users}
-                color="blue"
-            />
-            <StatsCard
-                title="Active Users"
-                value={stats.activeUsers}
-                change={{
-                    value: `${Math.round((stats.activeUsers / stats.totalUsers) * 100)}%`,
-                    type: "neutral"
-                }}
-                icon={Activity}
-                color="green"
-            />
-            <StatsCard
-                title="Admin Users"
-                value={stats.adminUsers}
-                icon={Shield}
-                color="purple"
-            />
-            <StatsCard
-                title="Basic Users"
-                value={stats.basicUsers}
-                icon={TrendingUp}
-                color="yellow"
-            />
+        <div className="card">
+            <div className="card-header">
+                <h2 className="text-lg font-medium text-gray-900 flex items-center">
+                    <Users className="w-5 h-5 mr-2 text-blue-600" />
+                    User Statistics
+                </h2>
+            </div>
+            <div className="card-body">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                            <Users className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div className="text-sm text-gray-500 mb-1">Total Users</div>
+                        <div className="text-2xl font-bold text-gray-900">{stats.totalUsers}</div>
+                        <div className="text-xs text-green-600 font-medium mt-1">+12%</div>
+                    </div>
+                    <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                            <Activity className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div className="text-sm text-gray-500 mb-1">Active Users</div>
+                        <div className="text-2xl font-bold text-gray-900">{stats.activeUsers}</div>
+                        <div className="text-xs text-gray-600 font-medium mt-1">
+                            {Math.round((stats.activeUsers / stats.totalUsers) * 100)}% of total
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                            <Shield className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div className="text-sm text-gray-500 mb-1">Admin Users</div>
+                        <div className="text-2xl font-bold text-gray-900">{stats.adminUsers}</div>
+                        <div className="text-xs text-gray-600 font-medium mt-1">
+                            {Math.round((stats.adminUsers / stats.totalUsers) * 100)}% of total
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-center text-center">
+                        <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
+                            <TrendingUp className="w-6 h-6 text-yellow-600" />
+                        </div>
+                        <div className="text-sm text-gray-500 mb-1">Basic Users</div>
+                        <div className="text-2xl font-bold text-gray-900">{stats.basicUsers}</div>
+                        <div className="text-xs text-gray-600 font-medium mt-1">
+                            {Math.round((stats.basicUsers / stats.totalUsers) * 100)}% of total
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
