@@ -106,7 +106,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setLoading(false);
 
             console.log('AuthContext: User state updated');
-            toast.success('Login successful!');
 
         } catch (error: any) {
             console.error('AuthContext: Login failed', error);
@@ -158,7 +157,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
             
             console.log('AuthContext: Logout completed successfully');
-            toast.success('Logged out successfully');
             
             // Clear logout flag after a brief delay
             setTimeout(() => {
@@ -178,7 +176,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (typeof document !== 'undefined') {
                 document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
             }
-            toast.success('Logged out successfully');
             
             // Clear logout flag
             setTimeout(() => {
