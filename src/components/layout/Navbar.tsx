@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { UserRole, rolePermissions } from '@/types/user';
 import {
@@ -17,7 +16,6 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onToggleSidebar }: NavbarProps) {
-    const router = useRouter();
     const { user, logout } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -47,8 +45,8 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
         console.log('Logout button clicked');
         setIsDropdownOpen(false);
         logout();
-        console.log('Logout completed, redirecting to login');
-        router.push('/login');
+        console.log('Logout completed - AuthGate will handle redirect');
+        // Don't manually navigate - AuthGate will handle the redirect automatically
     };
 
     const getRoleBadgeColor = (role: UserRole) => {

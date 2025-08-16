@@ -124,15 +124,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const logout = () => {
-        console.log('AuthContext: Starting logout process');
-        apiClient.logout();
-        setUser(null);
-        // Clear cookie as well
-        if (typeof document !== 'undefined') {
-            document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        try {
+            console.log('AuthContext: Starting logout process');
+            
+            // Clear user state immediately
+            setUser(null);
+            
+            // Clear API client token
+            apiClient.logout();
+            
+            // Clear localStorage token
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('auth_token');
+            }
+            
+            // Clear cookie as well
+            if (typeof document !== 'undefined') {
+                document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            }
+            
+            console.log('AuthContext: Logout completed successfully');
+            toast.success('Logged out successfully');
+        } catch (error) {
+            console.error('AuthContext: Error during logout:', error);
+            // Even if there's an error, ensure user is logged out
+            setUser(null);
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('auth_token');
+            }
+            if (typeof document !== 'undefined') {
+                document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            }
+            toast.success('Logged out successfully');
         }
-        console.log('AuthContext: User state cleared, showing success message');
-        toast.success('Logged out successfully');
     };
 
     const refreshUser = async () => {
