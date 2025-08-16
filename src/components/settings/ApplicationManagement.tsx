@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Application, CreateApplicationData, UpdateApplicationData } from '@/types/application';
 import { UserRole } from '@/types/user';
 import { useAuth } from '@/contexts';
+import { apiClient } from '@/lib/api';
 import { 
     Plus, 
     Edit, 
@@ -51,21 +52,15 @@ export default function ApplicationManagement() {
 
     const fetchApplications = async () => {
         try {
-            const params = new URLSearchParams();
-            if (searchTerm) params.append('search', searchTerm);
-            if (showActiveOnly) params.append('isActive', 'true');
+            const params: { search?: string; isActive?: boolean } = {};
+            if (searchTerm) params.search = searchTerm;
+            if (showActiveOnly) params.isActive = true;
 
-            const response = await fetch(`/api/applications?${params}`);
-            const data = await response.json();
-
-            if (response.ok) {
-                setApplications(data.applications);
-            } else {
-                toast.error(data.error || 'Failed to fetch applications');
-            }
-        } catch (error) {
+            const data = await apiClient.getApplications(params);
+            setApplications(data.applications);
+        } catch (error: any) {
             console.error('Error fetching applications:', error);
-            toast.error('Failed to fetch applications');
+            toast.error(error.message || 'Failed to fetch applications');
         } finally {
             setLoading(false);
         }
@@ -143,12 +138,6 @@ export default function ApplicationManagement() {
         setIsSubmitting(true);
 
         try {
-            const url = editingApplication 
-                ? `/api/applications/${editingApplication._id}`
-                : '/api/applications';
-            
-            const method = editingApplication ? 'PUT' : 'POST';
-            
             const payload: CreateApplicationData | UpdateApplicationData = {
                 name: formData.name?.trim(),
                 displayName: formData.displayName?.trim(),
@@ -156,31 +145,33 @@ export default function ApplicationManagement() {
                 isActive: formData.isActive
             };
 
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                toast.success(data.message);
-                handleCloseModal();
-                fetchApplications();
+            let data;
+            if (editingApplication) {
+                data = await apiClient.updateApplication(editingApplication._id, payload);
             } else {
-                if (data.details) {
-                    // Handle validation errors
-                    data.details.forEach((detail: string) => toast.error(detail));
-                } else {
-                    toast.error(data.error || 'Failed to save application');
-                }
+                data = await apiClient.createApplication(payload);
             }
-        } catch (error) {
+
+            toast.success(data.message);
+            handleCloseModal();
+            fetchApplications();
+        } catch (error: any) {
             console.error('Error saving application:', error);
-            toast.error('Failed to save application');
+            if (error.message.includes('details')) {
+                // Handle validation errors
+                try {
+                    const errorData = JSON.parse(error.message);
+                    if (errorData.details) {
+                        errorData.details.forEach((detail: string) => toast.error(detail));
+                    } else {
+                        toast.error(error.message || 'Failed to save application');
+                    }
+                } catch {
+                    toast.error(error.message || 'Failed to save application');
+                }
+            } else {
+                toast.error(error.message || 'Failed to save application');
+            }
         } finally {
             setIsSubmitting(false);
         }
@@ -188,22 +179,13 @@ export default function ApplicationManagement() {
 
     const handleDelete = async (application: Application) => {
         try {
-            const response = await fetch(`/api/applications/${application._id}`, {
-                method: 'DELETE',
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                toast.success(data.message);
-                setDeleteConfirm(null);
-                fetchApplications();
-            } else {
-                toast.error(data.error || 'Failed to delete application');
-            }
-        } catch (error) {
+            const data = await apiClient.deleteApplication(application._id);
+            toast.success(data.message);
+            setDeleteConfirm(null);
+            fetchApplications();
+        } catch (error: any) {
             console.error('Error deleting application:', error);
-            toast.error('Failed to delete application');
+            toast.error(error.message || 'Failed to delete application');
         }
     };
 

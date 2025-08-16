@@ -155,6 +155,43 @@ class ApiClient {
     async getUser(id: string): Promise<{ user: User }> {
         return this.request(`/users/${id}`);
     }
+
+    // Application management endpoints
+    async getApplications(params?: {
+        search?: string;
+        isActive?: boolean;
+    }): Promise<{ applications: any[] }> {
+        const searchParams = new URLSearchParams();
+        if (params?.search) searchParams.set('search', params.search);
+        if (params?.isActive !== undefined) searchParams.set('isActive', params.isActive.toString());
+
+        const query = searchParams.toString();
+        return this.request(`/applications${query ? `?${query}` : ''}`);
+    }
+
+    async createApplication(applicationData: any): Promise<{ application: any; message: string }> {
+        return this.request('/applications', {
+            method: 'POST',
+            body: JSON.stringify(applicationData),
+        });
+    }
+
+    async updateApplication(id: string, applicationData: any): Promise<{ application: any; message: string }> {
+        return this.request(`/applications/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(applicationData),
+        });
+    }
+
+    async deleteApplication(id: string): Promise<{ message: string }> {
+        return this.request(`/applications/${id}`, {
+            method: 'DELETE',
+        });
+    }
+
+    async getApplication(id: string): Promise<{ application: any }> {
+        return this.request(`/applications/${id}`);
+    }
 }
 
 export const apiClient = new ApiClient();
