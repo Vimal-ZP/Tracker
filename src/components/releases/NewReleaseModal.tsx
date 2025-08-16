@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Calendar, Package, FileText, Building, Tag, Settings } from 'lucide-react';
 import { ReleaseType } from '@/types/release';
+import { apiClient } from '@/lib/api';
+import { Application } from '@/types/application';
 
 interface NewReleaseFormData {
     releaseName: string;
@@ -33,6 +35,36 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<Partial<NewReleaseFormData>>({});
+    const [applications, setApplications] = useState<Application[]>([]);
+    const [loadingApplications, setLoadingApplications] = useState(false);
+
+    // Fetch applications when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            fetchApplications();
+        }
+    }, [isOpen]);
+
+    const fetchApplications = async () => {
+        try {
+            setLoadingApplications(true);
+            const data = await apiClient.getApplications({ isActive: true });
+            setApplications(data.applications);
+        } catch (error) {
+            console.error('Error fetching applications:', error);
+            // Fallback to hardcoded options if API fails
+            setApplications([
+                { _id: '1', name: 'NRE', displayName: 'Network Resource Engine', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '2', name: 'NVE', displayName: 'Network Virtualization Engine', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '3', name: 'E-Vite', displayName: 'E-Vite System', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '4', name: 'Portal Plus', displayName: 'Portal Plus System', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '5', name: 'Fast 2.0', displayName: 'Fast 2.0 System', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '6', name: 'FMS', displayName: 'Fleet Management System', isActive: true, createdAt: new Date(), updatedAt: new Date() }
+            ]);
+        } finally {
+            setLoadingApplications(false);
+        }
+    };
 
     const handleInputChange = (field: keyof NewReleaseFormData, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -163,15 +195,16 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
                         onChange={(e) => handleInputChange('applicationName', e.target.value)}
                         className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.applicationName ? 'border-red-500' : 'border-gray-300'
                             }`}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || loadingApplications}
                     >
-                        <option value="">Select an application...</option>
-                        <option value="NRE">NRE</option>
-                        <option value="NVE">NVE</option>
-                        <option value="E-Vite">E-Vite</option>
-                        <option value="Portal Plus">Portal Plus</option>
-                        <option value="Fast 2.0">Fast 2.0</option>
-                        <option value="FMS">FMS</option>
+                        <option value="">
+                            {loadingApplications ? 'Loading applications...' : 'Select an application...'}
+                        </option>
+                        {applications.map((app) => (
+                            <option key={app._id} value={app.name}>
+                                {app.name} - {app.displayName}
+                            </option>
+                        ))}
                     </select>
                     {errors.applicationName && (
                         <p className="mt-1 text-sm text-red-600">{errors.applicationName}</p>

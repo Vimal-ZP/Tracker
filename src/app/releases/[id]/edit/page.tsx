@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { Release, ReleaseType, FeatureCategory } from '@/types/release';
+import { Application } from '@/types/application';
 import { rolePermissions } from '@/types/user';
+import { apiClient } from '@/lib/api';
 import {
     Package,
     ArrowLeft,
@@ -41,6 +43,8 @@ export default function EditReleasePage() {
     const [release, setRelease] = useState<Release | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [applications, setApplications] = useState<Application[]>([]);
+    const [loadingApplications, setLoadingApplications] = useState(false);
     const [formData, setFormData] = useState<EditReleaseFormData>({
         title: '',
         applicationName: '',
@@ -60,6 +64,7 @@ export default function EditReleasePage() {
     useEffect(() => {
         if (params.id) {
             fetchRelease();
+            fetchApplications();
         }
     }, [params.id]);
 
@@ -99,6 +104,27 @@ export default function EditReleasePage() {
             router.push('/releases');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchApplications = async () => {
+        try {
+            setLoadingApplications(true);
+            const data = await apiClient.getApplications({ isActive: true });
+            setApplications(data.applications);
+        } catch (error) {
+            console.error('Error fetching applications:', error);
+            // Fallback to hardcoded options if API fails
+            setApplications([
+                { _id: '1', name: 'NRE', displayName: 'Network Resource Engine', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '2', name: 'NVE', displayName: 'Network Virtualization Engine', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '3', name: 'E-Vite', displayName: 'E-Vite System', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '4', name: 'Portal Plus', displayName: 'Portal Plus System', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '5', name: 'Fast 2.0', displayName: 'Fast 2.0 System', isActive: true, createdAt: new Date(), updatedAt: new Date() },
+                { _id: '6', name: 'FMS', displayName: 'Fleet Management System', isActive: true, createdAt: new Date(), updatedAt: new Date() }
+            ]);
+        } finally {
+            setLoadingApplications(false);
         }
     };
 
@@ -297,14 +323,16 @@ export default function EditReleasePage() {
                                         onChange={(e) => handleInputChange('applicationName', e.target.value)}
                                         className="input w-full"
                                         required
+                                        disabled={saving || loadingApplications}
                                     >
-                                        <option value="">Select an application...</option>
-                                        <option value="NRE">NRE</option>
-                                        <option value="NVE">NVE</option>
-                                        <option value="E-Vite">E-Vite</option>
-                                        <option value="Portal Plus">Portal Plus</option>
-                                        <option value="Fast 2.0">Fast 2.0</option>
-                                        <option value="FMS">FMS</option>
+                                        <option value="">
+                                            {loadingApplications ? 'Loading applications...' : 'Select an application...'}
+                                        </option>
+                                        {applications.map((app) => (
+                                            <option key={app._id} value={app.name}>
+                                                {app.name} - {app.displayName}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
