@@ -6,7 +6,6 @@ import { useUI } from '@/contexts/UIContext';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import AuthDebug from '@/components/debug/AuthDebug';
 
 interface LayoutProps {
     children: React.ReactNode;
@@ -52,7 +51,6 @@ export default function Layout({ children }: LayoutProps) {
                     </div>
                 </main>
             </div>
-            <AuthDebug />
         </div>
     );
 }
