@@ -445,7 +445,7 @@ export default function ApplicationManagement() {
                                 <option value="">Select an application...</option>
                                 {allApplications.map((app) => (
                                     <option key={app._id} value={app.name}>
-                                        {app.name} - {app.displayName}
+                                        {app.displayName}
                                     </option>
                                 ))}
                                 <option value="__custom__">+ Add New Application</option>

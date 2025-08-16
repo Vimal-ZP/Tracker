@@ -202,7 +202,7 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
                         </option>
                         {applications.map((app) => (
                             <option key={app._id} value={app.name}>
-                                {app.name} - {app.displayName}
+                                {app.displayName}
                             </option>
                         ))}
                     </select>
