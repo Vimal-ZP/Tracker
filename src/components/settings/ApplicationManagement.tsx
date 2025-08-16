@@ -21,11 +21,13 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 interface ApplicationFormData extends CreateApplicationData {
     _id?: string;
+    customName?: string;
 }
 
 export default function ApplicationManagement() {
     const { user } = useAuth();
     const [applications, setApplications] = useState<Application[]>([]);
+    const [allApplications, setAllApplications] = useState<Application[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [showActiveOnly, setShowActiveOnly] = useState(false);
@@ -38,7 +40,8 @@ export default function ApplicationManagement() {
         name: '',
         displayName: '',
         description: '',
-        isActive: true
+        isActive: true,
+        customName: ''
     });
 
     const [errors, setErrors] = useState<Partial<ApplicationFormData>>({});
@@ -48,7 +51,19 @@ export default function ApplicationManagement() {
 
     useEffect(() => {
         fetchApplications();
+        fetchAllApplications();
     }, [searchTerm, showActiveOnly]);
+
+    const fetchAllApplications = async () => {
+        try {
+            // Fetch all applications without filters for dropdown
+            const data = await apiClient.getApplications({});
+            setAllApplications(data.applications);
+        } catch (error: any) {
+            console.error('Error fetching all applications:', error);
+            // Don't show error toast for this as it's background data
+        }
+    };
 
     const fetchApplications = async () => {
         try {
@@ -74,7 +89,8 @@ export default function ApplicationManagement() {
                 name: application.name,
                 displayName: application.displayName,
                 description: application.description || '',
-                isActive: application.isActive
+                isActive: application.isActive,
+                customName: ''
             });
         } else {
             setEditingApplication(null);
@@ -96,7 +112,8 @@ export default function ApplicationManagement() {
             name: '',
             displayName: '',
             description: '',
-            isActive: true
+            isActive: true,
+            customName: ''
         });
         setErrors({});
     };
@@ -104,13 +121,16 @@ export default function ApplicationManagement() {
     const validateForm = (): boolean => {
         const newErrors: Partial<ApplicationFormData> = {};
 
-        if (!formData.name?.trim()) {
+        // Get the actual name to validate (either selected or custom)
+        const actualName = formData.name === '__custom__' ? formData.customName : formData.name;
+
+        if (!actualName?.trim()) {
             newErrors.name = 'Application name is required';
-        } else if (formData.name.length < 2) {
+        } else if (actualName.length < 2) {
             newErrors.name = 'Application name must be at least 2 characters';
-        } else if (formData.name.length > 50) {
+        } else if (actualName.length > 50) {
             newErrors.name = 'Application name cannot exceed 50 characters';
-        } else if (!/^[a-zA-Z0-9\s\-_.]+$/.test(formData.name)) {
+        } else if (!/^[a-zA-Z0-9\s\-_.]+$/.test(actualName)) {
             newErrors.name = 'Application name can only contain letters, numbers, spaces, hyphens, underscores, and dots';
         }
 
@@ -138,8 +158,11 @@ export default function ApplicationManagement() {
         setIsSubmitting(true);
 
         try {
+            // Get the actual name to use (either selected or custom)
+            const actualName = formData.name === '__custom__' ? formData.customName : formData.name;
+            
             const payload: CreateApplicationData | UpdateApplicationData = {
-                name: formData.name?.trim(),
+                name: actualName?.trim(),
                 displayName: formData.displayName?.trim(),
                 description: formData.description?.trim() || undefined,
                 isActive: formData.isActive
@@ -191,6 +214,19 @@ export default function ApplicationManagement() {
 
     const handleInputChange = (field: keyof ApplicationFormData, value: string | boolean) => {
         setFormData(prev => ({ ...prev, [field]: value }));
+        
+        // If selecting an existing application from dropdown, auto-populate display name and description
+        if (field === 'name' && typeof value === 'string' && value !== '__custom__' && value !== '') {
+            const selectedApp = allApplications.find(app => app.name === value);
+            if (selectedApp) {
+                setFormData(prev => ({
+                    ...prev,
+                    [field]: value,
+                    displayName: selectedApp.displayName,
+                    description: selectedApp.description || ''
+                }));
+            }
+        }
         
         // Clear error when user starts typing
         if (errors[field]) {
@@ -387,15 +423,46 @@ export default function ApplicationManagement() {
                         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                             Application Name *
                         </label>
-                        <input
-                            type="text"
-                            id="name"
-                            value={formData.name}
-                            onChange={(e) => handleInputChange('name', e.target.value)}
-                            className={`input w-full ${errors.name ? 'border-red-500' : ''}`}
-                            placeholder="e.g., NRE, Portal Plus"
-                            disabled={isSubmitting}
-                        />
+                        {editingApplication ? (
+                            // When editing, show current name as readonly
+                            <input
+                                type="text"
+                                id="name"
+                                value={formData.name}
+                                className="input w-full bg-gray-100"
+                                disabled={true}
+                                readOnly
+                            />
+                        ) : (
+                            // When creating, show dropdown with existing applications + option to add new
+                            <select
+                                id="name"
+                                value={formData.name}
+                                onChange={(e) => handleInputChange('name', e.target.value)}
+                                className={`input w-full ${errors.name ? 'border-red-500' : ''}`}
+                                disabled={isSubmitting}
+                            >
+                                <option value="">Select an application...</option>
+                                {allApplications.map((app) => (
+                                    <option key={app._id} value={app.name}>
+                                        {app.name} - {app.displayName}
+                                    </option>
+                                ))}
+                                <option value="__custom__">+ Add New Application</option>
+                            </select>
+                        )}
+                        {formData.name === '__custom__' && !editingApplication && (
+                            <div className="mt-2">
+                                <input
+                                    type="text"
+                                    placeholder="Enter new application name"
+                                    value={formData.customName || ''}
+                                    onChange={(e) => handleInputChange('customName', e.target.value)}
+                                    className={`input w-full ${errors.name ? 'border-red-500' : ''}`}
+                                    disabled={isSubmitting}
+                                />
+                            </div>
+                        )}
                         {errors.name && (
                             <p className="mt-1 text-sm text-red-600">{errors.name}</p>
                         )}
