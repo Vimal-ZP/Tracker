@@ -14,9 +14,14 @@ import {
   XCircle,
   Package,
   User,
-  MoreVertical
+  MoreVertical,
+  Layers,
+  Zap,
+  FileText,
+  Bug,
+  Building
 } from 'lucide-react';
-import { Release, ReleaseStatus, ReleaseType } from '@/types/release';
+import { Release, ReleaseType, WorkItemType } from '@/types/release';
 import { UserRole } from '@/types/user';
 
 interface ReleasesListProps {
@@ -31,35 +36,38 @@ interface ReleasesListProps {
   className?: string;
 }
 
-// Status color mapping
-const getStatusColor = (status: ReleaseStatus): string => {
-  switch (status) {
-    case 'draft':
-      return 'bg-gray-100 text-gray-800';
-    case 'beta':
-      return 'bg-yellow-100 text-yellow-800';
-    case 'stable':
-      return 'bg-green-100 text-green-800';
-    case 'deprecated':
-      return 'bg-red-100 text-red-800';
-    default:
-      return 'bg-gray-100 text-gray-800';
-  }
+// Work item counting functions
+const getWorkItemCounts = (workItems: any[] = []) => {
+  const counts = {
+    epic: 0,
+    feature: 0,
+    user_story: 0,
+    bug: 0
+  };
+
+  workItems.forEach(item => {
+    const type = item.type?.toLowerCase();
+    if (type in counts) {
+      counts[type as keyof typeof counts]++;
+    }
+  });
+
+  return counts;
 };
 
-// Status icon mapping
-const getStatusIcon = (status: ReleaseStatus) => {
-  switch (status) {
-    case 'draft':
-      return <Clock className="w-3 h-3" />;
-    case 'beta':
-      return <AlertCircle className="w-3 h-3" />;
-    case 'stable':
-      return <CheckCircle className="w-3 h-3" />;
-    case 'deprecated':
-      return <XCircle className="w-3 h-3" />;
+// Work item type icon mapping
+const getWorkItemIcon = (type: string) => {
+  switch (type.toLowerCase()) {
+    case 'epic':
+      return <Layers className="w-3 h-3" />;
+    case 'feature':
+      return <Zap className="w-3 h-3" />;
+    case 'user_story':
+      return <FileText className="w-3 h-3" />;
+    case 'bug':
+      return <Bug className="w-3 h-3" />;
     default:
-      return <Clock className="w-3 h-3" />;
+      return <FileText className="w-3 h-3" />;
   }
 };
 
@@ -86,20 +94,6 @@ const formatDate = (date: Date | string): string => {
     month: 'short',
     day: 'numeric'
   });
-};
-
-// Format relative time
-const formatRelativeTime = (date: Date | string): string => {
-  const now = new Date();
-  const releaseDate = new Date(date);
-  const diffInDays = Math.floor((now.getTime() - releaseDate.getTime()) / (1000 * 60 * 60 * 24));
-
-  if (diffInDays === 0) return 'Today';
-  if (diffInDays === 1) return 'Yesterday';
-  if (diffInDays < 7) return `${diffInDays} days ago`;
-  if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
-  if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
-  return `${Math.floor(diffInDays / 365)} years ago`;
 };
 
 export default function ReleasesList({
@@ -165,10 +159,13 @@ export default function ReleasesList({
                   Release
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Project
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Version
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  Work Items
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Type
@@ -201,15 +198,51 @@ export default function ReleasesList({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center text-sm text-gray-900">
+                      <Building className="w-4 h-4 text-gray-400 mr-2" />
+                      {release.projectName}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center text-sm text-gray-900">
                       <Tag className="w-4 h-4 text-gray-400 mr-2" />
                       {release.version ? `v${release.version}` : '-'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(release.status)}`}>
-                      {getStatusIcon(release.status)}
-                      <span className="ml-1 capitalize">{release.status}</span>
-                    </span>
+                    {(() => {
+                      const counts = getWorkItemCounts(release.workItems);
+                      return (
+                        <div className="flex items-center space-x-3 text-xs">
+                          {counts.epic > 0 && (
+                            <div className="flex items-center text-purple-600">
+                              {getWorkItemIcon('epic')}
+                              <span className="ml-1">{counts.epic}</span>
+                            </div>
+                          )}
+                          {counts.feature > 0 && (
+                            <div className="flex items-center text-blue-600">
+                              {getWorkItemIcon('feature')}
+                              <span className="ml-1">{counts.feature}</span>
+                            </div>
+                          )}
+                          {counts.user_story > 0 && (
+                            <div className="flex items-center text-green-600">
+                              {getWorkItemIcon('user_story')}
+                              <span className="ml-1">{counts.user_story}</span>
+                            </div>
+                          )}
+                          {counts.bug > 0 && (
+                            <div className="flex items-center text-red-600">
+                              {getWorkItemIcon('bug')}
+                              <span className="ml-1">{counts.bug}</span>
+                            </div>
+                          )}
+                          {Object.values(counts).every(count => count === 0) && (
+                            <span className="text-gray-400">No items</span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(release.type)}`}>
@@ -219,12 +252,7 @@ export default function ReleasesList({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                      <div>
-                        <div>{formatDate(release.releaseDate)}</div>
-                        <div className="text-xs text-gray-500">
-                          {formatRelativeTime(release.releaseDate)}
-                        </div>
-                      </div>
+                      <div>{formatDate(release.releaseDate)}</div>
                     </div>
                   </td>
                   {showActions && (
@@ -285,14 +313,42 @@ export default function ReleasesList({
                   <span className="text-xs text-gray-500">v{release.version}</span>
                 </div>
                 <div className="flex items-center space-x-4 mt-1">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(release.status)}`}>
-                    {getStatusIcon(release.status)}
-                    <span className="ml-1 capitalize">{release.status}</span>
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {formatRelativeTime(release.releaseDate)}
-                  </span>
-
+                  <div className="flex items-center text-xs text-gray-600">
+                    <Building className="w-3 h-3 mr-1" />
+                    <span>{release.projectName}</span>
+                  </div>
+                  {(() => {
+                    const counts = getWorkItemCounts(release.workItems);
+                    const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
+                    return totalItems > 0 ? (
+                      <div className="flex items-center space-x-2 text-xs">
+                        {counts.epic > 0 && (
+                          <div className="flex items-center text-purple-600">
+                            {getWorkItemIcon('epic')}
+                            <span className="ml-1">{counts.epic}</span>
+                          </div>
+                        )}
+                        {counts.feature > 0 && (
+                          <div className="flex items-center text-blue-600">
+                            {getWorkItemIcon('feature')}
+                            <span className="ml-1">{counts.feature}</span>
+                          </div>
+                        )}
+                        {counts.user_story > 0 && (
+                          <div className="flex items-center text-green-600">
+                            {getWorkItemIcon('user_story')}
+                            <span className="ml-1">{counts.user_story}</span>
+                          </div>
+                        )}
+                        {counts.bug > 0 && (
+                          <div className="flex items-center text-red-600">
+                            {getWorkItemIcon('bug')}
+                            <span className="ml-1">{counts.bug}</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
               </div>
             </div>
@@ -347,10 +403,10 @@ export default function ReleasesList({
                   <h3 className="text-lg font-semibold text-gray-900">
                     {release.title}
                   </h3>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(release.status)}`}>
-                    {getStatusIcon(release.status)}
-                    <span className="ml-1 capitalize">{release.status}</span>
-                  </span>
+                  <div className="flex items-center text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                    <Building className="w-4 h-4 mr-1" />
+                    <span>{release.projectName}</span>
+                  </div>
                 </div>
 
                 <p className="text-gray-600 mb-4 line-clamp-2">
@@ -358,17 +414,17 @@ export default function ReleasesList({
                 </p>
 
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center">
+                    <Calendar className="w-4 h-4 mr-1" />
+                    <span>{formatDate(release.releaseDate)}</span>
+                  </div>
+
                   {release.version && (
                     <div className="flex items-center">
                       <Tag className="w-4 h-4 mr-1" />
                       <span>v{release.version}</span>
                     </div>
                   )}
-
-                  <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    <span>{formatDate(release.releaseDate)}</span>
-                  </div>
 
                   <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getTypeColor(release.type)}`}>
                     {release.type}
@@ -381,6 +437,53 @@ export default function ReleasesList({
                     </div>
                   )}
                 </div>
+
+                {/* Work Items Summary */}
+                {(() => {
+                  const counts = getWorkItemCounts(release.workItems);
+                  const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
+                  return totalItems > 0 ? (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <div className="flex items-center space-x-4 text-sm">
+                        <span className="text-gray-500 font-medium">Work Items:</span>
+                        {counts.epic > 0 && (
+                          <div className="flex items-center text-purple-600">
+                            {getWorkItemIcon('epic')}
+                            <span className="ml-1 font-medium">{counts.epic}</span>
+                            <span className="ml-1 text-gray-500">Epic{counts.epic > 1 ? 's' : ''}</span>
+                          </div>
+                        )}
+                        {counts.feature > 0 && (
+                          <div className="flex items-center text-blue-600">
+                            {getWorkItemIcon('feature')}
+                            <span className="ml-1 font-medium">{counts.feature}</span>
+                            <span className="ml-1 text-gray-500">Feature{counts.feature > 1 ? 's' : ''}</span>
+                          </div>
+                        )}
+                        {counts.user_story > 0 && (
+                          <div className="flex items-center text-green-600">
+                            {getWorkItemIcon('user_story')}
+                            <span className="ml-1 font-medium">{counts.user_story}</span>
+                            <span className="ml-1 text-gray-500">User Stor{counts.user_story > 1 ? 'ies' : 'y'}</span>
+                          </div>
+                        )}
+                        {counts.bug > 0 && (
+                          <div className="flex items-center text-red-600">
+                            {getWorkItemIcon('bug')}
+                            <span className="ml-1 font-medium">{counts.bug}</span>
+                            <span className="ml-1 text-gray-500">Bug{counts.bug > 1 ? 's' : ''}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <div className="flex items-center text-sm text-gray-400">
+                        <span>No work items</span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {showActions && (

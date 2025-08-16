@@ -5,7 +5,6 @@ export interface Release {
   projectName: string;
   description: string;
   releaseDate: Date;
-  status: ReleaseStatus;
   type: ReleaseType;
   features: ReleaseFeature[];
   bugFixes: string[];
@@ -22,12 +21,7 @@ export interface Release {
   updatedAt: Date;
 }
 
-export enum ReleaseStatus {
-  DRAFT = 'draft',
-  BETA = 'beta',
-  STABLE = 'stable',
-  DEPRECATED = 'deprecated'
-}
+
 
 export enum ReleaseType {
   MAJOR = 'major',
@@ -83,7 +77,6 @@ export interface CreateReleaseData {
   projectName: string;
   description: string;
   releaseDate: Date;
-  status: ReleaseStatus;
   type: ReleaseType;
   features: ReleaseFeature[];
   bugFixes: string[];
@@ -98,7 +91,6 @@ export interface UpdateReleaseData extends Partial<CreateReleaseData> {
 }
 
 export interface ReleaseFilters {
-  status?: ReleaseStatus;
   type?: ReleaseType;
   search?: string;
   dateFrom?: Date;

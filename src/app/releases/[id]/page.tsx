@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts';
-import { Release, ReleaseStatus, ReleaseType, FeatureCategory, WorkItem, WorkItemType } from '@/types/release';
+import { Release, ReleaseType, FeatureCategory, WorkItem, WorkItemType } from '@/types/release';
 import { rolePermissions } from '@/types/user';
 import {
   Package,
@@ -19,6 +19,7 @@ import {
   XCircle,
   Star,
   Bug,
+  Building,
   AlertTriangle,
   ExternalLink,
   Plus,
@@ -35,12 +36,15 @@ import {
   Shield,
   Layers,
   Sparkles,
-  BookOpen
+  BookOpen,
+  FileSpreadsheet,
+  FileDown
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import ConfirmationDialog from '@/components/ui/ConfirmationDialog';
 import WorkItemModal, { WorkItemFormData } from '@/components/releases/WorkItemModal';
+import { exportWorkItemsToExcel, exportWorkItemsToCSV, getExportStats } from '@/lib/export';
 
 export default function ReleaseDetailPage() {
   const params = useParams();
@@ -61,6 +65,22 @@ export default function ReleaseDetailPage() {
   const [modalMode, setModalMode] = useState<'create' | 'edit' | 'createChild' | 'createEpic'>('create');
   const [modalWorkItem, setModalWorkItem] = useState<WorkItem | null>(null);
   const [modalParentItem, setModalParentItem] = useState<WorkItem | null>(null);
+  const [showExportDropdown, setShowExportDropdown] = useState(false);
+
+  // Close export dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showExportDropdown && !target.closest('.export-dropdown')) {
+        setShowExportDropdown(false);
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showExportDropdown]);
 
   // Close drawer on escape key and manage body scroll
   useEffect(() => {
@@ -119,6 +139,13 @@ export default function ReleaseDetailPage() {
     }
   }, [searchParams, release]);
 
+  // Update document title when release data is loaded
+  useEffect(() => {
+    if (release && typeof document !== 'undefined') {
+      document.title = `${release.title} | Tracker`;
+    }
+  }, [release]);
+
   const fetchRelease = async () => {
     try {
       setLoading(true);
@@ -156,35 +183,7 @@ export default function ReleaseDetailPage() {
     }
   };
 
-  const getStatusIcon = (status: ReleaseStatus) => {
-    switch (status) {
-      case ReleaseStatus.DRAFT:
-        return <Clock className="w-5 h-5 text-gray-500" />;
-      case ReleaseStatus.BETA:
-        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
-      case ReleaseStatus.STABLE:
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case ReleaseStatus.DEPRECATED:
-        return <XCircle className="w-5 h-5 text-red-500" />;
-      default:
-        return <Clock className="w-5 h-5 text-gray-500" />;
-    }
-  };
 
-  const getStatusColor = (status: ReleaseStatus) => {
-    switch (status) {
-      case ReleaseStatus.DRAFT:
-        return 'bg-gray-100 text-gray-800';
-      case ReleaseStatus.BETA:
-        return 'bg-yellow-100 text-yellow-800';
-      case ReleaseStatus.STABLE:
-        return 'bg-green-100 text-green-800';
-      case ReleaseStatus.DEPRECATED:
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   const getTypeColor = (type: ReleaseType) => {
     switch (type) {
@@ -539,6 +538,41 @@ export default function ReleaseDetailPage() {
     }
   };
 
+  // Export handlers
+  const handleExportToExcel = async () => {
+    if (!release || !release.workItems || release.workItems.length === 0) {
+      toast.error('No work items to export');
+      return;
+    }
+
+    try {
+      exportWorkItemsToExcel(release.workItems, release.title, release.projectName);
+      const stats = getExportStats(release.workItems);
+      toast.success(`Successfully exported ${stats.total} work items to Excel`);
+      setShowExportDropdown(false); // Close dropdown after export
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      toast.error('Failed to export work items to Excel');
+    }
+  };
+
+  const handleExportToCSV = async () => {
+    if (!release || !release.workItems || release.workItems.length === 0) {
+      toast.error('No work items to export');
+      return;
+    }
+
+    try {
+      exportWorkItemsToCSV(release.workItems, release.title, release.projectName);
+      const stats = getExportStats(release.workItems);
+      toast.success(`Successfully exported ${stats.total} work items to CSV`);
+      setShowExportDropdown(false); // Close dropdown after export
+    } catch (error) {
+      console.error('Error exporting to CSV:', error);
+      toast.error('Failed to export work items to CSV');
+    }
+  };
+
   // Helper functions for work items
   const getWorkItemTypeIcon = (type: WorkItemType | string) => {
     const normalizedType = typeof type === 'string' ? type.toLowerCase() : type;
@@ -719,18 +753,32 @@ export default function ReleaseDetailPage() {
         <div className="flex items-center space-x-3">
           <Package className="w-8 h-8 text-blue-600" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{release.title}</h1>
+            <div className="flex items-center space-x-3 mb-2">
+              <h1 className="text-2xl font-bold text-gray-900">{release.title}</h1>
+              <div className="flex items-center text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                <Building className="w-4 h-4 mr-1" />
+                <span>{release.projectName}</span>
+              </div>
+            </div>
             <div className="flex items-center space-x-2 mt-1">
+              <span className="flex items-center space-x-1 text-sm text-gray-600">
+                <Calendar className="w-4 h-4" />
+                <span className="font-medium">
+                  {new Date(release.releaseDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </span>
+              </span>
+
               {release.version && (
                 <span className="flex items-center space-x-1 text-sm text-gray-600">
                   <Tag className="w-4 h-4" />
                   <span className="font-medium">v{release.version}</span>
                 </span>
               )}
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(release.status)}`}>
-                {getStatusIcon(release.status)}
-                <span className="ml-1">{release.status}</span>
-              </span>
+
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(release.type)}`}>
                 {release.type}
               </span>
@@ -888,6 +936,42 @@ export default function ReleaseDetailPage() {
                       <Trash2 className="w-4 h-4" />
                       <span>Delete Selected ({selectedItems.size})</span>
                     </button>
+                  )}
+
+                  {/* Export dropdown */}
+                  {release.workItems && release.workItems.length > 0 && (
+                    <div className="relative export-dropdown">
+                      <button
+                        onClick={() => setShowExportDropdown(!showExportDropdown)}
+                        className="btn btn-secondary btn-sm flex items-center space-x-1"
+                        title="Export work items"
+                      >
+                        <FileDown className="w-4 h-4" />
+                        <span className="hidden sm:inline">Export</span>
+                        <ChevronDown className="w-3 h-3 ml-1" />
+                      </button>
+
+                      {showExportDropdown && (
+                        <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                          <div className="py-1">
+                            <button
+                              onClick={handleExportToExcel}
+                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                            >
+                              <FileSpreadsheet className="w-4 h-4 mr-3" />
+                              Export to Excel
+                            </button>
+                            <button
+                              onClick={handleExportToCSV}
+                              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                            >
+                              <FileDown className="w-4 h-4 mr-3" />
+                              Export to CSV
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
 
                   {/* Expand/Collapse All toggle button */}
@@ -1296,7 +1380,9 @@ export default function ReleaseDetailPage() {
                     <User className="w-5 h-5 text-gray-400" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Author</p>
-                      <p className="text-sm text-gray-600">{release.author.name}</p>
+                      <p className="text-sm text-gray-600">
+                        {typeof release.author === 'string' ? release.author : release.author.name}
+                      </p>
                     </div>
                   </div>
 
@@ -1344,26 +1430,6 @@ export default function ReleaseDetailPage() {
                 </div>
               </div>
 
-              {/* Timestamps */}
-              <div className="card">
-                <div className="card-header">
-                  <h2 className="text-lg font-medium text-gray-900">Timestamps</h2>
-                </div>
-                <div className="card-body space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Created</p>
-                    <p className="text-sm text-gray-600">
-                      {new Date(release.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Last Updated</p>
-                    <p className="text-sm text-gray-600">
-                      {new Date(release.updatedAt).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

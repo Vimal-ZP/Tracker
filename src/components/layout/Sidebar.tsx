@@ -100,7 +100,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 <nav className="flex-1 overflow-y-auto py-6 px-4">
                     <ul className="space-y-2">
                         {navigation.map((item) => {
-                            const isActive = pathname === item.href;
+                            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                             return (
                                 <li key={item.name}>
                                     <Link

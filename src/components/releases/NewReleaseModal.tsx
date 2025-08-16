@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Modal from '@/components/ui/Modal';
 import { Calendar, Package, FileText, Building, Tag, Settings } from 'lucide-react';
-import { ReleaseStatus, ReleaseType } from '@/types/release';
+import { ReleaseType } from '@/types/release';
 
 interface NewReleaseFormData {
     releaseName: string;
@@ -11,7 +11,6 @@ interface NewReleaseFormData {
     version?: string;
     releaseDate: string;
     description: string;
-    status: ReleaseStatus;
     type: ReleaseType;
     isPublished: boolean;
 }
@@ -29,7 +28,6 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
         version: '',
         releaseDate: '',
         description: '',
-        status: ReleaseStatus.DRAFT,
         type: ReleaseType.MINOR,
         isPublished: false
     });
@@ -93,7 +91,7 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
                 version: '',
                 releaseDate: '',
                 description: '',
-                status: ReleaseStatus.DRAFT,
+
                 type: ReleaseType.MINOR,
                 isPublished: false
             });
@@ -114,7 +112,7 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
                 version: '',
                 releaseDate: '',
                 description: '',
-                status: ReleaseStatus.DRAFT,
+
                 type: ReleaseType.MINOR,
                 isPublished: false
             });
@@ -227,51 +225,26 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
                     )}
                 </div>
 
-                {/* Status and Type Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Status */}
-                    <div>
-                        <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-                            <div className="flex items-center space-x-2">
-                                <Settings className="w-4 h-4 text-gray-500" />
-                                <span>Status</span>
-                            </div>
-                        </label>
-                        <select
-                            id="status"
-                            value={formData.status}
-                            onChange={(e) => handleInputChange('status', e.target.value as ReleaseStatus)}
-                            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300"
-                            disabled={isSubmitting}
-                        >
-                            <option value={ReleaseStatus.DRAFT}>Draft</option>
-                            <option value={ReleaseStatus.BETA}>Beta</option>
-                            <option value={ReleaseStatus.STABLE}>Stable</option>
-                            <option value={ReleaseStatus.DEPRECATED}>Deprecated</option>
-                        </select>
-                    </div>
-
-                    {/* Type */}
-                    <div>
-                        <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
-                            <div className="flex items-center space-x-2">
-                                <Package className="w-4 h-4 text-gray-500" />
-                                <span>Type</span>
-                            </div>
-                        </label>
-                        <select
-                            id="type"
-                            value={formData.type}
-                            onChange={(e) => handleInputChange('type', e.target.value as ReleaseType)}
-                            className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300"
-                            disabled={isSubmitting}
-                        >
-                            <option value={ReleaseType.MAJOR}>Major</option>
-                            <option value={ReleaseType.MINOR}>Minor</option>
-                            <option value={ReleaseType.PATCH}>Patch</option>
-                            <option value={ReleaseType.HOTFIX}>Hotfix</option>
-                        </select>
-                    </div>
+                {/* Type */}
+                <div>
+                    <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="flex items-center space-x-2">
+                            <Package className="w-4 h-4 text-gray-500" />
+                            <span>Type</span>
+                        </div>
+                    </label>
+                    <select
+                        id="type"
+                        value={formData.type}
+                        onChange={(e) => handleInputChange('type', e.target.value as ReleaseType)}
+                        className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300"
+                        disabled={isSubmitting}
+                    >
+                        <option value={ReleaseType.MAJOR}>Major</option>
+                        <option value={ReleaseType.MINOR}>Minor</option>
+                        <option value={ReleaseType.PATCH}>Patch</option>
+                        <option value={ReleaseType.HOTFIX}>Hotfix</option>
+                    </select>
                 </div>
 
                 {/* Description */}
@@ -348,6 +321,6 @@ export default function NewReleaseModal({ isOpen, onClose, onSubmit }: NewReleas
                     </button>
                 </div>
             </form>
-        </Modal>
+        </Modal >
     );
 }

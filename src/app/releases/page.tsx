@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
-import { Release, ReleaseStatus, ReleaseType, ReleaseFilters, FeatureCategory } from '@/types/release';
+import { Release, ReleaseType, ReleaseFilters, FeatureCategory } from '@/types/release';
 import { rolePermissions } from '@/types/user';
 import {
   Package,
@@ -26,7 +27,7 @@ const dummyReleases: Release[] = [
     projectName: 'NRE',
     description: 'This release introduces several new features including advanced analytics, improved user interface, and enhanced security measures. We have also optimized performance across all modules.',
     releaseDate: new Date('2024-01-15'),
-    status: ReleaseStatus.STABLE,
+
     type: ReleaseType.MINOR,
     features: [
       {
@@ -71,7 +72,7 @@ const dummyReleases: Release[] = [
     projectName: 'Portal Plus',
     description: 'Important security update addressing vulnerabilities in user authentication and data validation. All users are strongly recommended to update immediately.',
     releaseDate: new Date('2024-01-08'),
-    status: ReleaseStatus.STABLE,
+
     type: ReleaseType.PATCH,
     features: [
       {
@@ -105,7 +106,7 @@ const dummyReleases: Release[] = [
     projectName: 'Fast 2.0',
     description: 'Beta release of the next major version featuring a completely redesigned architecture, new AI-powered features, and modern UI components.',
     releaseDate: new Date('2024-01-20'),
-    status: ReleaseStatus.BETA,
+
     type: ReleaseType.MAJOR,
     features: [
       {
@@ -151,7 +152,7 @@ const dummyReleases: Release[] = [
     projectName: 'E-Vite',
     description: 'Focus on improving application performance and stability with various optimizations and bug fixes.',
     releaseDate: new Date('2023-12-20'),
-    status: ReleaseStatus.STABLE,
+
     type: ReleaseType.PATCH,
     features: [
       {
@@ -191,7 +192,7 @@ const dummyReleases: Release[] = [
     projectName: 'NVE',
     description: 'Release candidate for version 2.2.0 introducing new collaboration features and improved workflow management.',
     releaseDate: new Date('2024-01-25'),
-    status: ReleaseStatus.BETA,
+
     type: ReleaseType.MINOR,
     features: [
       {
@@ -234,7 +235,7 @@ const dummyReleases: Release[] = [
     projectName: 'FMS',
     description: 'Final update for the 1.x series with essential bug fixes and security patches for users not ready to upgrade to 2.x.',
     releaseDate: new Date('2023-11-15'),
-    status: ReleaseStatus.DEPRECATED,
+
     type: ReleaseType.PATCH,
     features: [
       {
@@ -268,7 +269,7 @@ const dummyReleases: Release[] = [
     projectName: 'NRE',
     description: 'Emergency hotfix addressing a critical issue discovered in version 2.1.0 that could cause data corruption in specific scenarios.',
     releaseDate: new Date('2024-01-16'),
-    status: ReleaseStatus.STABLE,
+
     type: ReleaseType.HOTFIX,
     features: [],
     bugFixes: [
@@ -295,7 +296,7 @@ const dummyReleases: Release[] = [
     projectName: 'Portal Plus',
     description: 'Upcoming release focusing on mobile responsiveness and native mobile app support. Currently in development.',
     releaseDate: new Date('2024-02-15'),
-    status: ReleaseStatus.DRAFT,
+
     type: ReleaseType.MINOR,
     features: [
       {
@@ -332,6 +333,7 @@ const dummyReleases: Release[] = [
 
 export default function ReleasesPage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [releases, setReleases] = useState<Release[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ReleaseFilters>({});
@@ -356,7 +358,7 @@ export default function ReleasesPage() {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '10',
-        ...(filters.status && { status: filters.status }),
+
         ...(filters.type && { type: filters.type }),
         ...(filters.search && { search: filters.search }),
         ...(filters.dateFrom && { dateFrom: filters.dateFrom.toISOString() }),
@@ -440,7 +442,7 @@ export default function ReleasesPage() {
     version?: string;
     releaseDate: string;
     description: string;
-    status: ReleaseStatus;
+
     type: ReleaseType;
     isPublished: boolean;
   }) => {
@@ -452,7 +454,7 @@ export default function ReleasesPage() {
         projectName: formData.projectName,
         description: formData.description,
         releaseDate: formData.releaseDate,
-        status: formData.status,
+
         type: formData.type,
         features: [],
         bugFixes: [],
@@ -574,22 +576,7 @@ export default function ReleasesPage() {
           {showFilters && (
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={filters.status || ''}
-                    onChange={(e) => handleFilterChange('status', e.target.value || undefined)}
-                    className="input w-full"
-                  >
-                    <option value="">All Statuses</option>
-                    <option value="draft">Draft</option>
-                    <option value="beta">Beta</option>
-                    <option value="stable">Stable</option>
-                    <option value="deprecated">Deprecated</option>
-                  </select>
-                </div>
+
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -653,8 +640,8 @@ export default function ReleasesPage() {
           loading={loading}
           viewMode={viewMode}
           userRole={user?.role}
-          onView={(release) => window.location.href = `/releases/${release._id}`}
-          onEdit={(release) => window.location.href = `/releases/${release._id}/edit`}
+          onView={(release) => router.push(`/releases/${release._id}`)}
+          onEdit={(release) => router.push(`/releases/${release._id}/edit`)}
           onDelete={handleDelete}
         />
       </div>

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { Release, ReleaseStatus, ReleaseType, FeatureCategory, WorkItemType } from '@/types/release';
+import { Release, ReleaseType, FeatureCategory, WorkItemType } from '@/types/release';
 
 export interface ReleaseDocument extends Omit<Release, '_id'>, Document { }
 
@@ -104,12 +104,7 @@ const ReleaseSchema = new Schema({
     required: true,
     default: Date.now
   },
-  status: {
-    type: String,
-    enum: Object.values(ReleaseStatus),
-    required: true,
-    default: ReleaseStatus.DRAFT
-  },
+
   type: {
     type: String,
     enum: Object.values(ReleaseType),
@@ -168,32 +163,24 @@ const ReleaseSchema = new Schema({
 
 // Indexes for better query performance
 ReleaseSchema.index({ version: 1 });
-ReleaseSchema.index({ status: 1 });
+
 ReleaseSchema.index({ type: 1 });
 ReleaseSchema.index({ releaseDate: -1 });
 ReleaseSchema.index({ isPublished: 1 });
 ReleaseSchema.index({ 'author._id': 1 });
 
 // Compound indexes
-ReleaseSchema.index({ status: 1, releaseDate: -1 });
+
 ReleaseSchema.index({ isPublished: 1, releaseDate: -1 });
 
-// Pre-save middleware to ensure published releases have stable status
-ReleaseSchema.pre('save', function (next) {
-  if (this.isPublished && this.status === ReleaseStatus.DRAFT) {
-    this.status = ReleaseStatus.STABLE;
-  }
-  next();
-});
+
 
 // Static methods
 ReleaseSchema.statics.findPublished = function () {
   return this.find({ isPublished: true }).sort({ releaseDate: -1 });
 };
 
-ReleaseSchema.statics.findByStatus = function (status: ReleaseStatus) {
-  return this.find({ status }).sort({ releaseDate: -1 });
-};
+
 
 ReleaseSchema.statics.findLatest = function (limit: number = 5) {
   return this.find({ isPublished: true })

@@ -3,7 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Release from '@/models/Release';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/auth';
-import { ReleaseStatus, ReleaseType } from '@/types/release';
+import { ReleaseType } from '@/types/release';
 
 // GET /api/releases - Get all releases with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
-    const status = searchParams.get('status') as ReleaseStatus;
+
     const type = searchParams.get('type') as ReleaseType;
     const search = searchParams.get('search');
     const dateFrom = searchParams.get('dateFrom');
@@ -23,9 +23,7 @@ export async function GET(request: NextRequest) {
     // Build query
     const query: any = {};
 
-    if (status) {
-      query.status = status;
-    }
+
 
     if (type) {
       query.type = type;
@@ -120,7 +118,7 @@ export async function POST(request: NextRequest) {
       projectName,
       description,
       releaseDate,
-      status,
+
       type,
       features,
       bugFixes,
@@ -162,7 +160,7 @@ export async function POST(request: NextRequest) {
       projectName,
       description,
       releaseDate: releaseDate ? new Date(releaseDate) : new Date(),
-      status: status || ReleaseStatus.DRAFT,
+
       type,
       features: features || [],
       bugFixes: bugFixes || [],

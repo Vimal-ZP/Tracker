@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
-import { Release, ReleaseStatus, ReleaseType, FeatureCategory } from '@/types/release';
+import { Release, ReleaseType, FeatureCategory } from '@/types/release';
 import { rolePermissions } from '@/types/user';
 import {
     Package,
@@ -21,7 +21,7 @@ interface EditReleaseFormData {
     projectName: string;
     description: string;
     releaseDate: string;
-    status: ReleaseStatus;
+
     type: ReleaseType;
     version?: string;
     isPublished: boolean;
@@ -46,7 +46,7 @@ export default function EditReleasePage() {
         projectName: '',
         description: '',
         releaseDate: '',
-        status: ReleaseStatus.DRAFT,
+
         type: ReleaseType.MINOR,
         version: '',
         isPublished: false,
@@ -85,7 +85,7 @@ export default function EditReleasePage() {
                 projectName: data.projectName || '',
                 description: data.description || '',
                 releaseDate: data.releaseDate ? new Date(data.releaseDate).toISOString().split('T')[0] : '',
-                status: data.status || ReleaseStatus.DRAFT,
+
                 type: data.type || ReleaseType.MINOR,
                 version: data.version || '',
                 isPublished: data.isPublished || false,
@@ -335,22 +335,7 @@ export default function EditReleasePage() {
                                     />
                                 </div>
 
-                                <div>
-                                    <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-2">
-                                        Status
-                                    </label>
-                                    <select
-                                        id="status"
-                                        value={formData.status}
-                                        onChange={(e) => handleInputChange('status', e.target.value as ReleaseStatus)}
-                                        className="input w-full"
-                                    >
-                                        <option value={ReleaseStatus.DRAFT}>Draft</option>
-                                        <option value={ReleaseStatus.BETA}>Beta</option>
-                                        <option value={ReleaseStatus.STABLE}>Stable</option>
-                                        <option value={ReleaseStatus.DEPRECATED}>Deprecated</option>
-                                    </select>
-                                </div>
+
 
                                 <div>
                                     <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">

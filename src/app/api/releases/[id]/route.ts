@@ -71,7 +71,7 @@ export async function PUT(
       projectName,
       description,
       releaseDate,
-      status,
+
       type,
       features,
       bugFixes,
@@ -110,7 +110,7 @@ export async function PUT(
     if (projectName !== undefined) updateData.projectName = projectName;
     if (description !== undefined) updateData.description = description;
     if (releaseDate !== undefined) updateData.releaseDate = new Date(releaseDate);
-    if (status !== undefined) updateData.status = status;
+
     if (type !== undefined) updateData.type = type;
     if (features !== undefined) updateData.features = features;
     if (bugFixes !== undefined) updateData.bugFixes = bugFixes;
