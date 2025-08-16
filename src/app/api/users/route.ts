@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { withRoleAuth, AuthenticatedRequest } from '@/lib/middleware';
-import { UserRole, CreateUserData } from '@/types/user';
+import { UserRole, CreateUserData, AVAILABLE_PROJECTS } from '@/types/user';
 
 // GET /api/users - Get all users (Admin and Super Admin only)
 async function getHandler(req: AuthenticatedRequest) {
@@ -65,7 +65,7 @@ async function postHandler(req: AuthenticatedRequest) {
         await connectDB();
 
         const body: CreateUserData = await req.json();
-        const { email, name, password, role = UserRole.BASIC } = body;
+        const { email, name, password, role = UserRole.BASIC, assignedProjects = [] } = body;
 
         // Validate input
         if (!email || !name || !password) {
@@ -83,6 +83,25 @@ async function postHandler(req: AuthenticatedRequest) {
             );
         }
 
+        // Only Super Admin can assign projects
+        if (assignedProjects.length > 0 && req.user?.role !== UserRole.SUPER_ADMIN) {
+            return NextResponse.json(
+                { error: 'Only Super Admin can assign projects to users' },
+                { status: 403 }
+            );
+        }
+
+        // Validate assigned projects
+        if (assignedProjects.length > 0) {
+            const invalidProjects = assignedProjects.filter(project => !AVAILABLE_PROJECTS.includes(project as any));
+            if (invalidProjects.length > 0) {
+                return NextResponse.json(
+                    { error: `Invalid project names: ${invalidProjects.join(', ')}. Valid projects are: ${AVAILABLE_PROJECTS.join(', ')}` },
+                    { status: 400 }
+                );
+            }
+        }
+
         // Check if user already exists
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
@@ -98,7 +117,8 @@ async function postHandler(req: AuthenticatedRequest) {
             name,
             password,
             role,
-            isActive: true
+            isActive: true,
+            assignedProjects: role === UserRole.SUPER_ADMIN ? [] : (assignedProjects || []) // Super Admin doesn't need assigned projects, others get explicit assignments
         });
 
         await user.save();

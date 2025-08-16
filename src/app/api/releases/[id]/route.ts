@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Release from '@/models/Release';
+import User from '@/models/User';
 import { verifyToken } from '@/lib/auth';
+import { getUserAccessibleProjects } from '@/types/user';
 
 // GET /api/releases/[id] - Get a specific release
 export async function GET(
@@ -11,12 +13,47 @@ export async function GET(
   try {
     await connectDB();
 
+    // Verify authentication
+    const token = request.cookies.get('auth_token')?.value;
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    // Get user to check project access
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     const release = await Release.findById(params.id).lean();
 
     if (!release) {
       return NextResponse.json(
         { error: 'Release not found' },
         { status: 404 }
+      );
+    }
+
+    // Check if user has access to this release's project
+    const accessibleProjects = getUserAccessibleProjects(user);
+    if (!accessibleProjects.includes(release.projectName)) {
+      return NextResponse.json(
+        { error: 'Access denied. You do not have permission to view this release.' },
+        { status: 403 }
       );
     }
 
@@ -64,6 +101,33 @@ export async function PUT(
       );
     }
 
+    // Get user to check project access
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get the existing release to check project access
+    const existingRelease = await Release.findById(params.id);
+    if (!existingRelease) {
+      return NextResponse.json(
+        { error: 'Release not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if user has access to this release's project
+    const accessibleProjects = getUserAccessibleProjects(user);
+    if (!accessibleProjects.includes(existingRelease.projectName)) {
+      return NextResponse.json(
+        { error: 'Access denied. You do not have permission to update this release.' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const {
       version,
@@ -80,14 +144,7 @@ export async function PUT(
       isPublished
     } = body;
 
-    // Check if release exists
-    const existingRelease = await Release.findById(params.id);
-    if (!existingRelease) {
-      return NextResponse.json(
-        { error: 'Release not found' },
-        { status: 404 }
-      );
-    }
+    // We already have existingRelease from the project access check above
 
     // If version is being changed, check if new version already exists
     if (version && version !== existingRelease.version) {
@@ -175,6 +232,33 @@ export async function DELETE(
     if (decoded.role !== 'super_admin') {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
+        { status: 403 }
+      );
+    }
+
+    // Get user to check project access
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get the release to check project access before deleting
+    const releaseToDelete = await Release.findById(params.id);
+    if (!releaseToDelete) {
+      return NextResponse.json(
+        { error: 'Release not found' },
+        { status: 404 }
+      );
+    }
+
+    // Check if user has access to this release's project
+    const accessibleProjects = getUserAccessibleProjects(user);
+    if (!accessibleProjects.includes(releaseToDelete.projectName)) {
+      return NextResponse.json(
+        { error: 'Access denied. You do not have permission to delete this release.' },
         { status: 403 }
       );
     }

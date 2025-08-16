@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { Release, ReleaseType, ReleaseFilters, FeatureCategory } from '@/types/release';
-import { rolePermissions } from '@/types/user';
+import { rolePermissions, getUserAccessibleProjects, AVAILABLE_PROJECTS } from '@/types/user';
 import {
   Package,
   Plus,
@@ -347,6 +347,7 @@ export default function ReleasesPage() {
   const [releaseToDelete, setReleaseToDelete] = useState<Release | null>(null);
 
   const permissions = user ? rolePermissions[user.role] : null;
+  const accessibleProjects = user ? getUserAccessibleProjects(user) : [];
 
   useEffect(() => {
     fetchReleases();
@@ -360,9 +361,9 @@ export default function ReleasesPage() {
         limit: '10',
 
         ...(filters.type && { type: filters.type }),
+        ...(filters.projectName && { projectName: filters.projectName }),
         ...(filters.search && { search: filters.search }),
-        ...(filters.dateFrom && { dateFrom: filters.dateFrom.toISOString() }),
-        ...(filters.dateTo && { dateTo: filters.dateTo.toISOString() })
+        ...(filters.releaseDate && { releaseDate: filters.releaseDate.toISOString() })
       });
 
       const response = await fetch(`/api/releases?${params}`);
@@ -577,6 +578,23 @@ export default function ReleasesPage() {
             <div className="mt-6 pt-6 border-t border-gray-200">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Project
+                  </label>
+                  <select
+                    value={filters.projectName || ''}
+                    onChange={(e) => handleFilterChange('projectName', e.target.value || undefined)}
+                    className="input w-full"
+                  >
+                    <option value="">All Projects</option>
+                    {accessibleProjects.map((project) => (
+                      <option key={project} value={project}>
+                        {project}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -597,36 +615,26 @@ export default function ReleasesPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    From Date
+                    Release Date
                   </label>
                   <input
                     type="date"
-                    value={filters.dateFrom ? filters.dateFrom.toISOString().split('T')[0] : ''}
-                    onChange={(e) => handleFilterChange('dateFrom', e.target.value ? new Date(e.target.value) : undefined)}
+                    value={filters.releaseDate ? filters.releaseDate.toISOString().split('T')[0] : ''}
+                    onChange={(e) => handleFilterChange('releaseDate', e.target.value ? new Date(e.target.value) : undefined)}
                     className="input w-full"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    To Date
-                  </label>
-                  <input
-                    type="date"
-                    value={filters.dateTo ? filters.dateTo.toISOString().split('T')[0] : ''}
-                    onChange={(e) => handleFilterChange('dateTo', e.target.value ? new Date(e.target.value) : undefined)}
-                    className="input w-full"
-                  />
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="btn btn-secondary w-full"
+                  >
+                    Clear Filters
+                  </button>
                 </div>
-              </div>
-              <div className="mt-4 flex justify-end">
-                <button
-                  type="button"
-                  onClick={clearFilters}
-                  className="btn btn-secondary"
-                >
-                  Clear Filters
-                </button>
+
               </div>
             </div>
           )}

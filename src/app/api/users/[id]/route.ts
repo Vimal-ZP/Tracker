@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
 import { withRoleAuth, AuthenticatedRequest } from '@/lib/middleware';
-import { UserRole } from '@/types/user';
+import { UserRole, AVAILABLE_PROJECTS } from '@/types/user';
 
 interface RouteParams {
     params: {
@@ -45,7 +45,7 @@ async function putHandler(req: AuthenticatedRequest, context: RouteParams) {
         const { params } = context;
         const { id } = params;
         const body = await req.json();
-        const { name, email, role, isActive } = body;
+        const { name, email, role, isActive, assignedProjects } = body;
 
         // Find the user to update
         const user = await User.findById(id);
@@ -81,11 +81,33 @@ async function putHandler(req: AuthenticatedRequest, context: RouteParams) {
             );
         }
 
+        // Only Super Admin can modify project assignments
+        if (assignedProjects !== undefined && req.user?.role !== UserRole.SUPER_ADMIN) {
+            return NextResponse.json(
+                { error: 'Only Super Admin can modify project assignments' },
+                { status: 403 }
+            );
+        }
+
+        // Validate assigned projects
+        if (assignedProjects !== undefined && Array.isArray(assignedProjects)) {
+            const invalidProjects = assignedProjects.filter(project => !AVAILABLE_PROJECTS.includes(project as any));
+            if (invalidProjects.length > 0) {
+                return NextResponse.json(
+                    { error: `Invalid project names: ${invalidProjects.join(', ')}. Valid projects are: ${AVAILABLE_PROJECTS.join(', ')}` },
+                    { status: 400 }
+                );
+            }
+        }
+
         // Update user fields
         if (name) user.name = name;
         if (email) user.email = email.toLowerCase();
         if (role && req.user?.role !== UserRole.BASIC) user.role = role;
         if (isActive !== undefined && req.user?.role !== UserRole.BASIC) user.isActive = isActive;
+        if (assignedProjects !== undefined && req.user?.role === UserRole.SUPER_ADMIN) {
+            user.assignedProjects = assignedProjects;
+        }
 
         await user.save();
 

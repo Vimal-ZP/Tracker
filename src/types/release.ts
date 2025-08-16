@@ -93,9 +93,9 @@ export interface UpdateReleaseData extends Partial<CreateReleaseData> {
 
 export interface ReleaseFilters {
   type?: ReleaseType;
+  projectName?: string;
   search?: string;
-  dateFrom?: Date;
-  dateTo?: Date;
+  releaseDate?: Date;
 }
 
 export interface ReleasesResponse {

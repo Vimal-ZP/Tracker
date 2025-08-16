@@ -225,6 +225,9 @@ export default function UserList() {
                                     Role
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Assigned Projects
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Status
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -257,6 +260,26 @@ export default function UserList() {
                                         <span className={`badge ${getRoleBadgeColor(user.role)}`}>
                                             {getRoleDisplayName(user.role)}
                                         </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-wrap gap-1">
+                                            {user.role === UserRole.SUPER_ADMIN ? (
+                                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    All Projects (Default)
+                                                </span>
+                                            ) : user.assignedProjects && user.assignedProjects.length > 0 ? (
+                                                user.assignedProjects.map((project) => (
+                                                    <span
+                                                        key={project}
+                                                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                                                    >
+                                                        {project}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-sm text-gray-400 italic">No projects assigned</span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="flex items-center">

@@ -4,26 +4,63 @@ import Release from '@/models/Release';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/auth';
 import { ReleaseType } from '@/types/release';
+import { getUserAccessibleProjects } from '@/types/user';
 
 // GET /api/releases - Get all releases with filtering and pagination
 export async function GET(request: NextRequest) {
   try {
     await connectDB();
 
+    // Verify authentication
+    const token = request.cookies.get('auth_token')?.value;
+    if (!token) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json(
+        { error: 'Invalid token' },
+        { status: 401 }
+      );
+    }
+
+    // Get user to check project access
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    // Get user's accessible projects
+    const accessibleProjects = getUserAccessibleProjects(user);
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
 
     const type = searchParams.get('type') as ReleaseType;
+    const projectName = searchParams.get('projectName');
     const search = searchParams.get('search');
-    const dateFrom = searchParams.get('dateFrom');
-    const dateTo = searchParams.get('dateTo');
+    const releaseDate = searchParams.get('releaseDate');
     const published = searchParams.get('published');
 
-    // Build query
-    const query: any = {};
+    // Build query with project filtering
+    let projectFilter = accessibleProjects;
 
+    // If user specifies a specific project, filter further (but only if they have access)
+    if (projectName && accessibleProjects.includes(projectName)) {
+      projectFilter = [projectName];
+    }
 
+    const query: any = {
+      projectName: { $in: projectFilter }
+    };
 
     if (type) {
       query.type = type;
@@ -41,14 +78,16 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    if (dateFrom || dateTo) {
-      query.releaseDate = {};
-      if (dateFrom) {
-        query.releaseDate.$gte = new Date(dateFrom);
-      }
-      if (dateTo) {
-        query.releaseDate.$lte = new Date(dateTo);
-      }
+    if (releaseDate) {
+      // Filter by specific release date (same day)
+      const filterDate = new Date(releaseDate);
+      const startOfDay = new Date(filterDate.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(filterDate.setHours(23, 59, 59, 999));
+      
+      query.releaseDate = {
+        $gte: startOfDay,
+        $lte: endOfDay
+      };
     }
 
     // Execute query with pagination
@@ -111,6 +150,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Get user to check project access
+    const user = await User.findById(decoded.userId);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     const body = await request.json();
     const {
       version,
@@ -132,6 +180,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Missing required fields: title, projectName, description, type' },
         { status: 400 }
+      );
+    }
+
+    // Check if user has access to the specified project
+    const accessibleProjects = getUserAccessibleProjects(user);
+    if (!accessibleProjects.includes(projectName)) {
+      return NextResponse.json(
+        { error: 'Access denied. You do not have permission to create releases for this project.' },
+        { status: 403 }
       );
     }
 

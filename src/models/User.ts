@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { UserRole } from '@/types/user';
+import { UserRole, AVAILABLE_PROJECTS } from '@/types/user';
 
 export interface IUser extends Document {
     email: string;
@@ -8,6 +8,7 @@ export interface IUser extends Document {
     password: string;
     role: UserRole;
     isActive: boolean;
+    assignedProjects: string[];
     createdAt: Date;
     updatedAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
@@ -43,6 +44,18 @@ const UserSchema = new Schema<IUser>({
     isActive: {
         type: Boolean,
         default: true
+    },
+    assignedProjects: {
+        type: [String],
+        default: [],
+        validate: {
+            validator: function (projects: string[]) {
+                return projects.every(project => AVAILABLE_PROJECTS.includes(project as any));
+            },
+            message: `Invalid project name. Valid projects are: ${AVAILABLE_PROJECTS.join(', ')}`
+        }
+        // Note: Super Admin users have access to all projects by default (empty array)
+        // Admin and Basic users need explicit project assignments
     }
 }, {
     timestamps: true
