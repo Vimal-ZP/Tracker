@@ -20,12 +20,10 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    if (!user) return null;
-
-    const permissions = rolePermissions[user.role];
-
     // Close dropdown when clicking outside
     useEffect(() => {
+        if (!user) return; // Early return inside useEffect is safe
+        
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsDropdownOpen(false);
@@ -39,7 +37,12 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isDropdownOpen]);
+    }, [isDropdownOpen, user]);
+
+    // Return null after all hooks have been called
+    if (!user) return null;
+
+    const permissions = rolePermissions[user.role];
 
     const handleLogout = () => {
         console.log('Logout button clicked');
