@@ -29,8 +29,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return true;
     });
     const [isInitialized, setIsInitialized] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-    useEffect(() => {
+        useEffect(() => {
+        // Don't re-initialize if we're in the middle of a logout
+        if (isLoggingOut) {
+            console.log('AuthContext: Skipping initialization - logout in progress');
+            return;
+        }
+
         // Immediate synchronous check to prevent flash
         const initAuth = async () => {
             if (typeof window === 'undefined') {
@@ -40,8 +47,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             // Check for token immediately
-            const token = localStorage.getItem('auth_token') ||
-                document.cookie.match(/auth_token=([^;]+)/)?.[1];
+            const token = localStorage.getItem('auth_token') || 
+                         document.cookie.match(/auth_token=([^;]+)/)?.[1];
 
             if (!token) {
                 // No token, user is definitely not authenticated
@@ -76,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
 
         initAuth();
-    }, []);
+    }, [isLoggingOut]);
 
 
 
@@ -127,6 +134,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
             console.log('AuthContext: Starting logout process');
             
+            // Set logout flag to prevent re-initialization
+            setIsLoggingOut(true);
+            
             // Clear user state immediately
             setUser(null);
             
@@ -149,6 +159,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             
             console.log('AuthContext: Logout completed successfully');
             toast.success('Logged out successfully');
+            
+            // Clear logout flag after a brief delay
+            setTimeout(() => {
+                setIsLoggingOut(false);
+            }, 100);
+            
         } catch (error) {
             console.error('AuthContext: Error during logout:', error);
             // Even if there's an error, ensure user is logged out
@@ -163,6 +179,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
             }
             toast.success('Logged out successfully');
+            
+            // Clear logout flag
+            setTimeout(() => {
+                setIsLoggingOut(false);
+            }, 100);
         }
     };
 

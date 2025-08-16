@@ -9,7 +9,7 @@ interface AuthInitializerProps {
 }
 
 export default function AuthInitializer({ children }: AuthInitializerProps) {
-    const { isInitialized } = useAuth();
+    const { isInitialized, loading, user } = useAuth();
 
     useEffect(() => {
         // Mark React as ready once this component mounts
@@ -18,7 +18,18 @@ export default function AuthInitializer({ children }: AuthInitializerProps) {
         }
     }, []);
 
+    // Add debugging
+    useEffect(() => {
+        console.log('AuthInitializer: State changed', {
+            isInitialized,
+            loading,
+            user: !!user,
+            pathname: typeof window !== 'undefined' ? window.location.pathname : 'SSR'
+        });
+    }, [isInitialized, loading, user]);
+
     if (!isInitialized) {
+        console.log('AuthInitializer: Showing loading - not initialized');
         return (
             <div className="auth-initializing">
                 <LoadingSpinner size="lg" />
@@ -26,6 +37,7 @@ export default function AuthInitializer({ children }: AuthInitializerProps) {
         );
     }
 
+    console.log('AuthInitializer: Auth ready, rendering children');
     return (
         <div className="auth-ready">
             {children}
