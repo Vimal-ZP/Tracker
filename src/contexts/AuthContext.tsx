@@ -31,7 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isInitialized, setIsInitialized] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-        useEffect(() => {
+    useEffect(() => {
         // Don't re-initialize if we're in the middle of a logout
         if (isLoggingOut) {
             console.log('AuthContext: Skipping initialization - logout in progress');
