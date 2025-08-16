@@ -58,7 +58,7 @@ export default function ReleaseDetailPage() {
   const [showBulkDeleteConfirmation, setShowBulkDeleteConfirmation] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<WorkItem | null>(null);
   const [showWorkItemModal, setShowWorkItemModal] = useState(false);
-  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'createChild'>('create');
+  const [modalMode, setModalMode] = useState<'create' | 'edit' | 'createChild' | 'createEpic'>('create');
   const [modalWorkItem, setModalWorkItem] = useState<WorkItem | null>(null);
   const [modalParentItem, setModalParentItem] = useState<WorkItem | null>(null);
 
@@ -400,6 +400,7 @@ export default function ReleaseDetailPage() {
           item._id === modalWorkItem._id
             ? {
               ...item,
+              id: formData.id,
               title: formData.title,
               flagName: formData.flagName,
               remarks: formData.remarks,
@@ -412,6 +413,7 @@ export default function ReleaseDetailPage() {
         // Create new work item
         const newWorkItem: Omit<WorkItem, '_id'> = {
           type: formData.type,
+          id: formData.id,
           title: formData.title,
           flagName: formData.flagName,
           remarks: formData.remarks,
@@ -888,34 +890,43 @@ export default function ReleaseDetailPage() {
                     </button>
                   )}
 
-                  {/* Expand/Collapse All buttons */}
-                  {release.workItems && release.workItems.length > 0 && (
-                    <>
-                      <button
-                        onClick={() => setCollapsedItems(new Set())}
-                        className="btn btn-secondary btn-sm flex items-center space-x-1"
-                        title="Expand All"
-                      >
-                        <ChevronDown className="w-4 h-4" />
-                        <span>Expand All</span>
-                      </button>
+                  {/* Expand/Collapse All toggle button */}
+                  {release.workItems && release.workItems.length > 0 && (() => {
+                    const allParentIds = new Set(
+                      release.workItems
+                        .filter(item => hasChildren(item._id!, release.workItems))
+                        .map(item => item._id!)
+                    );
+                    const allCollapsed = allParentIds.size > 0 && Array.from(allParentIds).every(id => collapsedItems.has(id));
+
+                    return (
                       <button
                         onClick={() => {
-                          const allParentIds = new Set(
-                            release.workItems
-                              .filter(item => hasChildren(item._id!, release.workItems))
-                              .map(item => item._id!)
-                          );
-                          setCollapsedItems(allParentIds);
+                          if (allCollapsed) {
+                            // Expand all
+                            setCollapsedItems(new Set());
+                          } else {
+                            // Collapse all
+                            setCollapsedItems(allParentIds);
+                          }
                         }}
                         className="btn btn-secondary btn-sm flex items-center space-x-1"
-                        title="Collapse All"
+                        title={allCollapsed ? "Expand All" : "Collapse All"}
                       >
-                        <ChevronRight className="w-4 h-4" />
-                        <span>Collapse All</span>
+                        {allCollapsed ? (
+                          <>
+                            <ChevronDown className="w-4 h-4" />
+                            <span>Expand All</span>
+                          </>
+                        ) : (
+                          <>
+                            <ChevronRight className="w-4 h-4" />
+                            <span>Collapse All</span>
+                          </>
+                        )}
                       </button>
-                    </>
-                  )}
+                    );
+                  })()}
                   {permissions?.canManageUsers && (
                     <button
                       onClick={() => {
@@ -1034,13 +1045,18 @@ export default function ReleaseDetailPage() {
                                 </div>
                               </td>
                               <td className="px-4 py-4 whitespace-nowrap text-sm">
-                                {item._id ? (
-                                  <Link
-                                    href={`/releases/${params.id}/workitem/${item._id}`}
-                                    className="text-blue-600 hover:text-blue-800 hover:underline"
+                                {item.id && item.hyperlink ? (
+                                  <a
+                                    href={item.hyperlink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                                    title={`Open ${item.id} in new tab`}
                                   >
-                                    {item._id.slice(-8)}
-                                  </Link>
+                                    {item.id}
+                                  </a>
+                                ) : item.id ? (
+                                  <span className="text-gray-900">{item.id}</span>
                                 ) : (
                                   <span className="text-gray-900">-</span>
                                 )}

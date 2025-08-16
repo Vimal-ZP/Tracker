@@ -374,10 +374,10 @@ export default function ReleasesList({
                     {release.type}
                   </span>
 
-                  {release.createdBy && (
+                  {release.author && (
                     <div className="flex items-center">
                       <User className="w-4 h-4 mr-1" />
-                      <span>{release.createdBy}</span>
+                      <span>{release.author.name}</span>
                     </div>
                   )}
                 </div>

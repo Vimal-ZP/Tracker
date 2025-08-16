@@ -27,6 +27,11 @@ const WorkItemSchema = new Schema({
     enum: Object.values(WorkItemType),
     required: true
   },
+  id: {
+    type: String,
+    required: false,
+    trim: true
+  },
   title: {
     type: String,
     required: true,
