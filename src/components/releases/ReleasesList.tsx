@@ -351,35 +351,32 @@ export default function ReleasesList({
                   </td>
                   {showActions && (
                     <td className="px-6 py-5 text-right">
-                      <div className="flex items-center justify-end space-x-2">
+                      <div className="flex items-center justify-end space-x-1">
                         <button
                           onClick={() => onView?.(release)}
-                          className="inline-flex items-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors duration-200"
+                          className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors duration-200"
                           title="View Details"
                         >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
+                          <Eye className="w-4 h-4" />
                         </button>
 
                         {canEdit && (
                           <button
                             onClick={() => onEdit?.(release)}
-                            className="inline-flex items-center px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                            className="p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors duration-200"
                             title="Edit Release"
                           >
-                            <Edit className="w-4 h-4 mr-1" />
-                            Edit
+                            <Edit className="w-4 h-4" />
                           </button>
                         )}
 
                         {canDelete && (
                           <button
                             onClick={() => onDelete?.(release._id)}
-                            className="inline-flex items-center px-3 py-2 text-xs font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors duration-200"
+                            className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200"
                             title="Delete Release"
                           >
-                            <Trash2 className="w-4 h-4 mr-1" />
-                            Delete
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         )}
                       </div>
