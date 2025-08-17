@@ -135,82 +135,107 @@ export default function SettingsPage() {
                 return <ApplicationManagement />;
             case 'general':
                 return (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {settingsCategories.slice(0, 1).map((category) => (
-                                <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
-                                    <div className="p-6">
-                                        <div className="flex items-start space-x-4">
-                                            <div className={`flex-shrink-0 w-12 h-12 bg-gradient-to-br ${category.gradient} rounded-lg flex items-center justify-center text-white shadow-sm`}>
-                                                <category.icon className="w-6 h-6" />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                                    {category.title}
-                                                </h3>
-                                                <p className="text-gray-600 mb-4 leading-relaxed">
-                                                    {category.description}
-                                                </p>
-                                                <div className="space-y-3">
-                                                    {category.items.map((item) => (
-                                                        <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
-                                                            <div className="flex items-center space-x-3">
-                                                                <div className={`w-2 h-2 rounded-full ${item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'}`}></div>
-                                                                <div>
-                                                                    <div className="font-medium text-gray-900">{item.name}</div>
-                                                                    <div className="text-xs text-gray-500">{item.description}</div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex items-center space-x-2">
-                                                                {item.status === 'configured' ? (
-                                                                    <CheckCircle2 className="w-4 h-4 text-green-600" />
-                                                                ) : (
-                                                                    <div className="w-4 h-4 rounded-full bg-amber-100 flex items-center justify-center">
-                                                                        <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
-                                                                    </div>
-                                                                )}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* General Settings */}
+                        {settingsCategories.slice(0, 1).map((category) => (
+                            <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                                <div className="p-6">
+                                    <div className="flex items-start space-x-4">
+                                        <div className={`flex-shrink-0 w-12 h-12 bg-gradient-to-br ${category.gradient} rounded-lg flex items-center justify-center text-white shadow-sm`}>
+                                            <category.icon className="w-6 h-6" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                                {category.title}
+                                            </h3>
+                                            <p className="text-gray-600 mb-4 leading-relaxed">
+                                                {category.description}
+                                            </p>
+                                            <div className="space-y-3">
+                                                {category.items.map((item) => (
+                                                    <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
+                                                        <div className="flex items-center space-x-3">
+                                                            <div className={`w-2 h-2 rounded-full ${item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'}`}></div>
+                                                            <div>
+                                                                <div className="font-medium text-gray-900">{item.name}</div>
+                                                                <div className="text-xs text-gray-500">{item.description}</div>
                                                             </div>
                                                         </div>
-                                                    ))}
-                                                </div>
+                                                        <div className="flex items-center space-x-2">
+                                                            {item.status === 'configured' ? (
+                                                                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                                            ) : (
+                                                                <div className="w-4 h-4 rounded-full bg-amber-100 flex items-center justify-center">
+                                                                    <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                         
                         {/* System Information */}
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                            <div className="p-4 border-b border-gray-200">
-                                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                                    <div className="w-6 h-6 bg-gray-100 rounded-md flex items-center justify-center mr-3">
-                                        <Info className="w-4 h-4 text-gray-600" />
-                                    </div>
-                                    System Information
-                                </h2>
-                            </div>
                             <div className="p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                        <dt className="text-sm font-medium text-gray-500 mb-1">Version</dt>
-                                        <dd className="text-xl font-bold text-gray-900">1.0.0</dd>
-                                        <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            Latest
+                                <div className="flex items-start space-x-4 mb-6">
+                                    <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center text-white shadow-sm">
+                                        <Info className="w-6 h-6" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                            System Information
+                                        </h3>
+                                        <p className="text-gray-600 mb-4 leading-relaxed">
+                                            Current system status and configuration details
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                                            <div>
+                                                <div className="font-medium text-gray-900">Version 1.0.0</div>
+                                                <div className="text-xs text-gray-500">Latest stable release</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                Latest
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                        <dt className="text-sm font-medium text-gray-500 mb-1">Environment</dt>
-                                        <dd className="text-xl font-bold text-gray-900">Development</dd>
-                                        <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                            Active
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                            <div>
+                                                <div className="font-medium text-gray-900">Development Environment</div>
+                                                <div className="text-xs text-gray-500">Active development mode</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                Active
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                        <dt className="text-sm font-medium text-gray-500 mb-1">Last Updated</dt>
-                                        <dd className="text-xl font-bold text-gray-900">{new Date().toLocaleDateString()}</dd>
-                                        <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                            Today
+                                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center space-x-3">
+                                            <div className="w-2 h-2 rounded-full bg-gray-500"></div>
+                                            <div>
+                                                <div className="font-medium text-gray-900">Last Updated {new Date().toLocaleDateString()}</div>
+                                                <div className="text-xs text-gray-500">System last modified today</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                            <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                                Today
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
