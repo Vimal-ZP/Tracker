@@ -249,15 +249,15 @@ export default function ReleasesList({
                 <tr key={release._id} className="hover:bg-blue-50/50 transition-colors duration-200">
                   <td className="px-4 py-3">
                     <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-gray-900 truncate pr-2">
+                      <div className="flex items-center space-x-2">
+                        <h3 className="text-sm font-semibold text-gray-900 truncate">
                           {release.title}
                         </h3>
                         <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${release.isPublished
                           ? 'bg-green-100 text-green-800'
                           : 'bg-amber-100 text-amber-800'
                           }`}>
-                          {release.isPublished ? 'Live' : 'Draft'}
+                          {release.isPublished ? 'Published' : 'Draft'}
                         </span>
                       </div>
                       <p className="text-xs text-gray-600 line-clamp-1">
