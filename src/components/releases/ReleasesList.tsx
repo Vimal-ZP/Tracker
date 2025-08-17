@@ -248,35 +248,30 @@ export default function ReleasesList({
               {releases.map((release, index) => (
                 <tr key={release._id} className="hover:bg-blue-50/50 transition-colors duration-200">
                   <td className="px-6 py-5">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
-                        <Package className="w-5 h-5 text-white" />
+                    <div>
+                      <div className="text-sm font-semibold text-gray-900 mb-1">
+                        {release.title}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-semibold text-gray-900 mb-1">
-                          {release.title}
-                        </div>
-                        <div className="text-sm text-gray-600 truncate max-w-xs">
-                          {release.description}
-                        </div>
-                        <div className="flex items-center mt-2">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${release.isPublished
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                            {release.isPublished ? (
-                              <>
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                Published
-                              </>
-                            ) : (
-                              <>
-                                <Clock className="w-3 h-3 mr-1" />
-                                Draft
-                              </>
-                            )}
-                          </span>
-                        </div>
+                      <div className="text-sm text-gray-600 truncate max-w-xs">
+                        {release.description}
+                      </div>
+                      <div className="flex items-center mt-2">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${release.isPublished
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                          {release.isPublished ? (
+                            <>
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Published
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3 h-3 mr-1" />
+                              Draft
+                            </>
+                          )}
+                        </span>
                       </div>
                     </div>
                   </td>
@@ -306,7 +301,7 @@ export default function ReleasesList({
                     {(() => {
                       const counts = getWorkItemCounts(release.workItems);
                       const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
-                      
+
                       const workItemTypes = [
                         { key: 'epic', count: counts.epic, bgColor: 'bg-purple-100', iconColor: 'text-purple-600', textColor: 'text-purple-800', badgeBg: 'bg-purple-100', label: 'Epic' },
                         { key: 'feature', count: counts.feature, bgColor: 'bg-blue-100', iconColor: 'text-blue-600', textColor: 'text-blue-800', badgeBg: 'bg-blue-100', label: 'Feature' },
@@ -518,8 +513,8 @@ export default function ReleasesList({
                       {release.title}
                     </h3>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${release.isPublished
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
                       }`}>
                       {release.isPublished ? (
                         <>
@@ -592,7 +587,7 @@ export default function ReleasesList({
                 {(() => {
                   const counts = getWorkItemCounts(release.workItems);
                   const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
-                  
+
                   const workItemTypes = [
                     { key: 'epic', count: counts.epic, bgColor: 'bg-purple-100', iconColor: 'text-purple-600', textColor: 'text-purple-800', badgeBg: 'bg-purple-100', label: 'Epic' },
                     { key: 'feature', count: counts.feature, bgColor: 'bg-blue-100', iconColor: 'text-blue-600', textColor: 'text-blue-800', badgeBg: 'bg-blue-100', label: 'Feature' },
