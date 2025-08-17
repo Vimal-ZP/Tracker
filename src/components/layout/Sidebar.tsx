@@ -12,8 +12,7 @@ import {
     Settings,
     X,
     Package,
-    Activity,
-    Search
+    Activity
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -42,12 +41,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             href: '/releases',
             icon: Package,
             show: true, // All users can view releases
-        },
-        {
-            name: 'Search',
-            href: '/search',
-            icon: Search,
-            show: true, // All users can search
         },
         {
             name: 'Reports',
