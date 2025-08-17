@@ -260,11 +260,10 @@ export default function ReleasesList({
                           {release.description}
                         </div>
                         <div className="flex items-center mt-2">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            release.isPublished 
-                              ? 'bg-green-100 text-green-800' 
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${release.isPublished
+                              ? 'bg-green-100 text-green-800'
                               : 'bg-yellow-100 text-yellow-800'
-                          }`}>
+                            }`}>
                             {release.isPublished ? (
                               <>
                                 <CheckCircle className="w-3 h-3 mr-1" />
@@ -307,51 +306,30 @@ export default function ReleasesList({
                     {(() => {
                       const counts = getWorkItemCounts(release.workItems);
                       const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
+                      
+                      const workItemTypes = [
+                        { key: 'epic', count: counts.epic, bgColor: 'bg-purple-100', iconColor: 'text-purple-600', textColor: 'text-purple-800', badgeBg: 'bg-purple-100', label: 'Epic' },
+                        { key: 'feature', count: counts.feature, bgColor: 'bg-blue-100', iconColor: 'text-blue-600', textColor: 'text-blue-800', badgeBg: 'bg-blue-100', label: 'Feature' },
+                        { key: 'user_story', count: counts.user_story, bgColor: 'bg-emerald-100', iconColor: 'text-emerald-600', textColor: 'text-emerald-800', badgeBg: 'bg-emerald-100', label: 'Story' },
+                        { key: 'bug', count: counts.bug, bgColor: 'bg-red-100', iconColor: 'text-red-600', textColor: 'text-red-800', badgeBg: 'bg-red-100', label: 'Bug' },
+                        { key: 'incident', count: counts.incident, bgColor: 'bg-amber-100', iconColor: 'text-amber-600', textColor: 'text-amber-800', badgeBg: 'bg-amber-100', label: 'Incident' }
+                      ].filter(item => item.count > 0);
+
                       return (
-                        <div className="flex items-center space-x-1.5">
-                          {totalItems > 0 ? (
-                            <>
-                              {counts.epic > 0 && (
-                                <div className="flex items-center space-x-0.5 bg-purple-100 rounded-full px-1.5 py-0.5" title="Epics">
-                                  <div className="w-3 h-3 bg-purple-500 rounded-full flex items-center justify-center">
-                                    {getWorkItemIcon('epic')}
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                          {workItemTypes.length > 0 ? (
+                            workItemTypes.map((item) => (
+                              <div key={item.key} className="flex items-center space-x-1">
+                                <div className={`w-3 h-3 ${item.bgColor} rounded-sm flex items-center justify-center`}>
+                                  <div className={`w-2 h-2 ${item.iconColor}`}>
+                                    {getWorkItemIcon(item.key)}
                                   </div>
-                                  <span className="text-xs font-bold text-purple-700">{counts.epic}</span>
                                 </div>
-                              )}
-                              {counts.feature > 0 && (
-                                <div className="flex items-center space-x-0.5 bg-blue-100 rounded-full px-1.5 py-0.5" title="Features">
-                                  <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                                    {getWorkItemIcon('feature')}
-                                  </div>
-                                  <span className="text-xs font-bold text-blue-700">{counts.feature}</span>
-                                </div>
-                              )}
-                              {counts.user_story > 0 && (
-                                <div className="flex items-center space-x-0.5 bg-emerald-100 rounded-full px-1.5 py-0.5" title="User Stories">
-                                  <div className="w-3 h-3 bg-emerald-500 rounded-full flex items-center justify-center">
-                                    {getWorkItemIcon('user_story')}
-                                  </div>
-                                  <span className="text-xs font-bold text-emerald-700">{counts.user_story}</span>
-                                </div>
-                              )}
-                              {counts.bug > 0 && (
-                                <div className="flex items-center space-x-0.5 bg-red-100 rounded-full px-1.5 py-0.5" title="Bugs">
-                                  <div className="w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                                    {getWorkItemIcon('bug')}
-                                  </div>
-                                  <span className="text-xs font-bold text-red-700">{counts.bug}</span>
-                                </div>
-                              )}
-                              {counts.incident > 0 && (
-                                <div className="flex items-center space-x-0.5 bg-amber-100 rounded-full px-1.5 py-0.5" title="Incidents">
-                                  <div className="w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
-                                    {getWorkItemIcon('incident')}
-                                  </div>
-                                  <span className="text-xs font-bold text-amber-700">{counts.incident}</span>
-                                </div>
-                              )}
-                            </>
+                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold ${item.badgeBg} ${item.textColor}`}>
+                                  {item.count}
+                                </span>
+                              </div>
+                            ))
                           ) : (
                             <span className="text-xs text-gray-400 font-medium">None</span>
                           )}
@@ -543,11 +521,10 @@ export default function ReleasesList({
                       <h3 className="text-lg font-bold text-gray-900">
                         {release.title}
                       </h3>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                        release.isPublished 
-                          ? 'bg-green-100 text-green-800' 
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${release.isPublished
+                          ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
-                      }`}>
+                        }`}>
                         {release.isPublished ? (
                           <>
                             <CheckCircle className="w-3 h-3 mr-1" />
@@ -617,62 +594,41 @@ export default function ReleasesList({
                   )}
                 </div>
 
-                {/* Ultra-Compact Work Items */}
+                {/* Work Items - Following Metadata Pattern */}
                 {(() => {
                   const counts = getWorkItemCounts(release.workItems);
                   const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
+                  
+                  const workItemTypes = [
+                    { key: 'epic', count: counts.epic, bgColor: 'bg-purple-100', iconColor: 'text-purple-600', textColor: 'text-purple-800', badgeBg: 'bg-purple-100', label: 'Epic' },
+                    { key: 'feature', count: counts.feature, bgColor: 'bg-blue-100', iconColor: 'text-blue-600', textColor: 'text-blue-800', badgeBg: 'bg-blue-100', label: 'Feature' },
+                    { key: 'user_story', count: counts.user_story, bgColor: 'bg-emerald-100', iconColor: 'text-emerald-600', textColor: 'text-emerald-800', badgeBg: 'bg-emerald-100', label: 'Story' },
+                    { key: 'bug', count: counts.bug, bgColor: 'bg-red-100', iconColor: 'text-red-600', textColor: 'text-red-800', badgeBg: 'bg-red-100', label: 'Bug' },
+                    { key: 'incident', count: counts.incident, bgColor: 'bg-amber-100', iconColor: 'text-amber-600', textColor: 'text-amber-800', badgeBg: 'bg-amber-100', label: 'Incident' }
+                  ].filter(item => item.count > 0);
+
                   return (
-                    <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-gray-200 px-3 py-2">
-                      <div className="flex items-center space-x-1">
-                        <Layers className="w-3.5 h-3.5 text-gray-600" />
-                        <span className="text-xs font-medium text-gray-700">Items</span>
-                      </div>
-                      
-                      {totalItems > 0 ? (
-                        <div className="flex items-center space-x-2">
-                          {counts.epic > 0 && (
-                            <div className="flex items-center space-x-1 bg-purple-100 rounded-full px-2 py-1" title="Epics">
-                              <div className="w-3 h-3 bg-purple-500 rounded-full flex items-center justify-center">
-                                {getWorkItemIcon('epic')}
+                    <div className="flex flex-wrap items-center gap-3 text-xs">
+                      {workItemTypes.length > 0 ? (
+                        workItemTypes.map((item) => (
+                          <div key={item.key} className="flex items-center space-x-1.5">
+                            <div className={`w-4 h-4 ${item.bgColor} rounded-sm flex items-center justify-center`}>
+                              <div className={`w-2.5 h-2.5 ${item.iconColor}`}>
+                                {getWorkItemIcon(item.key)}
                               </div>
-                              <span className="text-xs font-bold text-purple-700">{counts.epic}</span>
                             </div>
-                          )}
-                          {counts.feature > 0 && (
-                            <div className="flex items-center space-x-1 bg-blue-100 rounded-full px-2 py-1" title="Features">
-                              <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
-                                {getWorkItemIcon('feature')}
-                              </div>
-                              <span className="text-xs font-bold text-blue-700">{counts.feature}</span>
-                            </div>
-                          )}
-                          {counts.user_story > 0 && (
-                            <div className="flex items-center space-x-1 bg-emerald-100 rounded-full px-2 py-1" title="User Stories">
-                              <div className="w-3 h-3 bg-emerald-500 rounded-full flex items-center justify-center">
-                                {getWorkItemIcon('user_story')}
-                              </div>
-                              <span className="text-xs font-bold text-emerald-700">{counts.user_story}</span>
-                            </div>
-                          )}
-                          {counts.bug > 0 && (
-                            <div className="flex items-center space-x-1 bg-red-100 rounded-full px-2 py-1" title="Bugs">
-                              <div className="w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                                {getWorkItemIcon('bug')}
-                              </div>
-                              <span className="text-xs font-bold text-red-700">{counts.bug}</span>
-                            </div>
-                          )}
-                          {counts.incident > 0 && (
-                            <div className="flex items-center space-x-1 bg-amber-100 rounded-full px-2 py-1" title="Incidents">
-                              <div className="w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
-                                {getWorkItemIcon('incident')}
-                              </div>
-                              <span className="text-xs font-bold text-amber-700">{counts.incident}</span>
-                            </div>
-                          )}
-                        </div>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${item.badgeBg} ${item.textColor}`}>
+                              {item.count} {item.label}{item.count > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        ))
                       ) : (
-                        <span className="text-xs text-gray-400 font-medium">None</span>
+                        <div className="flex items-center space-x-1.5">
+                          <div className="w-4 h-4 bg-gray-100 rounded-sm flex items-center justify-center">
+                            <Layers className="w-2.5 h-2.5 text-gray-600" />
+                          </div>
+                          <span className="font-medium text-gray-500">No work items</span>
+                        </div>
                       )}
                     </div>
                   );
