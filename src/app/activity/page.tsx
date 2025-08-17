@@ -319,11 +319,8 @@ export default function ActivityPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-20">
                         <div className="flex items-center space-x-4">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl blur opacity-75"></div>
-                                <div className="relative p-3 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl shadow-lg">
-                                    <ActivityIcon className="w-7 h-7 text-white" />
-                                </div>
+                            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                <ActivityIcon className="w-6 h-6 text-purple-600" />
                             </div>
                             <div>
                                 <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
@@ -366,11 +363,8 @@ export default function ActivityPage() {
                                         <p className="text-xs text-gray-500">All time</p>
                                     </div>
                                 </div>
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl blur opacity-75"></div>
-                                    <div className="relative p-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                                        <BarChart3 className="w-7 h-7 text-white" />
-                                    </div>
+                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <BarChart3 className="w-6 h-6 text-blue-600" />
                                 </div>
                             </div>
                         </div>
@@ -386,11 +380,8 @@ export default function ActivityPage() {
                                         <p className="text-xs text-gray-500">Unique users</p>
                                     </div>
                                 </div>
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl blur opacity-75"></div>
-                                    <div className="relative p-4 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg">
-                                        <Users className="w-7 h-7 text-white" />
-                                    </div>
+                                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                                    <Users className="w-6 h-6 text-green-600" />
                                 </div>
                             </div>
                         </div>
@@ -408,11 +399,8 @@ export default function ActivityPage() {
                                         <p className="text-xs text-gray-500">Active apps</p>
                                     </div>
                                 </div>
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-violet-600 rounded-xl blur opacity-75"></div>
-                                    <div className="relative p-4 bg-gradient-to-r from-purple-500 to-violet-600 rounded-xl shadow-lg">
-                                        <Package className="w-7 h-7 text-white" />
-                                    </div>
+                                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <Package className="w-6 h-6 text-purple-600" />
                                 </div>
                             </div>
                         </div>
@@ -433,11 +421,8 @@ export default function ActivityPage() {
                                         <p className="text-xs text-gray-500">Most recent</p>
                                     </div>
                                 </div>
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-xl blur opacity-75"></div>
-                                    <div className="relative p-4 bg-gradient-to-r from-orange-500 to-amber-600 rounded-xl shadow-lg">
-                                        <Clock className="w-7 h-7 text-white" />
-                                    </div>
+                                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                                    <Clock className="w-6 h-6 text-orange-600" />
                                 </div>
                             </div>
                         </div>
@@ -448,8 +433,8 @@ export default function ActivityPage() {
                 <div className="bg-white rounded-2xl shadow-lg border border-gray-200/60 p-8 mb-8 backdrop-blur-sm">
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center space-x-3">
-                            <div className="p-2 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg shadow-lg">
-                                <Filter className="w-5 h-5 text-white" />
+                            <div className="w-8 h-8 bg-slate-100 rounded-md flex items-center justify-center">
+                                <Filter className="w-5 h-5 text-slate-600" />
                             </div>
                             <div>
                                 <h3 className="text-xl font-bold text-gray-900">Advanced Filters</h3>
@@ -558,8 +543,8 @@ export default function ActivityPage() {
                         {/* Application Breakdown */}
                         <div className="bg-white rounded-2xl shadow-lg border border-gray-200/60 p-8 backdrop-blur-sm">
                             <div className="flex items-center space-x-3 mb-6">
-                                <div className="p-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg">
-                                    <Package className="w-5 h-5 text-white" />
+                                <div className="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
+                                    <Package className="w-5 h-5 text-indigo-600" />
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-900">Activities by Application</h3>
@@ -608,8 +593,8 @@ export default function ActivityPage() {
                         {/* Top Users */}
                         <div className="bg-white rounded-2xl shadow-lg border border-gray-200/60 p-8 backdrop-blur-sm">
                             <div className="flex items-center space-x-3 mb-6">
-                                <div className="p-2 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-lg shadow-lg">
-                                    <Users className="w-5 h-5 text-white" />
+                                <div className="w-8 h-8 bg-emerald-100 rounded-md flex items-center justify-center">
+                                    <Users className="w-5 h-5 text-emerald-600" />
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-900">Most Active Users</h3>
@@ -661,8 +646,8 @@ export default function ActivityPage() {
                     <div className="p-8 border-b border-gray-200/60">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                                <div className="p-2 bg-gradient-to-r from-slate-600 to-slate-700 rounded-lg shadow-lg">
-                                    <ActivityIcon className="w-5 h-5 text-white" />
+                                <div className="w-8 h-8 bg-slate-100 rounded-md flex items-center justify-center">
+                                    <ActivityIcon className="w-5 h-5 text-slate-600" />
                                 </div>
                                 <div>
                                     <h3 className="text-xl font-bold text-gray-900">Recent Activities</h3>
@@ -709,67 +694,90 @@ export default function ActivityPage() {
                         <div className="divide-y divide-gray-100">
                             {state.activities.map((activity, index) => (
                                 <div key={activity._id} className="group relative p-6 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50/30 transition-all duration-300">
-                                    <div className="flex items-start space-x-4">
-                                        <div className="relative">
-                                            <div className={`p-3 rounded-xl shadow-lg ${getActionColor(activity.action)} group-hover:scale-110 transition-transform duration-300`}>
+                                    <div className="grid grid-cols-12 gap-6 items-start">
+                                        {/* Left Section - Icon & Activity Number */}
+                                        <div className="col-span-1 flex flex-col items-center space-y-2">
+                                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getActionColor(activity.action)}`}>
                                                 {getActionIcon(activity.action)}
                                             </div>
-                                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-white border-2 border-gray-200 rounded-full"></div>
+                                            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-xs font-bold group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors duration-300">
+                                                {index + 1}
+                                            </div>
                                         </div>
                                         
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <div className="flex items-center space-x-3">
-                                                    <span className="font-bold text-gray-900 text-lg">{activity.userName}</span>
-                                                    <span className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                                                        activity.userRole === 'super_admin' ? 'bg-red-100 text-red-700 border border-red-200' :
-                                                        activity.userRole === 'admin' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
-                                                        'bg-gray-100 text-gray-700 border border-gray-200'
-                                                    }`}>
-                                                        {activity.userRole.replace('_', ' ').toUpperCase()}
-                                                    </span>
-                                                    {activity.application && (
-                                                        <span className="text-xs px-3 py-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 rounded-full font-semibold border border-blue-200">
-                                                            {activity.application}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <div className="text-sm font-medium text-gray-600">
-                                                        {formatRelativeTime(activity.timestamp)}
-                                                    </div>
-                                                    <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                                                </div>
+                                        {/* Main Content Section */}
+                                        <div className="col-span-7">
+                                            <div className="flex items-center space-x-3 mb-2">
+                                                <span className="font-bold text-gray-900 text-lg">{activity.userName}</span>
+                                                <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                                                    activity.userRole === 'super_admin' ? 'bg-red-100 text-red-700 border border-red-200' :
+                                                    activity.userRole === 'admin' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
+                                                    'bg-gray-100 text-gray-700 border border-gray-200'
+                                                }`}>
+                                                    {activity.userRole.replace('_', ' ').toUpperCase()}
+                                                </span>
                                             </div>
                                             
                                             <p className="text-gray-800 mb-3 font-medium leading-relaxed">{activity.details}</p>
                                             
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center space-x-6 text-xs">
-                                                    <div className="flex items-center space-x-2">
-                                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                        <span className="font-semibold text-gray-600 uppercase tracking-wide">
-                                                            {activity.action.replace('_', ' ')}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center space-x-2">
-                                                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                                        <span className="font-semibold text-gray-600 uppercase tracking-wide">
-                                                            {activity.resource}
-                                                        </span>
-                                                    </div>
+                                            <div className="flex items-center space-x-4 text-xs">
+                                                <div className="flex items-center space-x-2">
+                                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                    <span className="font-semibold text-gray-600 uppercase tracking-wide">
+                                                        {activity.action.replace('_', ' ')}
+                                                    </span>
                                                 </div>
-                                                <div className="text-xs text-gray-500 font-medium">
-                                                    {formatDate(activity.timestamp)}
+                                                <div className="flex items-center space-x-2">
+                                                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                                    <span className="font-semibold text-gray-600 uppercase tracking-wide">
+                                                        {activity.resource}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    
-                                    {/* Activity number indicator */}
-                                    <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        <div className="w-6 h-6 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                            {index + 1}
+                                        
+                                        {/* Right Section - Metadata & Application */}
+                                        <div className="col-span-4 space-y-3">
+                                            {/* Application Badge */}
+                                            {activity.application && (
+                                                <div className="flex justify-end">
+                                                    <span className="text-sm px-3 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 rounded-lg font-semibold border border-blue-200 shadow-sm">
+                                                        📱 {activity.application}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            
+                                            {/* Time Information */}
+                                            <div className="text-right space-y-1">
+                                                <div className="text-sm font-medium text-gray-700">
+                                                    {formatRelativeTime(activity.timestamp)}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    {formatDate(activity.timestamp)}
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Additional Metadata */}
+                                            <div className="text-right space-y-2">
+                                                {activity.ipAddress && (
+                                                    <div className="text-xs text-gray-500">
+                                                        <span className="font-medium">IP:</span> {activity.ipAddress}
+                                                    </div>
+                                                )}
+                                                {activity.userAgent && (
+                                                    <div className="text-xs text-gray-500 truncate" title={activity.userAgent}>
+                                                        <span className="font-medium">Device:</span> {activity.userAgent.split(' ')[0]}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            {/* Activity Status Indicator */}
+                                            <div className="flex justify-end">
+                                                <div className="flex items-center space-x-2 text-xs">
+                                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                                    <span className="text-green-600 font-medium">LOGGED</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
