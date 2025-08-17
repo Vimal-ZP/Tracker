@@ -36,6 +36,8 @@ A comprehensive ReactJS application built with Next.js and MongoDB that provides
 - **Modern Design**: Clean, responsive UI built with Tailwind CSS
 - **Dashboard**: Role-specific dashboards with relevant information
 - **User Management**: Comprehensive user management interface
+- **Release Management**: Advanced release tracking with color-coded applications
+- **Professional Data Tables**: Enterprise-grade tables with filtering and sorting
 - **Real-time Notifications**: Toast notifications for user feedback
 - **Mobile Responsive**: Fully responsive design for all devices
 
@@ -137,12 +139,15 @@ src/
 ├── app/                    # Next.js App Router pages
 │   ├── api/               # API routes
 │   │   ├── auth/          # Authentication endpoints
-│   │   └── users/         # User management endpoints
+│   │   ├── users/         # User management endpoints
+│   │   ├── releases/      # Release management endpoints
+│   │   └── prompts/       # Prompt management endpoints
 │   ├── dashboard/         # Dashboard page
 │   ├── login/             # Login page
 │   ├── register/          # Registration page
 │   ├── users/             # User management page
-│   ├── reports/           # Reports page
+│   ├── releases/          # Release management page
+│   ├── reports/           # Reports page with advanced data tables
 │   ├── settings/          # Settings page
 │   ├── layout.tsx         # Root layout
 │   ├── page.tsx           # Home page
@@ -150,19 +155,27 @@ src/
 ├── components/            # Reusable React components
 │   ├── dashboard/         # Dashboard-specific components
 │   ├── layout/            # Layout components
+│   ├── releases/          # Release management components
+│   ├── reports/           # Advanced data table components
 │   ├── ui/                # UI components
 │   └── users/             # User management components
 ├── contexts/              # React contexts
-│   └── AuthContext.tsx    # Authentication context
+│   ├── AuthContext.tsx    # Authentication context
+│   ├── ReleasesContext.tsx # Release management context
+│   └── ReportsContext.tsx  # Reports and analytics context
 ├── lib/                   # Utility libraries
 │   ├── api.ts             # API client
 │   ├── auth.ts            # Authentication utilities
 │   ├── middleware.ts      # API middleware
 │   └── mongodb.ts         # MongoDB connection
 ├── models/                # Database models
-│   └── User.ts            # User model
+│   ├── User.ts            # User model
+│   ├── Release.ts         # Release model
+│   └── Prompt.ts          # Prompt model
 ├── types/                 # TypeScript type definitions
-│   └── user.ts            # User-related types
+│   ├── user.ts            # User-related types
+│   ├── release.ts         # Release-related types
+│   └── prompt.ts          # Prompt-related types
 └── middleware.ts          # Next.js middleware
 ```
 
@@ -179,6 +192,15 @@ src/
 - `GET /api/users/[id]` - Get user by ID (Admin+)
 - `PUT /api/users/[id]` - Update user (Admin+ or own profile)
 - `DELETE /api/users/[id]` - Delete user (Super Admin only)
+
+### Release Management
+- `GET /api/releases` - Get all releases (Admin+)
+- `POST /api/releases` - Create new release (Admin+)
+- `GET /api/releases/[id]` - Get release by ID (Admin+)
+- `PUT /api/releases/[id]` - Update release (Admin+)
+- `DELETE /api/releases/[id]` - Delete release (Super Admin only)
+- `POST /api/releases/[id]/duplicate` - Duplicate release (Admin+)
+- `POST /api/releases/[id]/favorite` - Toggle favorite status (Admin+)
 
 ## 🔒 Security Features
 
@@ -246,6 +268,29 @@ If you encounter any issues or have questions:
 2. Create a new issue with detailed information
 3. Include error messages, screenshots, and steps to reproduce
 
+## 🎨 Release Management Features
+
+### Application Color Coding System
+- **Visual Identification**: Each application has a unique color scheme for instant recognition
+- **Professional Design**: Gradient backgrounds and modern styling
+- **Accessibility**: High contrast ratios and screen reader support
+- **Color Legend**: Interactive guide showing application colors
+
+### Advanced Data Tables
+- **Professional UI**: Enterprise-grade table design with gradients and animations
+- **Advanced Filtering**: Multi-criteria filtering with visual feedback
+- **Sortable Columns**: Interactive column sorting with smooth animations
+- **Responsive Design**: Optimized for all screen sizes
+- **Row Actions**: Edit, delete, duplicate, and favorite operations
+
+### Supported Applications
+- **NRE** (Network Resource Engine) - Blue theme
+- **NVE** (Network Virtualization Engine) - Green theme
+- **E-Vite** (Electronic Invitation System) - Purple theme
+- **Portal Plus** - Orange theme
+- **Fast 2.0** - Pink theme
+- **FMS** (Fleet Management System) - Indigo theme
+
 ## 🔄 Future Enhancements
 
 - [ ] Email verification system
@@ -258,6 +303,9 @@ If you encounter any issues or have questions:
 - [ ] Advanced search and filtering
 - [ ] Bulk user operations
 - [ ] Export functionality
+- [ ] Custom application color themes
+- [ ] Release workflow automation
+- [ ] Integration with CI/CD pipelines
 
 ## 📊 Performance
 

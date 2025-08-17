@@ -151,7 +151,39 @@ function SettingsPage() {
 }
 ```
 
-### 6. ReportsContext
+### 6. ReleasesContext
+**Purpose**: Manages software release data, tracking, and analytics
+**Location**: `src/contexts/ReleasesContext.tsx`
+
+**State:**
+- `releases`: Array of software releases
+- `loading`: Loading state for release operations
+- `error`: Error messages
+- `filters`: Current release filters (application, type, status)
+- `sortConfig`: Current sorting configuration
+- `selectedRelease`: Currently selected release
+
+**Actions:**
+- `fetchReleases()`: Load all releases
+- `createRelease(releaseData)`: Create new release
+- `updateRelease(id, releaseData)`: Update existing release
+- `deleteRelease(id)`: Delete release
+- `duplicateRelease(id)`: Duplicate existing release
+- `toggleFavorite(id)`: Toggle release favorite status
+- `updateFilters(filters)`: Update release filters
+- `setSortConfig(config)`: Update sorting configuration
+
+**Usage:**
+```tsx
+import { useReleases } from '@/contexts/ReleasesContext';
+
+function ReleasesPage() {
+  const { releases, loading, fetchReleases, createRelease } = useReleases();
+  // ...
+}
+```
+
+### 7. ReportsContext
 **Purpose**: Manages reports, analytics, and metrics
 **Location**: `src/contexts/ReportsContext.tsx`
 
@@ -160,6 +192,7 @@ function SettingsPage() {
 - `systemMetrics`: System performance metrics
 - `securityReport`: Security-related reports
 - `activityReport`: Activity and usage reports
+- `releaseAnalytics`: Release-related analytics and metrics
 - `filters`: Current report filters
 - `loading`: Loading state
 - `error`: Error messages
@@ -169,6 +202,7 @@ function SettingsPage() {
 - `fetchSystemMetrics()`: Load system metrics
 - `fetchSecurityReport()`: Load security reports
 - `fetchActivityReport()`: Load activity reports
+- `fetchReleaseAnalytics()`: Load release analytics
 - `updateFilters(filters)`: Update report filters
 - `exportReport(type, format)`: Export report data
 - `scheduleReport(type, schedule)`: Schedule automated reports
@@ -178,7 +212,7 @@ function SettingsPage() {
 import { useReports } from '@/contexts/ReportsContext';
 
 function ReportsPage() {
-  const { userAnalytics, systemMetrics, loading } = useReports();
+  const { userAnalytics, systemMetrics, releaseAnalytics, loading } = useReports();
   // ...
 }
 ```
@@ -192,11 +226,13 @@ The contexts are organized in a specific hierarchy to manage dependencies:
   <AuthProvider>          // Authentication (depends on UI for loading)
     <SettingsProvider>    // Settings (depends on auth for permissions)
       <UserProvider>      // User management (depends on auth)
-        <DashboardProvider> // Dashboard (depends on auth, users)
-          <ReportsProvider> // Reports (depends on auth, users)
-            <App />
-          </ReportsProvider>
-        </DashboardProvider>
+        <ReleasesProvider>  // Release management (depends on auth)
+          <DashboardProvider> // Dashboard (depends on auth, users, releases)
+            <ReportsProvider> // Reports (depends on auth, users, releases)
+              <App />
+            </ReportsProvider>
+          </DashboardProvider>
+        </ReleasesProvider>
       </UserProvider>
     </SettingsProvider>
   </AuthProvider>
@@ -289,6 +325,39 @@ function Dashboard() {
 }
 ```
 
+### Release Management Context Usage
+```tsx
+import { useAuth, useReleases, useUI } from '@/contexts';
+
+function ReleasesPage() {
+  const { user } = useAuth();
+  const { releases, loading, fetchReleases, createRelease } = useReleases();
+  const { addNotification } = useUI();
+  
+  const handleCreateRelease = async (releaseData) => {
+    try {
+      await createRelease(releaseData);
+      addNotification({
+        type: 'success',
+        message: 'Release created successfully'
+      });
+    } catch (error) {
+      addNotification({
+        type: 'error',
+        message: 'Failed to create release'
+      });
+    }
+  };
+  
+  return (
+    <div>
+      <h1>Software Releases</h1>
+      {loading ? <LoadingSpinner /> : <ReleaseTable releases={releases} />}
+    </div>
+  );
+}
+```
+
 ### Conditional Context Usage
 ```tsx
 import { useAuth, useReports } from '@/contexts';
@@ -348,3 +417,73 @@ If you're updating from the single AuthContext approach:
    ```
 
 This architecture provides better separation of concerns, improved performance, and easier maintenance as the application grows.
+
+## 🎨 Release Table Component Features
+
+### Application Color Coding System
+The Release Table component includes a sophisticated color coding system for easy application identification:
+
+#### Color Scheme
+- **NRE**: Blue theme (`bg-blue-100`, `text-blue-800`, gradient `from-blue-500 to-blue-600`)
+- **NVE**: Green theme (`bg-green-100`, `text-green-800`, gradient `from-green-500 to-green-600`)
+- **E-Vite**: Purple theme (`bg-purple-100`, `text-purple-800`, gradient `from-purple-500 to-purple-600`)
+- **Portal Plus**: Orange theme (`bg-orange-100`, `text-orange-800`, gradient `from-orange-500 to-orange-600`)
+- **Fast 2.0**: Pink theme (`bg-pink-100`, `text-pink-800`, gradient `from-pink-500 to-pink-600`)
+- **FMS**: Indigo theme (`bg-indigo-100`, `text-indigo-800`, gradient `from-indigo-500 to-indigo-600`)
+
+#### Implementation
+```tsx
+const getApplicationColors = (applicationName: string) => {
+  const colorMap = {
+    'NRE': {
+      bg: 'bg-blue-100',
+      text: 'text-blue-800',
+      gradient: 'bg-gradient-to-br from-blue-500 to-blue-600'
+    },
+    // ... other applications
+  };
+  
+  return colorMap[applicationName] || {
+    bg: 'bg-gray-100',
+    text: 'text-gray-800',
+    gradient: 'bg-gradient-to-br from-gray-500 to-gray-600'
+  };
+};
+```
+
+### Professional UI Features
+- **Gradient Headers**: Modern blue-to-indigo gradient table headers
+- **Row Numbering**: Gradient-styled row numbers for visual hierarchy
+- **Interactive Elements**: Hover effects, sortable columns, and smooth transitions
+- **Advanced Filtering**: Professional filter controls with clear visual feedback
+- **Color Legend**: Interactive application color guide for user reference
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
+
+### Usage with Context
+```tsx
+import { useReleases } from '@/contexts/ReleasesContext';
+import { ReleaseTable } from '@/components/reports/ReleaseTable';
+
+function ReportsPage() {
+  const { releases, loading, updateRelease, deleteRelease } = useReleases();
+  
+  return (
+    <div>
+      <ReleaseTable 
+        releases={releases}
+        loading={loading}
+        onEdit={updateRelease}
+        onDelete={deleteRelease}
+      />
+    </div>
+  );
+}
+```
+
+### Accessibility Features
+- **High Contrast**: WCAG-compliant color contrast ratios
+- **Screen Reader Support**: Proper ARIA labels and semantic HTML
+- **Keyboard Navigation**: Full keyboard accessibility
+- **Color Blind Support**: Distinguishable colors with text alternatives
+
+For detailed documentation on the Release Table component and color coding system, see `RELEASE_TABLE_DOCUMENTATION.md`.
