@@ -34,30 +34,26 @@ export default function StatsCard({
     };
 
     return (
-        <div className="card">
-            <div className="card-body">
-                <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                        <div className={`w-8 h-8 bg-opacity-20 rounded-md flex items-center justify-center ${colorClasses[color]}`}>
-                            <Icon className="w-5 h-5" />
-                        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+            <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                    <div className={`w-8 h-8 bg-opacity-20 rounded-md flex items-center justify-center ${colorClasses[color]}`}>
+                        <Icon className="w-5 h-5" />
                     </div>
-                    <div className="ml-5 w-0 flex-1">
-                        <dl>
-                            <dt className="text-sm font-medium text-gray-500 truncate">
-                                {title}
-                            </dt>
-                            <dd className="flex items-baseline">
-                                <div className="text-2xl font-semibold text-gray-900">
-                                    {value}
-                                </div>
-                                {change && (
-                                    <div className={`ml-2 flex items-baseline text-sm font-semibold ${changeColorClasses[change.type]}`}>
-                                        {change.value}
-                                    </div>
-                                )}
-                            </dd>
-                        </dl>
+                </div>
+                <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-gray-600 truncate">
+                        {title}
+                    </p>
+                    <div className="flex items-baseline">
+                        <p className="text-lg font-semibold text-gray-900">
+                            {value}
+                        </p>
+                        {change && (
+                            <span className={`ml-2 text-sm font-medium ${changeColorClasses[change.type]}`}>
+                                {change.value}
+                            </span>
+                        )}
                     </div>
                 </div>
             </div>

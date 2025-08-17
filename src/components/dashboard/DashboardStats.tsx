@@ -57,42 +57,52 @@ export default function DashboardStats() {
     // Basic users see limited stats
     if (user.role === UserRole.BASIC) {
         return (
-            <div className="card">
-                <div className="card-header">
-                    <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                        <Users className="w-5 h-5 mr-2 text-blue-600" />
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div className="p-4 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                        <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center mr-3">
+                            <Users className="w-4 h-4 text-blue-600" />
+                        </div>
                         User Details
                     </h2>
                 </div>
-                <div className="card-body">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                                <Users className="w-6 h-6 text-green-600" />
+                <div className="p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                                <Users className="w-5 h-5 text-green-600" />
                             </div>
-                            <div className="text-sm text-gray-500 mb-1">Your Role</div>
-                            <div className="text-lg font-semibold text-gray-900">Basic User</div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Your Role</p>
+                                <p className="text-lg font-semibold text-gray-900">Basic User</p>
+                            </div>
                         </div>
-                        <div className="flex flex-col items-center text-center">
-                            <div className={`w-12 h-12 ${user.isActive ? 'bg-green-100' : 'bg-red-100'} rounded-full flex items-center justify-center mb-3`}>
-                                <Activity className={`w-6 h-6 ${user.isActive ? 'text-green-600' : 'text-red-600'}`} />
+                        <div className="flex items-center space-x-3">
+                            <div className={`w-8 h-8 ${user.isActive ? 'bg-green-100' : 'bg-red-100'} rounded-md flex items-center justify-center`}>
+                                <Activity className={`w-5 h-5 ${user.isActive ? 'text-green-600' : 'text-red-600'}`} />
                             </div>
-                            <div className="text-sm text-gray-500 mb-1">Account Status</div>
-                            <div className="text-lg font-semibold text-gray-900">{user.isActive ? "Active" : "Inactive"}</div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Account Status</p>
+                                <p className="text-lg font-semibold text-gray-900">{user.isActive ? "Active" : "Inactive"}</p>
+                            </div>
                         </div>
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                                <TrendingUp className="w-6 h-6 text-blue-600" />
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                                <TrendingUp className="w-5 h-5 text-blue-600" />
                             </div>
-                            <div className="text-sm text-gray-500 mb-1">Member Since</div>
-                            <div className="text-lg font-semibold text-gray-900">{new Date(user.createdAt).getFullYear()}</div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Member Since</p>
+                                <p className="text-lg font-semibold text-gray-900">{new Date(user.createdAt).getFullYear()}</p>
+                            </div>
                         </div>
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
-                                <Shield className="w-6 h-6 text-purple-600" />
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                                <Shield className="w-5 h-5 text-purple-600" />
                             </div>
-                            <div className="text-sm text-gray-500 mb-1">Access Level</div>
-                            <div className="text-lg font-semibold text-gray-900">Standard</div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Access Level</p>
+                                <p className="text-lg font-semibold text-gray-900">Standard</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -117,51 +127,51 @@ export default function DashboardStats() {
     }
 
     return (
-        <div className="card">
-            <div className="card-header">
-                <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                    <Users className="w-5 h-5 mr-2 text-blue-600" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="p-4 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                    <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center mr-3">
+                        <Users className="w-4 h-4 text-blue-600" />
+                    </div>
                     User Statistics
                 </h2>
             </div>
-            <div className="card-body">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div className="flex flex-col items-center text-center">
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                            <Users className="w-6 h-6 text-blue-600" />
+            <div className="p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                            <Users className="w-5 h-5 text-blue-600" />
                         </div>
-                        <div className="text-sm text-gray-500 mb-1">Total Users</div>
-                        <div className="text-2xl font-bold text-gray-900">{stats.totalUsers}</div>
-                        <div className="text-xs text-green-600 font-medium mt-1">+12%</div>
-                    </div>
-                    <div className="flex flex-col items-center text-center">
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                            <Activity className="w-6 h-6 text-green-600" />
-                        </div>
-                        <div className="text-sm text-gray-500 mb-1">Active Users</div>
-                        <div className="text-2xl font-bold text-gray-900">{stats.activeUsers}</div>
-                        <div className="text-xs text-gray-600 font-medium mt-1">
-                            {Math.round((stats.activeUsers / stats.totalUsers) * 100)}% of total
+                        <div>
+                            <p className="text-xs font-medium text-gray-600">Total Users</p>
+                            <p className="text-lg font-semibold text-gray-900">{stats.totalUsers}</p>
                         </div>
                     </div>
-                    <div className="flex flex-col items-center text-center">
-                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
-                            <Shield className="w-6 h-6 text-purple-600" />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                            <Activity className="w-5 h-5 text-green-600" />
                         </div>
-                        <div className="text-sm text-gray-500 mb-1">Admin Users</div>
-                        <div className="text-2xl font-bold text-gray-900">{stats.adminUsers}</div>
-                        <div className="text-xs text-gray-600 font-medium mt-1">
-                            {Math.round((stats.adminUsers / stats.totalUsers) * 100)}% of total
+                        <div>
+                            <p className="text-xs font-medium text-gray-600">Active Users</p>
+                            <p className="text-lg font-semibold text-gray-900">{stats.activeUsers}</p>
                         </div>
                     </div>
-                    <div className="flex flex-col items-center text-center">
-                        <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-3">
-                            <TrendingUp className="w-6 h-6 text-yellow-600" />
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                            <Shield className="w-5 h-5 text-purple-600" />
                         </div>
-                        <div className="text-sm text-gray-500 mb-1">Basic Users</div>
-                        <div className="text-2xl font-bold text-gray-900">{stats.basicUsers}</div>
-                        <div className="text-xs text-gray-600 font-medium mt-1">
-                            {Math.round((stats.basicUsers / stats.totalUsers) * 100)}% of total
+                        <div>
+                            <p className="text-xs font-medium text-gray-600">Admin Users</p>
+                            <p className="text-lg font-semibold text-gray-900">{stats.adminUsers}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-amber-100 rounded-md flex items-center justify-center">
+                            <TrendingUp className="w-5 h-5 text-amber-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs font-medium text-gray-600">Basic Users</p>
+                            <p className="text-lg font-semibold text-gray-900">{stats.basicUsers}</p>
                         </div>
                     </div>
                 </div>

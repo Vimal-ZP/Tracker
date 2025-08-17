@@ -83,19 +83,26 @@ export default function DashboardPage() {
     // Show demo dashboard if no user (for testing purposes)
     if (!user) {
         return (
-            <div className="h-full flex flex-col space-y-6">
-                <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-sm flex-shrink-0">
-                    <div className="px-6 py-8 text-white">
-                        <h1 className="text-3xl font-bold">
-                            Welcome to Tracker Dashboard!
-                        </h1>
-                        <p className="mt-2 text-blue-100">
-                            Demo mode - Please login to access full features.
-                        </p>
+            <div className="h-full flex flex-col space-y-4">
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm">
+                    <div className="p-4">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                                <BarChart3 className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-semibold text-gray-900">
+                                    Welcome to Tracker Dashboard!
+                                </h1>
+                                <p className="text-sm text-gray-600">
+                                    Demo mode - Please login to access full features.
+                                </p>
+                            </div>
+                        </div>
                         <div className="mt-4">
                             <a
                                 href="/login"
-                                className="inline-flex items-center px-4 py-2 bg-white text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-flex items-center"
                             >
                                 Go to Login
                             </a>
@@ -103,21 +110,42 @@ export default function DashboardPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h3 className="text-lg font-medium text-gray-900">Total Users</h3>
-                        <p className="text-3xl font-bold text-blue-600 mt-2">--</p>
-                        <p className="text-sm text-gray-500 mt-1">Login to view data</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                                <Users className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Total Users</p>
+                                <p className="text-lg font-semibold text-gray-900">--</p>
+                            </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">Login to view data</p>
                     </div>
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h3 className="text-lg font-medium text-gray-900">Active Sessions</h3>
-                        <p className="text-3xl font-bold text-green-600 mt-2">--</p>
-                        <p className="text-sm text-gray-500 mt-1">Login to view data</p>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                                <CheckCircle className="w-5 h-5 text-green-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Active Sessions</p>
+                                <p className="text-lg font-semibold text-gray-900">--</p>
+                            </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">Login to view data</p>
                     </div>
-                    <div className="bg-white p-6 rounded-lg shadow">
-                        <h3 className="text-lg font-medium text-gray-900">System Status</h3>
-                        <p className="text-3xl font-bold text-yellow-600 mt-2">Demo</p>
-                        <p className="text-sm text-gray-500 mt-1">Login for real status</p>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-amber-100 rounded-md flex items-center justify-center">
+                                <AlertCircle className="w-5 h-5 text-amber-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">System Status</p>
+                                <p className="text-lg font-semibold text-gray-900">Demo</p>
+                            </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">Login for real status</p>
                     </div>
                 </div>
             </div>
@@ -217,46 +245,66 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="h-full flex flex-col space-y-6" data-testid="dashboard">
-            {/* Welcome Header */}
-            <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-lg shadow-sm flex-shrink-0">
-                <div className="px-6 py-8 text-white">
-                    <h1 className="text-3xl font-bold">
-                        {getWelcomeMessage()}, {user.name}!
-                    </h1>
-                    <p className="mt-2 text-primary-100">
-                        Welcome to your dashboard. You are logged in as {getRoleDisplayName(user.role)}.
-                    </p>
-                    <div className="mt-4 flex items-center space-x-4 text-sm text-primary-100">
-                        <div className="flex items-center">
-                            <Calendar className="h-4 w-4 mr-1" />
-                            {new Date().toLocaleDateString('en-US', {
-                                weekday: 'long',
-                                year: 'numeric',
-                                month: 'long',
-                                day: 'numeric'
-                            })}
+        <div className="h-full flex flex-col space-y-4" data-testid="dashboard">
+            {/* Professional Header */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm">
+                <div className="p-4">
+                    <div className="flex justify-between items-center">
+                        {/* Left Section - Welcome */}
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                                <BarChart3 className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-semibold text-gray-900">
+                                    {getWelcomeMessage()}, {user.name}!
+                                </h1>
+                                <p className="text-sm text-gray-600">
+                                    Welcome to your dashboard. You are logged in as {getRoleDisplayName(user.role)}.
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            {new Date().toLocaleTimeString('en-US', {
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}
+
+                        {/* Right Section - Date/Time */}
+                        <div className="flex items-center space-x-4 text-sm">
+                            <div className="flex items-center space-x-1.5">
+                                <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center">
+                                    <Calendar className="w-3 h-3 text-blue-600" />
+                                </div>
+                                <span className="font-medium text-gray-700">
+                                    {new Date().toLocaleDateString('en-US', {
+                                        month: 'short',
+                                        day: 'numeric'
+                                    })}
+                                </span>
+                            </div>
+                            <div className="flex items-center space-x-1.5">
+                                <div className="w-6 h-6 bg-green-100 rounded-md flex items-center justify-center">
+                                    <Clock className="w-3 h-3 text-green-600" />
+                                </div>
+                                <span className="font-medium text-gray-700">
+                                    {new Date().toLocaleTimeString('en-US', {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
                 {/* Recent Releases */}
                 <div className="lg:col-span-1 flex flex-col">
-                    <div className="card flex-1 flex flex-col">
-                        <div className="card-header flex-shrink-0">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex-1 flex flex-col">
+                        <div className="p-4 border-b border-gray-200 flex-shrink-0">
                             <div className="flex items-center justify-between">
-                                <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                                    <Package className="w-5 h-5 mr-2 text-blue-600" />
+                                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                                    <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center mr-3">
+                                        <Package className="w-4 h-4 text-blue-600" />
+                                    </div>
                                     Recent Releases
                                 </h2>
                                 <a
@@ -267,19 +315,19 @@ export default function DashboardPage() {
                                 </a>
                             </div>
                         </div>
-                        <div className="card-body flex-1 overflow-y-auto">
+                        <div className="p-4 flex-1 overflow-y-auto">
                             {releasesLoading ? (
                                 <div className="flex items-center justify-center h-32">
                                     <div className="animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 w-6 h-6"></div>
                                 </div>
                             ) : releases.length > 0 ? (
-                                <div className="space-y-4">
+                                <div className="space-y-3">
                                     {releases.map((release) => (
-                                        <div key={release._id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                        <div key={release._id} className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors duration-200">
                                             <div className="flex items-start justify-between">
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center space-x-2 mb-2">
-                                                        <h3 className="text-sm font-medium text-gray-900 truncate">
+                                                        <h3 className="text-sm font-semibold text-gray-900 truncate">
                                                             {release.title}
                                                         </h3>
                                                         {release.version && (
@@ -324,16 +372,16 @@ export default function DashboardPage() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-12 flex-1 flex flex-col justify-center">
+                                <div className="text-center py-8 flex-1 flex flex-col justify-center">
                                     <Package className="mx-auto h-12 w-12 text-gray-400" />
-                                    <h3 className="mt-2 text-sm font-medium text-gray-900">No releases yet</h3>
+                                    <h3 className="mt-2 text-sm font-semibold text-gray-900">No releases yet</h3>
                                     <p className="mt-1 text-sm text-gray-500">
                                         Get started by creating your first release.
                                     </p>
                                     <div className="mt-4">
                                         <a
                                             href="/releases"
-                                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-flex items-center"
                                         >
                                             <Package className="w-4 h-4 mr-2" />
                                             Create Release
@@ -347,11 +395,16 @@ export default function DashboardPage() {
 
                 {/* Recent Activity */}
                 <div className="lg:col-span-1 flex flex-col">
-                    <div className="card flex-1 flex flex-col">
-                        <div className="card-header flex-shrink-0">
-                            <h2 className="text-lg font-medium text-gray-900">Recent Activity</h2>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex-1 flex flex-col">
+                        <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                                <div className="w-6 h-6 bg-green-100 rounded-md flex items-center justify-center mr-3">
+                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                </div>
+                                Recent Activity
+                            </h2>
                         </div>
-                        <div className="card-body flex-1 overflow-y-auto">
+                        <div className="p-4 flex-1 overflow-y-auto">
                             <div className="flow-root">
                                 <ul className="-mb-8">
                                     {recentActivities.map((activity, activityIdx) => (
@@ -391,31 +444,36 @@ export default function DashboardPage() {
             </div>
 
             {/* Secondary Content Area */}
-            <div className="flex-shrink-0 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="flex-shrink-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Quick Actions */}
                 <div className="flex flex-col">
-                    <div className="card flex-1 flex flex-col">
-                        <div className="card-header flex-shrink-0">
-                            <h2 className="text-lg font-medium text-gray-900">Quick Actions</h2>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex-1 flex flex-col">
+                        <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                            <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                                <div className="w-6 h-6 bg-purple-100 rounded-md flex items-center justify-center mr-3">
+                                    <Settings className="w-4 h-4 text-purple-600" />
+                                </div>
+                                Quick Actions
+                            </h2>
                         </div>
-                        <div className="card-body flex-1">
+                        <div className="p-4 flex-1">
                             {quickActions.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 h-full">
                                     {quickActions.map((action) => (
                                         <a
                                             key={action.title}
                                             href={action.href}
-                                            className="group relative rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center"
+                                            className="group relative rounded-lg p-3 bg-gray-50 hover:bg-white hover:shadow-sm border border-gray-200 hover:border-gray-300 transition-all duration-200 flex items-center"
                                         >
                                             <div className="flex items-center w-full">
-                                                <div className={`flex-shrink-0 w-10 h-10 ${action.color} rounded-lg flex items-center justify-center text-white`}>
-                                                    <action.icon className="w-5 h-5" />
+                                                <div className={`flex-shrink-0 w-8 h-8 ${action.color} rounded-lg flex items-center justify-center text-white`}>
+                                                    <action.icon className="w-4 h-4" />
                                                 </div>
-                                                <div className="ml-3 flex-1">
-                                                    <h3 className="text-sm font-medium text-gray-900 group-hover:text-primary-600">
+                                                <div className="ml-3 flex-1 min-w-0">
+                                                    <h3 className="text-sm font-semibold text-gray-900 truncate">
                                                         {action.title}
                                                     </h3>
-                                                    <p className="text-xs text-gray-500 mt-1">
+                                                    <p className="text-xs text-gray-500 truncate">
                                                         {action.description}
                                                     </p>
                                                 </div>
@@ -424,9 +482,9 @@ export default function DashboardPage() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-8 flex-1 flex flex-col justify-center">
+                                <div className="text-center py-6 flex-1 flex flex-col justify-center">
                                     <Shield className="mx-auto h-10 w-10 text-gray-400" />
-                                    <h3 className="mt-2 text-sm font-medium text-gray-900">No actions available</h3>
+                                    <h3 className="mt-2 text-sm font-semibold text-gray-900">No actions available</h3>
                                     <p className="mt-1 text-sm text-gray-500">
                                         Your current role doesn't have access to administrative actions.
                                     </p>
