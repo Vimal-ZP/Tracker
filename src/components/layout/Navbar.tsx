@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts';
 import { UserRole, rolePermissions } from '@/types/user';
 import GlobalSearch from '@/components/ui/GlobalSearch';
@@ -20,6 +21,10 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
     const { user, logout } = useAuth();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const pathname = usePathname();
+
+    // Check if current page should show search
+    const shouldShowSearch = pathname.startsWith('/releases') || pathname.includes('/releases/');
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -82,8 +87,9 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
     return (
         <nav className="bg-white shadow-sm border-b border-gray-200 flex-shrink-0 z-30">
             <div className="px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16">
-                    <div className="flex items-center space-x-4">
+                <div className="flex items-center justify-between h-16">
+                    {/* Left Section - Logo and Mobile Menu */}
+                    <div className="flex items-center space-x-4 flex-shrink-0">
                         <button
                             onClick={onToggleSidebar}
                             className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
@@ -96,12 +102,17 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                         </Link>
                     </div>
 
-                    {/* Global Search */}
-                    <div className="flex-1 max-w-2xl mx-8 hidden md:block">
-                        <GlobalSearch />
-                    </div>
+                    {/* Center Section - Global Search (conditionally visible) */}
+                    {shouldShowSearch && (
+                        <div className="flex-1 flex justify-center items-center px-8 hidden md:flex">
+                            <div className="w-full max-w-2xl">
+                                <GlobalSearch />
+                            </div>
+                        </div>
+                    )}
 
-                    <div className="flex items-center">
+                    {/* Right Section - User Menu */}
+                    <div className="flex items-center flex-shrink-0">
                         {/* Profile Dropdown */}
                         <div className="relative" ref={dropdownRef}>
                             <button

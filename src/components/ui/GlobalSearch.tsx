@@ -204,7 +204,7 @@ export default function GlobalSearch() {
                         setIsOpen(true);
                         setTimeout(() => inputRef.current?.focus(), 100);
                     }}
-                    className="group flex items-center space-x-3 px-4 py-3 text-sm bg-white border-2 border-gray-200 hover:border-blue-300 rounded-xl transition-all duration-300 min-w-[280px] md:min-w-[380px] shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="group flex items-center space-x-3 px-4 py-3 text-sm bg-white border-2 border-gray-200 hover:border-blue-300 rounded-xl transition-all duration-300 w-full shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                     <div className="flex items-center space-x-3 flex-1">
                         <div className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors duration-200">
@@ -227,7 +227,7 @@ export default function GlobalSearch() {
 
                 {/* Search Modal */}
                 {isOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-w-2xl">
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 w-full max-w-3xl">
                         {/* Enhanced Search Header */}
                         <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
                             <div className="flex items-center space-x-3 mb-4">
