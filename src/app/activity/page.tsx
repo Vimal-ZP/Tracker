@@ -122,6 +122,7 @@ const formatRelativeTime = (date: Date | string) => {
 
 export default function ActivityPage() {
     const { user } = useAuth();
+    const [showFilters, setShowFilters] = useState(false);
     const [state, setState] = useState<ActivityPageState>({
         activities: [],
         stats: null,
@@ -313,134 +314,122 @@ export default function ActivityPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-            {/* Enhanced Header */}
-            <div className="bg-white shadow-lg border-b border-gray-200/60 backdrop-blur-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-20">
-                        <div className="flex items-center space-x-4">
-                            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                                <ActivityIcon className="w-6 h-6 text-purple-600" />
+        <div className="h-full flex flex-col space-y-4">
+            {/* Compact Professional Header */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm">
+                <div className="p-4">
+                    <div className="flex justify-between items-center">
+                        {/* Left Section - Title */}
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                                <ActivityIcon className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                                    Activity Monitor
-                                </h1>
-                                <p className="text-sm text-gray-600 font-medium">
-                                    System-wide user activity tracking & analytics
-                                </p>
+                                <h1 className="text-xl font-bold text-gray-900">Activity Monitor</h1>
+                                <p className="text-sm text-gray-600">System-wide user activity tracking & analytics</p>
                             </div>
                         </div>
-                        <div className="flex items-center space-x-3">
-                            <div className="hidden sm:flex items-center space-x-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+
+                        {/* Right Section - Status and Action Button */}
+                        <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-100 rounded-full border border-green-200">
                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span className="text-sm font-medium text-green-700">Live Monitoring</span>
+                                <span className="text-xs font-semibold text-green-700">LIVE</span>
                             </div>
                             <button
                                 onClick={refresh}
-                                className="group relative flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+                                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 flex items-center space-x-2"
                             >
-                                <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" />
-                                <span className="font-medium">Refresh</span>
+                                <RefreshCw className={`w-4 h-4 ${state.loading ? 'animate-spin' : ''}`} />
+                                <span>Refresh</span>
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Enhanced Stats Cards */}
-                {state.stats && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div className="group relative bg-white rounded-2xl shadow-lg border border-gray-200/60 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Activities</p>
-                                    <p className="text-3xl font-bold text-gray-900 mt-2">{state.stats.totalActivities.toLocaleString()}</p>
-                                    <div className="flex items-center mt-2">
-                                        <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                                        <p className="text-xs text-gray-500">All time</p>
-                                    </div>
-                                </div>
-                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <BarChart3 className="w-6 h-6 text-blue-600" />
-                                </div>
+            {/* Compact Stats Cards */}
+            {state.stats && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                                <BarChart3 className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Total Activities</p>
+                                <p className="text-lg font-bold text-gray-900">{state.stats.totalActivities.toLocaleString()}</p>
                             </div>
                         </div>
 
-                        <div className="group relative bg-white rounded-2xl shadow-lg border border-gray-200/60 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Active Users</p>
-                                    <p className="text-3xl font-bold text-gray-900 mt-2">{state.stats.uniqueUsers}</p>
-                                    <div className="flex items-center mt-2">
-                                        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                                        <p className="text-xs text-gray-500">Unique users</p>
-                                    </div>
-                                </div>
-                                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                                    <Users className="w-6 h-6 text-green-600" />
-                                </div>
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                                <Users className="w-5 h-5 text-green-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Active Users</p>
+                                <p className="text-lg font-bold text-gray-900">{state.stats.uniqueUsers}</p>
                             </div>
                         </div>
 
-                        <div className="group relative bg-white rounded-2xl shadow-lg border border-gray-200/60 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Applications</p>
-                                    <p className="text-3xl font-bold text-gray-900 mt-2">
-                                        {Object.keys(state.stats.activitiesByApplication || {}).length}
-                                    </p>
-                                    <div className="flex items-center mt-2">
-                                        <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                                        <p className="text-xs text-gray-500">Active apps</p>
-                                    </div>
-                                </div>
-                                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                                    <Package className="w-6 h-6 text-purple-600" />
-                                </div>
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                                <Package className="w-5 h-5 text-purple-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Applications</p>
+                                <p className="text-lg font-bold text-gray-900">{Object.keys(state.stats.activitiesByApplication || {}).length}</p>
                             </div>
                         </div>
 
-                        <div className="group relative bg-white rounded-2xl shadow-lg border border-gray-200/60 p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="absolute inset-0 bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative flex items-center justify-between">
-                                <div>
-                                    <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Last Activity</p>
-                                    <p className="text-3xl font-bold text-gray-900 mt-2">
-                                        {state.stats.recentActivities?.length > 0 
-                                            ? formatRelativeTime(state.stats.recentActivities[0].timestamp)
-                                            : 'N/A'
-                                        }
-                                    </p>
-                                    <div className="flex items-center mt-2">
-                                        <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
-                                        <p className="text-xs text-gray-500">Most recent</p>
-                                    </div>
-                                </div>
-                                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                                    <Clock className="w-6 h-6 text-orange-600" />
-                                </div>
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-orange-100 rounded-md flex items-center justify-center">
+                                <Clock className="w-5 h-5 text-orange-600" />
+                            </div>
+                            <div>
+                                <p className="text-xs font-medium text-gray-600">Last Activity</p>
+                                <p className="text-sm font-bold text-gray-900">
+                                    {state.stats.recentActivities?.length > 0 
+                                        ? formatRelativeTime(state.stats.recentActivities[0].timestamp)
+                                        : 'N/A'
+                                    }
+                                </p>
                             </div>
                         </div>
                     </div>
-                )}
+                </div>
+            )}
 
-                {/* Enhanced Filters */}
-                <div className="bg-white rounded-2xl shadow-lg border border-gray-200/60 p-8 mb-8 backdrop-blur-sm">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-slate-100 rounded-md flex items-center justify-center">
-                                <Filter className="w-5 h-5 text-slate-600" />
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-gray-900">Advanced Filters</h3>
-                                <p className="text-sm text-gray-600">Customize your activity view</p>
+            {/* Compact Search and Filters */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div className="p-4">
+                    <div className="flex flex-col md:flex-row gap-3 mb-4">
+                        <div className="flex-1">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                                <input
+                                    type="text"
+                                    placeholder="Search activities by user, action, or details..."
+                                    value={state.filters.search || ''}
+                                    onChange={(e) => setState(prev => ({ ...prev, filters: { ...prev.filters, search: e.target.value } }))}
+                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
+                                />
                             </div>
                         </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-medium border transition-all duration-200 ${
+                                    showFilters 
+                                        ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                                        : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                                }`}
+                            >
+                                <Filter className="w-4 h-4" />
+                                <span>Filters</span>
+                                {showFilters && <span className="text-xs bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded-full ml-1">On</span>}
+                            </button>
+                        </div>
+                    </div>
                         <div className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
                             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                             <span className="text-sm font-medium text-blue-700">
@@ -537,20 +526,20 @@ export default function ActivityPage() {
                     </div>
                 </div>
 
-                {/* Enhanced Analytics Section */}
-                {state.stats?.activitiesByApplication && (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                        {/* Application Breakdown */}
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-200/60 p-8 backdrop-blur-sm">
-                            <div className="flex items-center space-x-3 mb-6">
-                                <div className="w-8 h-8 bg-indigo-100 rounded-md flex items-center justify-center">
-                                    <Package className="w-5 h-5 text-indigo-600" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900">Activities by Application</h3>
-                                    <p className="text-sm text-gray-600">Distribution across platforms</p>
-                                </div>
+            {/* Analytics Section */}
+            {state.stats?.activitiesByApplication && (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Application Breakdown */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <div className="w-6 h-6 bg-indigo-100 rounded-md flex items-center justify-center">
+                                <Package className="w-4 h-4 text-indigo-600" />
                             </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">Activities by Application</h3>
+                                <p className="text-xs text-gray-600">Distribution across platforms</p>
+                            </div>
+                        </div>
                             <div className="space-y-4">
                                 {Array.isArray(state.stats.activitiesByApplication) && state.stats.activitiesByApplication.map((app: any, index: number) => {
                                     const colors = [
@@ -590,17 +579,17 @@ export default function ActivityPage() {
                             </div>
                         </div>
 
-                        {/* Top Users */}
-                        <div className="bg-white rounded-2xl shadow-lg border border-gray-200/60 p-8 backdrop-blur-sm">
-                            <div className="flex items-center space-x-3 mb-6">
-                                <div className="w-8 h-8 bg-emerald-100 rounded-md flex items-center justify-center">
-                                    <Users className="w-5 h-5 text-emerald-600" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900">Most Active Users</h3>
-                                    <p className="text-sm text-gray-600">Top contributors this period</p>
-                                </div>
+                    {/* Top Users */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                        <div className="flex items-center space-x-3 mb-4">
+                            <div className="w-6 h-6 bg-emerald-100 rounded-md flex items-center justify-center">
+                                <Users className="w-4 h-4 text-emerald-600" />
                             </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">Most Active Users</h3>
+                                <p className="text-xs text-gray-600">Top contributors this period</p>
+                            </div>
+                        </div>
                             <div className="space-y-4">
                                 {state.stats.topUsers?.slice(0, 10).map((user: any, index: number) => (
                                     <div key={user._id} className="group relative p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:shadow-md transition-all duration-300">
@@ -641,19 +630,19 @@ export default function ActivityPage() {
                     </div>
                 )}
 
-                {/* Enhanced Activities List */}
-                <div className="bg-white rounded-2xl shadow-lg border border-gray-200/60 backdrop-blur-sm">
-                    <div className="p-8 border-b border-gray-200/60">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 bg-slate-100 rounded-md flex items-center justify-center">
-                                    <ActivityIcon className="w-5 h-5 text-slate-600" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-gray-900">Recent Activities</h3>
-                                    <p className="text-sm text-gray-600">Real-time system activity feed</p>
-                                </div>
+            {/* Activities List */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div className="p-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-6 h-6 bg-slate-100 rounded-md flex items-center justify-center">
+                                <ActivityIcon className="w-4 h-4 text-slate-600" />
                             </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">Recent Activities</h3>
+                                <p className="text-xs text-gray-600">Real-time system activity feed</p>
+                            </div>
+                        </div>
                             <div className="flex items-center space-x-4">
                                 <div className="flex items-center space-x-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg">
                                     <div className="w-2 h-2 bg-slate-500 rounded-full"></div>
@@ -693,7 +682,7 @@ export default function ActivityPage() {
                     ) : (
                         <div className="divide-y divide-gray-100">
                             {state.activities.map((activity, index) => (
-                                <div key={activity._id} className="group relative p-6 hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50/30 transition-all duration-300">
+                                <div key={activity._id} className="group relative p-4 hover:bg-gray-50 transition-all duration-200 border-b border-gray-100 last:border-b-0">
                                     <div className="grid grid-cols-12 gap-6 items-start">
                                         {/* Left Section - Icon & Activity Number */}
                                         <div className="col-span-1 flex flex-col items-center space-y-2">
@@ -785,31 +774,29 @@ export default function ActivityPage() {
                         </div>
                     )}
 
-                    {/* Enhanced Load More */}
-                    {state.pagination.hasMore && (
-                        <div className="p-8 border-t border-gray-200/60 text-center bg-gradient-to-r from-gray-50 to-blue-50/30">
-                            <button
-                                onClick={loadMore}
-                                disabled={state.loading}
-                                className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 transform hover:-translate-y-0.5 font-semibold"
-                            >
-                                <div className="flex items-center space-x-3">
-                                    {state.loading ? (
-                                        <>
-                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            <span>Loading more activities...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <ChevronDown className="w-5 h-5 group-hover:translate-y-0.5 transition-transform duration-300" />
-                                            <span>Load More Activities</span>
-                                        </>
-                                    )}
-                                </div>
-                            </button>
-                            <p className="text-sm text-gray-600 mt-3 font-medium">
-                                Showing {state.activities.length} of {state.pagination.totalCount.toLocaleString()} activities
-                            </p>
+                {/* Load More */}
+                {state.pagination.hasMore && (
+                    <div className="p-4 border-t border-gray-200 text-center bg-gray-50">
+                        <button
+                            onClick={loadMore}
+                            disabled={state.loading}
+                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-2 mx-auto"
+                        >
+                            {state.loading ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                    <span>Loading...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <ChevronDown className="w-4 h-4" />
+                                    <span>Load More</span>
+                                </>
+                            )}
+                        </button>
+                        <p className="text-xs text-gray-600 mt-2">
+                            Showing {state.activities.length} of {state.pagination.totalCount.toLocaleString()} activities
+                        </p>
                         </div>
                     )}
                 </div>
