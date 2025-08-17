@@ -511,38 +511,33 @@ export default function ReleasesList({
           <div className="p-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                {/* Compact Header Section */}
-                <div className="flex space-x-3 mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center shadow-md mt-0.5">
-                    <Zap className="w-4 h-4 text-white" />
+                {/* Clean Header Section */}
+                <div className="mb-2">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <h3 className="text-lg font-bold text-gray-900 truncate">
+                      {release.title}
+                    </h3>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${release.isPublished
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                      {release.isPublished ? (
+                        <>
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Published
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="w-3 h-3 mr-1" />
+                          Draft
+                        </>
+                      )}
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h3 className="text-lg font-bold text-gray-900 truncate">
-                        {release.title}
-                      </h3>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${release.isPublished
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                        {release.isPublished ? (
-                          <>
-                            <CheckCircle className="w-3 h-3 mr-1" />
-                            Published
-                          </>
-                        ) : (
-                          <>
-                            <Clock className="w-3 h-3 mr-1" />
-                            Draft
-                          </>
-                        )}
-                      </span>
-                    </div>
-                    {/* Description aligned with title */}
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
-                      {release.description}
-                    </p>
-                  </div>
+                  {/* Description below title */}
+                  <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                    {release.description}
+                  </p>
                 </div>
 
                 {/* Compact Metadata Row */}
