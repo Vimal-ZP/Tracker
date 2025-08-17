@@ -9,6 +9,8 @@ export interface IUser extends Document {
     role: UserRole;
     isActive: boolean;
     assignedApplications: string[];
+    resetPasswordToken?: string;
+    resetPasswordExpires?: Date;
     createdAt: Date;
     updatedAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
@@ -56,6 +58,14 @@ const UserSchema = new Schema<IUser>({
         }
         // Note: Super Admin users have access to all applications by default (empty array)
         // Admin and Basic users need explicit application assignments
+    },
+    resetPasswordToken: {
+        type: String,
+        required: false
+    },
+    resetPasswordExpires: {
+        type: Date,
+        required: false
     }
 }, {
     timestamps: true
