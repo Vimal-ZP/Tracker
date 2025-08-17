@@ -22,8 +22,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(() => {
         // Synchronous check - only show loading if we have a token to validate
         if (typeof window !== 'undefined') {
-            const hasToken = localStorage.getItem('auth_token') || 
-                            document.cookie.match(/auth_token=([^;]+)/);
+            const hasToken = localStorage.getItem('auth_token') ||
+                document.cookie.match(/auth_token=([^;]+)/);
             return !!hasToken;
         }
         return true;
@@ -40,18 +40,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Immediate synchronous check to prevent flash
         const initAuth = async () => {
+            console.log('AuthContext: Starting initAuth');
+
             if (typeof window === 'undefined') {
+                console.log('AuthContext: Server-side, setting initialized');
                 setLoading(false);
                 setIsInitialized(true);
                 return;
             }
 
             // Check for token immediately
-            const token = localStorage.getItem('auth_token') || 
-                         document.cookie.match(/auth_token=([^;]+)/)?.[1];
+            const token = localStorage.getItem('auth_token') ||
+                document.cookie.match(/auth_token=([^;]+)/)?.[1];
+
+            console.log('AuthContext: Token check result:', !!token);
 
             if (!token) {
                 // No token, user is definitely not authenticated
+                console.log('AuthContext: No token found, setting user to null');
                 setUser(null);
                 setLoading(false);
                 setIsInitialized(true);
@@ -59,24 +65,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             // We have a token, validate it
+            console.log('AuthContext: Validating token with API');
             try {
                 apiClient.setToken(token);
                 const response = await apiClient.getProfile();
+                console.log('AuthContext: API response received:', !!response.user);
 
                 // Validate user object structure
                 if (response.user && !Array.isArray(response.user.assignedApplications)) {
                     response.user.assignedApplications = [];
                 }
 
+                console.log('AuthContext: Setting user and completing initialization');
                 setUser(response.user);
             } catch (error) {
-                console.error('Auth validation failed:', error);
+                console.error('AuthContext: Auth validation failed:', error);
                 // Token is invalid, clear it
                 localStorage.removeItem('auth_token');
                 document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
                 apiClient.setToken(null);
                 setUser(null);
             } finally {
+                console.log('AuthContext: Finalizing initialization');
                 setLoading(false);
                 setIsInitialized(true);
             }
@@ -132,51 +142,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const logout = () => {
         try {
             console.log('AuthContext: Starting logout process');
-            
+
             // Set logout flag to prevent re-initialization
             setIsLoggingOut(true);
-            
+
             // Clear user state immediately
             setUser(null);
-            
+
             // Ensure auth state is properly set for logout
             setLoading(false);
             setIsInitialized(true);
-            
+
             // Clear API client token
             apiClient.logout();
-            
+
             // Clear localStorage token
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('auth_token');
             }
-            
+
             // Clear cookie as well
             if (typeof document !== 'undefined') {
                 document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
             }
-            
+
             console.log('AuthContext: Logout completed successfully');
-            
+
             // Clear logout flag after a brief delay
             setTimeout(() => {
                 setIsLoggingOut(false);
             }, 100);
-            
+
         } catch (error) {
             console.error('AuthContext: Error during logout:', error);
             // Even if there's an error, ensure user is logged out
             setUser(null);
             setLoading(false);
             setIsInitialized(true);
-            
+
             if (typeof window !== 'undefined') {
                 localStorage.removeItem('auth_token');
             }
             if (typeof document !== 'undefined') {
                 document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
             }
-            
+
             // Clear logout flag
             setTimeout(() => {
                 setIsLoggingOut(false);
