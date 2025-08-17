@@ -514,7 +514,7 @@ export default function ReleasesList({
                 {/* Clean Header Section */}
                 <div className="mb-2">
                   <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="text-lg font-bold text-gray-900 truncate">
+                    <h3 className="text-xl font-bold text-gray-900 truncate">
                       {release.title}
                     </h3>
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${release.isPublished
