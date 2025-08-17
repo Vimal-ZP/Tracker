@@ -18,17 +18,8 @@ export default function AuthGate({ children }: AuthGateProps) {
     const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password';
 
     useEffect(() => {
-        console.log('AuthGate: State check', {
-            user: !!user,
-            loading,
-            isInitialized,
-            pathname,
-            isAuthPage
-        });
-
         // Only proceed once auth is fully initialized
         if (!isInitialized || loading) {
-            console.log('AuthGate: Still initializing...');
             setIsReady(false);
             return;
         }
@@ -38,23 +29,19 @@ export default function AuthGate({ children }: AuthGateProps) {
             // User is authenticated
             if (isAuthPage) {
                 // Authenticated user on auth page - redirect to dashboard
-                console.log('AuthGate: Authenticated user on auth page, redirecting to dashboard');
                 router.replace('/dashboard');
                 return;
             } else {
                 // Authenticated user on protected page - allow access
-                console.log('AuthGate: Authenticated user on protected page, allowing access');
                 setIsReady(true);
             }
         } else {
             // User is not authenticated
             if (isAuthPage) {
                 // Unauthenticated user on auth page - allow access
-                console.log('AuthGate: Unauthenticated user on auth page, allowing access');
                 setIsReady(true);
             } else {
                 // Unauthenticated user on protected page - redirect to login
-                console.log('AuthGate: Unauthenticated user on protected page, redirecting to login');
                 router.replace('/login');
                 return;
             }
@@ -63,20 +50,12 @@ export default function AuthGate({ children }: AuthGateProps) {
 
     // Show loading until auth is resolved and routing decisions are made
     if (!isInitialized || loading || !isReady) {
-        console.log('AuthGate: Showing loading spinner', {
-            isInitialized,
-            loading,
-            isReady,
-            pathname
-        });
         return (
             <div className="min-h-screen flex items-center justify-center bg-white">
                 <LoadingSpinner size="lg" />
             </div>
         );
     }
-
-    console.log('AuthGate: Rendering children', { pathname, user: !!user });
 
     return <>{children}</>;
 }

@@ -34,7 +34,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         // Don't re-initialize if we're in the middle of a logout
         if (isLoggingOut) {
-            console.log('AuthContext: Skipping initialization - logout in progress');
             return;
         }
 
@@ -89,14 +88,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (credentials: LoginCredentials) => {
         try {
-            console.log('AuthContext: Starting login process');
+
             setLoading(true);
             const response = await apiClient.login(credentials);
-            console.log('AuthContext: Login API response received', response.user);
+
 
             // Validate user object structure
             if (response.user && !Array.isArray(response.user.assignedApplications)) {
-                console.warn('AuthContext: assignedApplications is not an array, fixing...', response.user.assignedApplications);
+
                 response.user.assignedApplications = [];
             }
 
@@ -105,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setIsInitialized(true);
             setLoading(false);
 
-            console.log('AuthContext: User state updated');
+
 
         } catch (error: any) {
             console.error('AuthContext: Login failed', error);
@@ -131,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const logout = () => {
         try {
-            console.log('AuthContext: Starting logout process');
+
 
             // Set logout flag to prevent re-initialization
             setIsLoggingOut(true);
@@ -156,7 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
             }
 
-            console.log('AuthContext: Logout completed successfully');
+
 
             // Clear logout flag after a brief delay
             setTimeout(() => {

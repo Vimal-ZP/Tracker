@@ -22,28 +22,7 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en">
-            <head>
-                <script
-                    dangerouslySetInnerHTML={{
-                        __html: `
-                            // Pre-authentication check to prevent any flash
-                            (function() {
-                                if (typeof window !== 'undefined') {
-                                    const hasToken = localStorage.getItem('auth_token') || 
-                                                   document.cookie.match(/auth_token=([^;]+)/);
-                                    
-                                    // Add a class to body to indicate auth state
-                                    if (hasToken) {
-                                        document.documentElement.classList.add('has-token');
-                                    } else {
-                                        document.documentElement.classList.add('no-token');
-                                    }
-                                }
-                            })();
-                        `,
-                    }}
-                />
-            </head>
+            <head></head>
             <body className={inter.className}>
                 <AppProviders>
                     <ErrorBoundary>

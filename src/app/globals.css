@@ -13,6 +13,11 @@
 }
 
 /* Global loading overlay to prevent any flash */
+.auth-container {
+  width: 100%;
+  height: 100%;
+}
+
 .auth-initializing {
   position: fixed;
   top: 0;
@@ -26,21 +31,12 @@
   justify-content: center;
 }
 
-.auth-ready .auth-initializing {
-  display: none;
+.auth-ready {
+  width: 100%;
+  height: 100%;
 }
 
-/* Pre-authentication flash prevention */
-html:not(.has-token):not(.no-token) body {
-  visibility: hidden;
-}
-
-html.has-token body,
-html.no-token body {
-  visibility: visible;
-}
-
-/* Additional safety - hide content until React is ready */
+/* React hydration support */
 html:not(.react-ready) body > div {
   opacity: 0;
 }

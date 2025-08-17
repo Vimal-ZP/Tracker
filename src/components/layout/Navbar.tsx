@@ -51,10 +51,8 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
     const permissions = rolePermissions[user.role];
 
     const handleLogout = () => {
-        console.log('Logout button clicked');
         setIsDropdownOpen(false);
         logout();
-        console.log('Logout completed - AuthGate will handle redirect');
         // Don't manually navigate - AuthGate will handle the redirect automatically
     };
 

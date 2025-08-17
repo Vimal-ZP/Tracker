@@ -44,9 +44,7 @@ export default function LoginPage() {
 
         setLoading(true);
         try {
-            console.log('Attempting login...');
             await login(formData);
-            console.log('Login successful - AuthGate will handle redirect');
             // Don't redirect here - AuthGate will handle it automatically
             setLoading(false);
         } catch (error) {

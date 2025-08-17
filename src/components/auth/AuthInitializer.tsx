@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
@@ -10,37 +10,30 @@ interface AuthInitializerProps {
 
 export default function AuthInitializer({ children }: AuthInitializerProps) {
     const { isInitialized, loading, user } = useAuth();
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        // Mark React as ready once this component mounts
+        // Mark as client-side and add React ready class
+        setIsClient(true);
         if (typeof document !== 'undefined') {
             document.documentElement.classList.add('react-ready');
         }
     }, []);
 
-    // Add debugging
-    useEffect(() => {
-        console.log('AuthInitializer: State changed', {
-            isInitialized,
-            loading,
-            user: !!user,
-            pathname: typeof window !== 'undefined' ? window.location.pathname : 'SSR'
-        });
-    }, [isInitialized, loading, user]);
 
-    if (!isInitialized) {
-        console.log('AuthInitializer: Showing loading - not initialized');
-        return (
-            <div className="auth-initializing">
-                <LoadingSpinner size="lg" />
-            </div>
-        );
-    }
 
-    console.log('AuthInitializer: Auth ready, rendering children');
+    // Always render the same structure, but conditionally show content
     return (
-        <div className="auth-ready">
-            {children}
+        <div className="auth-container">
+            {!isClient || !isInitialized ? (
+                <div className="auth-initializing">
+                    <LoadingSpinner size="lg" />
+                </div>
+            ) : (
+                <div className="auth-ready">
+                    {children}
+                </div>
+            )}
         </div>
     );
 }
