@@ -512,16 +512,16 @@ export default function ReleasesList({
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 {/* Compact Header Section */}
-                <div className="flex items-start space-x-3 mb-2">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
-                    <Package className="w-5 h-5 text-white" />
+                <div className="flex space-x-3 mb-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center shadow-md mt-0.5">
+                    <Zap className="w-4 h-4 text-white" />
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
-                      <h3 className="text-lg font-bold text-gray-900">
+                      <h3 className="text-lg font-bold text-gray-900 truncate">
                         {release.title}
                       </h3>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${release.isPublished
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${release.isPublished
                           ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
                         }`}>
@@ -538,7 +538,7 @@ export default function ReleasesList({
                         )}
                       </span>
                     </div>
-                    {/* Description directly below title */}
+                    {/* Description aligned with title */}
                     <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
                       {release.description}
                     </p>
