@@ -12,7 +12,16 @@ import {
   Building,
   User,
   Tag,
-  FileText
+  FileText,
+  Filter,
+  Search,
+  Download,
+  Eye,
+  TrendingUp,
+  Clock,
+  Layers,
+  BarChart3,
+  RefreshCw
 } from 'lucide-react';
 
 interface ReleaseTableProps {
@@ -127,175 +136,324 @@ export default function ReleaseTable({ releases }: ReleaseTableProps) {
   };
 
   return (
-    <div className="card">
-      <div className="card-header">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <h3 className="text-lg font-medium text-gray-900">Release Details</h3>
+    <div className="space-y-6">
+      {/* Header Section with Stats */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+          <div className="flex items-center space-x-4">
+            <div className="flex-shrink-0">
+              <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Release Analytics</h2>
+              <p className="text-gray-600">Comprehensive release data and insights</p>
+            </div>
+          </div>
           
-          {/* Filters */}
-          <div className="flex flex-wrap gap-3">
-            <select
-              value={filterApplication}
-              onChange={(e) => setFilterApplication(e.target.value)}
-              className="input text-sm"
-            >
-              <option value="">All Applications</option>
-              {applications.map(app => (
-                <option key={app} value={app}>{app}</option>
-              ))}
-            </select>
-
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as ReleaseType | '')}
-              className="input text-sm"
-            >
-              <option value="">All Types</option>
-              <option value={ReleaseType.MAJOR}>Major</option>
-              <option value={ReleaseType.MINOR}>Minor</option>
-              <option value={ReleaseType.PATCH}>Patch</option>
-              <option value={ReleaseType.HOTFIX}>Hotfix</option>
-            </select>
-
-            <select
-              value={filterPublished}
-              onChange={(e) => setFilterPublished(e.target.value)}
-              className="input text-sm"
-            >
-              <option value="">All Status</option>
-              <option value="published">Published</option>
-              <option value="unpublished">Unpublished</option>
-            </select>
-
-            {(filterApplication || filterType || filterPublished) && (
-              <button
-                onClick={clearFilters}
-                className="btn btn-secondary text-sm"
-              >
-                Clear Filters
-              </button>
-            )}
+          {/* Quick Stats */}
+          <div className="flex flex-wrap gap-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{sortedAndFilteredReleases.length}</div>
+              <div className="text-sm text-gray-600">Total Releases</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">
+                {sortedAndFilteredReleases.filter(r => r.isPublished).length}
+              </div>
+              <div className="text-sm text-gray-600">Published</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-600">
+                {applications.length}
+              </div>
+              <div className="text-sm text-gray-600">Applications</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="card-body p-0">
+      {/* Advanced Filters Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Filter className="w-5 h-5 text-gray-500" />
+              <h3 className="text-lg font-semibold text-gray-900">Advanced Filters</h3>
+            </div>
+            {(filterApplication || filterType || filterPublished) && (
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                <RefreshCw className="w-4 h-4 mr-1" />
+                Clear All
+              </button>
+            )}
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                <Building className="w-4 h-4 inline mr-1" />
+                Application
+              </label>
+              <select
+                value={filterApplication}
+                onChange={(e) => setFilterApplication(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                <option value="">All Applications</option>
+                {applications.map(app => (
+                  <option key={app} value={app}>{app}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                <Package className="w-4 h-4 inline mr-1" />
+                Release Type
+              </label>
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value as ReleaseType | '')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                <option value="">All Types</option>
+                <option value={ReleaseType.MAJOR}>Major</option>
+                <option value={ReleaseType.MINOR}>Minor</option>
+                <option value={ReleaseType.PATCH}>Patch</option>
+                <option value={ReleaseType.HOTFIX}>Hotfix</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
+                <CheckCircle className="w-4 h-4 inline mr-1" />
+                Publication Status
+              </label>
+              <select
+                value={filterPublished}
+                onChange={(e) => setFilterPublished(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                <option value="">All Status</option>
+                <option value="published">Published</option>
+                <option value="unpublished">Unpublished</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Data Table */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
+        {/* Table Header */}
+        <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Release Data Table</h3>
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <Clock className="w-4 h-4" />
+              <span>Last updated: {new Date().toLocaleTimeString()}</span>
+            </div>
+          </div>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+            <thead className="bg-gradient-to-r from-blue-50 to-indigo-50">
               <tr>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-blue-100 transition-colors group"
                   onClick={() => handleSort('title')}
                 >
-                  <div className="flex items-center space-x-1">
-                    <FileText className="w-4 h-4" />
+                  <div className="flex items-center space-x-2">
+                    <FileText className="w-4 h-4 text-blue-600" />
                     <span>Release</span>
-                    {getSortIcon('title')}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      {getSortIcon('title')}
+                    </div>
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-blue-100 transition-colors group"
                   onClick={() => handleSort('applicationName')}
                 >
-                  <div className="flex items-center space-x-1">
-                    <Building className="w-4 h-4" />
+                  <div className="flex items-center space-x-2">
+                    <Building className="w-4 h-4 text-blue-600" />
                     <span>Application</span>
-                    {getSortIcon('applicationName')}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      {getSortIcon('applicationName')}
+                    </div>
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-blue-100 transition-colors group"
                   onClick={() => handleSort('version')}
                 >
-                  <div className="flex items-center space-x-1">
-                    <Tag className="w-4 h-4" />
+                  <div className="flex items-center space-x-2">
+                    <Tag className="w-4 h-4 text-blue-600" />
                     <span>Version</span>
-                    {getSortIcon('version')}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      {getSortIcon('version')}
+                    </div>
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-blue-100 transition-colors group"
                   onClick={() => handleSort('type')}
                 >
-                  <div className="flex items-center space-x-1">
-                    <Package className="w-4 h-4" />
+                  <div className="flex items-center space-x-2">
+                    <Package className="w-4 h-4 text-blue-600" />
                     <span>Type</span>
-                    {getSortIcon('type')}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      {getSortIcon('type')}
+                    </div>
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-blue-100 transition-colors group"
                   onClick={() => handleSort('releaseDate')}
                 >
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="w-4 h-4 text-blue-600" />
                     <span>Release Date</span>
-                    {getSortIcon('releaseDate')}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      {getSortIcon('releaseDate')}
+                    </div>
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-blue-100 transition-colors group"
                   onClick={() => handleSort('isPublished')}
                 >
-                  <div className="flex items-center space-x-1">
-                    <CheckCircle className="w-4 h-4" />
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-4 h-4 text-blue-600" />
                     <span>Status</span>
-                    {getSortIcon('isPublished')}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      {getSortIcon('isPublished')}
+                    </div>
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <div className="flex items-center space-x-1">
-                    <User className="w-4 h-4" />
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center space-x-2">
+                    <User className="w-4 h-4 text-blue-600" />
                     <span>Author</span>
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  <div className="flex items-center justify-end space-x-2">
+                    <Eye className="w-4 h-4 text-blue-600" />
+                    <span>Actions</span>
                   </div>
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {sortedAndFilteredReleases.map((release) => (
-                <tr key={release._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {release.title}
-                    </div>
-                    {release.description && (
-                      <div className="text-sm text-gray-500 truncate max-w-xs">
-                        {release.description}
+            <tbody className="bg-white divide-y divide-gray-100">
+              {sortedAndFilteredReleases.map((release, index) => (
+                <tr key={release._id} className="hover:bg-blue-50 transition-colors group">
+                  <td className="px-6 py-5">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm">
+                          {index + 1}
+                        </div>
                       </div>
-                    )}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                          {release.title}
+                        </div>
+                        {release.description && (
+                          <div className="text-sm text-gray-500 mt-1 truncate max-w-md" title={release.description}>
+                            {release.description}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {release.applicationName}
-                    </span>
+                  <td className="px-6 py-5">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                        <Building className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                        {release.applicationName}
+                      </span>
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {release.version || 'N/A'}
+                  <td className="px-6 py-5">
+                    <div className="flex items-center space-x-2">
+                      <Tag className="w-4 h-4 text-gray-400" />
+                      <span className="text-sm font-medium text-gray-900">
+                        {release.version || (
+                          <span className="text-gray-400 italic">No version</span>
+                        )}
+                      </span>
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getReleaseTypeColor(release.type)}`}>
+                  <td className="px-6 py-5">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getReleaseTypeColor(release.type)}`}>
+                      <div className="w-2 h-2 rounded-full bg-current mr-2"></div>
                       {getReleaseTypeName(release.type)}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(release.releaseDate).toLocaleDateString()}
+                  <td className="px-6 py-5">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4 text-gray-400" />
+                      <div className="text-sm">
+                        <div className="font-medium text-gray-900">
+                          {new Date(release.releaseDate).toLocaleDateString()}
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          {new Date(release.releaseDate).toLocaleDateString('en-US', { weekday: 'short' })}
+                        </div>
+                      </div>
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-5">
                     {release.isPublished ? (
-                      <div className="flex items-center text-green-600">
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        <span className="text-sm">Published</span>
+                      <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Published
                       </div>
                     ) : (
-                      <div className="flex items-center text-gray-500">
-                        <XCircle className="w-4 h-4 mr-1" />
-                        <span className="text-sm">Draft</span>
+                      <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Draft
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {release.author?.name || 'Unknown'}
+                  <td className="px-6 py-5">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+                      <div className="text-sm">
+                        <div className="font-medium text-gray-900">
+                          {release.author?.name || 'Unknown'}
+                        </div>
+                        <div className="text-gray-500 text-xs">
+                          {release.author?.email || 'No email'}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="flex items-center justify-end space-x-2">
+                      <button className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors">
+                        <Eye className="w-3 h-3 mr-1" />
+                        View
+                      </button>
+                      <button className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                        <Download className="w-3 h-3 mr-1" />
+                        Export
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -303,31 +461,66 @@ export default function ReleaseTable({ releases }: ReleaseTableProps) {
           </table>
 
           {sortedAndFilteredReleases.length === 0 && (
-            <div className="text-center py-12">
-              <Package className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No releases found</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Try adjusting your filters or check back later.
+            <div className="text-center py-16 bg-gradient-to-b from-gray-50 to-white">
+              <div className="w-20 h-20 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Package className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No releases found</h3>
+              <p className="text-gray-500 mb-4 max-w-sm mx-auto">
+                No releases match your current filters. Try adjusting your search criteria or check back later.
               </p>
+              <button
+                onClick={clearFilters}
+                className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Clear Filters
+              </button>
             </div>
           )}
         </div>
-      </div>
 
-      {/* Summary Footer */}
-      {sortedAndFilteredReleases.length > 0 && (
-        <div className="card-footer bg-gray-50">
-          <div className="flex justify-between items-center text-sm text-gray-600">
-            <span>
-              Showing {sortedAndFilteredReleases.length} of {releases.length} releases
-            </span>
-            <div className="flex space-x-4">
-              <span>Published: {sortedAndFilteredReleases.filter(r => r.isPublished).length}</span>
-              <span>Draft: {sortedAndFilteredReleases.filter(r => !r.isPublished).length}</span>
+        {/* Enhanced Footer */}
+        {sortedAndFilteredReleases.length > 0 && (
+          <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+              <div className="flex items-center space-x-4 text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <Layers className="w-4 h-4" />
+                  <span className="font-medium">
+                    Showing {sortedAndFilteredReleases.length} of {releases.length} releases
+                  </span>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-6 text-sm">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-gray-600">
+                    Published: <span className="font-semibold text-green-600">
+                      {sortedAndFilteredReleases.filter(r => r.isPublished).length}
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  <span className="text-gray-600">
+                    Draft: <span className="font-semibold text-gray-600">
+                      {sortedAndFilteredReleases.filter(r => !r.isPublished).length}
+                    </span>
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-4 h-4 text-blue-500" />
+                  <span className="text-gray-600">
+                    Apps: <span className="font-semibold text-blue-600">{applications.length}</span>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
