@@ -227,7 +227,7 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="min-h-screen flex flex-col space-y-4 p-6" data-testid="dashboard">
+        <div className="h-full flex flex-col space-y-4" data-testid="dashboard">
             {/* Professional Welcome Banner */}
             <WelcomeBanner />
 
