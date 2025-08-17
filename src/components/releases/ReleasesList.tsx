@@ -207,32 +207,32 @@ export default function ReleasesList({
                     <span>Release</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '15%' }}>
-                  <div className="flex items-center space-x-2">
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900" style={{ width: '15%' }}>
+                  <div className="flex items-center justify-center space-x-2">
                     <Building className="w-4 h-4 text-blue-600" />
                     <span>Application</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '10%' }}>
-                  <div className="flex items-center space-x-2">
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900" style={{ width: '10%' }}>
+                  <div className="flex items-center justify-center space-x-2">
                     <Tag className="w-4 h-4 text-blue-600" />
                     <span>Version</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '15%' }}>
-                  <div className="flex items-center space-x-2">
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900" style={{ width: '15%' }}>
+                  <div className="flex items-center justify-center space-x-2">
                     <Layers className="w-4 h-4 text-blue-600" />
                     <span>Work Items</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '8%' }}>
-                  <div className="flex items-center space-x-2">
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900" style={{ width: '8%' }}>
+                  <div className="flex items-center justify-center space-x-2">
                     <Zap className="w-4 h-4 text-blue-600" />
                     <span>Type</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '18%' }}>
-                  <div className="flex items-center space-x-2">
+                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900" style={{ width: '18%' }}>
+                  <div className="flex items-center justify-end space-x-2">
                     <Calendar className="w-4 h-4 text-blue-600" />
                     <span>Release Date</span>
                   </div>
@@ -265,19 +265,19 @@ export default function ReleasesList({
                       </p>
                     </div>
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-3 text-center">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text}`}>
                       {release.applicationName}
                     </span>
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-3 text-center">
                     <span className="text-sm font-medium text-gray-900">
                       {release.version ? `v${release.version}` : (
                         <span className="text-gray-400 text-xs">—</span>
                       )}
                     </span>
                   </td>
-                  <td className="px-3 py-3">
+                                    <td className="px-3 py-3 text-center">
                     {(() => {
                       const counts = getWorkItemCounts(release.workItems);
                       const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
@@ -291,7 +291,7 @@ export default function ReleasesList({
                       ].filter(item => item.count > 0);
 
                       return (
-                        <div className="flex flex-wrap items-center gap-1 text-xs">
+                        <div className="flex flex-wrap items-center justify-center gap-1 text-xs">
                           {workItemTypes.length > 0 ? (
                             workItemTypes.map((item) => (
                               <div key={item.key} className="flex items-center space-x-1">
@@ -310,9 +310,9 @@ export default function ReleasesList({
                           )}
                         </div>
                       );
-                    })()}
+                    })()} 
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-3 text-center">
                     <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getTypeColor(release.type)}`}>
                       {release.type === 'major' && '🚀'}
                       {release.type === 'minor' && '✨'}
@@ -321,7 +321,7 @@ export default function ReleasesList({
                       <span className="ml-1 capitalize">{release.type}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-3 text-right">
                     <div className="text-sm">
                       <div className="font-medium text-gray-900">{formatDate(release.releaseDate)}</div>
                       {release.author?.name && (
