@@ -527,23 +527,23 @@ export default function ReleasesList({
 
   // Enhanced Professional Card View (Default)
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
       {releases.map((release) => (
-        <div key={release._id} className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-300 overflow-hidden">
-          <div className="p-6">
+        <div key={release._id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-300 overflow-hidden">
+          <div className="p-4">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                {/* Header Section */}
-                <div className="flex items-start space-x-4 mb-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <Package className="w-6 h-6 text-white" />
+                {/* Compact Header Section */}
+                <div className="flex items-start space-x-3 mb-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                    <Package className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-xl font-bold text-gray-900">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h3 className="text-lg font-bold text-gray-900">
                         {release.title}
                       </h3>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         release.isPublished 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-yellow-100 text-yellow-800'
@@ -563,11 +563,11 @@ export default function ReleasesList({
                     </div>
                     
                     {/* Application Badge */}
-                    <div className="flex items-center space-x-2 mb-3">
-                      <div className={`w-6 h-6 ${getApplicationColors(release.applicationName).gradient} rounded-lg flex items-center justify-center`}>
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-5 h-5 ${getApplicationColors(release.applicationName).gradient} rounded-md flex items-center justify-center`}>
                         <Building className="w-3 h-3 text-white" />
                       </div>
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text} border border-opacity-20`}>
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text} border border-opacity-20`}>
                         {release.applicationName}
                       </span>
                     </div>
@@ -575,115 +575,103 @@ export default function ReleasesList({
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-600 mb-6 text-base leading-relaxed line-clamp-3">
+                <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-2">
                   {release.description}
                 </p>
 
-                {/* Enhanced Metadata Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                      <Calendar className="w-4 h-4 text-indigo-600" />
+                {/* Compact Metadata Row */}
+                <div className="flex flex-wrap items-center gap-4 mb-4 text-xs">
+                  <div className="flex items-center space-x-1.5">
+                    <div className="w-5 h-5 bg-indigo-100 rounded-md flex items-center justify-center">
+                      <Calendar className="w-3 h-3 text-indigo-600" />
                     </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Release Date</div>
-                      <div className="text-sm font-medium text-gray-900">{formatDate(release.releaseDate)}</div>
-                    </div>
+                    <span className="text-gray-500">Date:</span>
+                    <span className="font-medium text-gray-900">{formatDate(release.releaseDate)}</span>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Tag className="w-4 h-4 text-gray-600" />
+                  <div className="flex items-center space-x-1.5">
+                    <div className="w-5 h-5 bg-gray-100 rounded-md flex items-center justify-center">
+                      <Tag className="w-3 h-3 text-gray-600" />
                     </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Version</div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {release.version ? `v${release.version}` : 'No version'}
-                      </div>
-                    </div>
+                    <span className="text-gray-500">Version:</span>
+                    <span className="font-medium text-gray-900">
+                      {release.version ? `v${release.version}` : 'None'}
+                    </span>
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Zap className="w-4 h-4 text-purple-600" />
-                    </div>
-                    <div>
-                      <div className="text-xs text-gray-500">Type</div>
-                      <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold ${getTypeColor(release.type)}`}>
-                        {release.type === 'major' && '🚀'}
-                        {release.type === 'minor' && '✨'}
-                        {release.type === 'patch' && '🔧'}
-                        {release.type === 'hotfix' && '🔥'}
-                        <span className="ml-1 capitalize">{release.type}</span>
-                      </span>
-                    </div>
+                  <div className="flex items-center space-x-1.5">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${getTypeColor(release.type)}`}>
+                      {release.type === 'major' && '🚀'}
+                      {release.type === 'minor' && '✨'}
+                      {release.type === 'patch' && '🔧'}
+                      {release.type === 'hotfix' && '🔥'}
+                      <span className="ml-1 capitalize">{release.type}</span>
+                    </span>
                   </div>
 
                   {release.author && (
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                        <User className="w-4 h-4 text-green-600" />
+                    <div className="flex items-center space-x-1.5">
+                      <div className="w-5 h-5 bg-green-100 rounded-md flex items-center justify-center">
+                        <User className="w-3 h-3 text-green-600" />
                       </div>
-                      <div>
-                        <div className="text-xs text-gray-500">Author</div>
-                        <div className="text-sm font-medium text-gray-900">{release.author.name}</div>
-                      </div>
+                      <span className="text-gray-500">By:</span>
+                      <span className="font-medium text-gray-900">{release.author.name}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Enhanced Work Items Summary */}
+                {/* Compact Work Items Summary */}
                 {(() => {
                   const counts = getWorkItemCounts(release.workItems);
                   const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
                   return (
-                    <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4 border border-gray-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-3 border border-gray-200">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-1.5">
+                          <div className="w-5 h-5 bg-blue-100 rounded-md flex items-center justify-center">
                             <Layers className="w-3 h-3 text-blue-600" />
                           </div>
                           <span className="text-sm font-semibold text-gray-900">Work Items</span>
                         </div>
-                        <span className="text-lg font-bold text-blue-600">{totalItems}</span>
+                        <span className="text-sm font-bold text-blue-600">{totalItems}</span>
                       </div>
                       
                       {totalItems > 0 ? (
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1">
                           {counts.epic > 0 && (
-                            <div className="flex items-center px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                            <div className="flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded-md text-xs font-medium">
                               {getWorkItemIcon('epic')}
-                              <span className="ml-1">{counts.epic} Epic{counts.epic > 1 ? 's' : ''}</span>
+                              <span className="ml-1">{counts.epic}</span>
                             </div>
                           )}
                           {counts.feature > 0 && (
-                            <div className="flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                            <div className="flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
                               {getWorkItemIcon('feature')}
-                              <span className="ml-1">{counts.feature} Feature{counts.feature > 1 ? 's' : ''}</span>
+                              <span className="ml-1">{counts.feature}</span>
                             </div>
                           )}
                           {counts.user_story > 0 && (
-                            <div className="flex items-center px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
+                            <div className="flex items-center px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">
                               {getWorkItemIcon('user_story')}
-                              <span className="ml-1">{counts.user_story} User Stor{counts.user_story > 1 ? 'ies' : 'y'}</span>
+                              <span className="ml-1">{counts.user_story}</span>
                             </div>
                           )}
                           {counts.bug > 0 && (
-                            <div className="flex items-center px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-medium">
+                            <div className="flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-medium">
                               {getWorkItemIcon('bug')}
-                              <span className="ml-1">{counts.bug} Bug{counts.bug > 1 ? 's' : ''}</span>
+                              <span className="ml-1">{counts.bug}</span>
                             </div>
                           )}
                           {counts.incident > 0 && (
-                            <div className="flex items-center px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg text-xs font-medium">
+                            <div className="flex items-center px-2 py-1 bg-orange-100 text-orange-700 rounded-md text-xs font-medium">
                               {getWorkItemIcon('incident')}
-                              <span className="ml-1">{counts.incident} Incident{counts.incident > 1 ? 's' : ''}</span>
+                              <span className="ml-1">{counts.incident}</span>
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="text-center py-2">
-                          <span className="text-sm text-gray-500">No work items assigned</span>
+                        <div className="text-center py-1">
+                          <span className="text-xs text-gray-500">No work items</span>
                         </div>
                       )}
                     </div>
@@ -692,20 +680,20 @@ export default function ReleasesList({
               </div>
 
               {showActions && (
-                <div className="flex flex-col space-y-3 ml-6">
+                <div className="flex flex-col space-y-2 ml-4">
                   <button
                     onClick={() => onView?.(release)}
-                    className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
+                    className="flex items-center justify-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm"
                     title="View Details"
                   >
                     <Eye className="w-4 h-4" />
-                    <span>View Details</span>
+                    <span>View</span>
                   </button>
 
                   {canEdit && (
                     <button
                       onClick={() => onEdit?.(release)}
-                      className="flex items-center justify-center space-x-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium border border-gray-300 transition-all duration-200 hover:shadow-md"
+                      className="flex items-center justify-center space-x-1.5 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium border border-gray-300 transition-all duration-200 text-sm"
                       title="Edit Release"
                     >
                       <Edit className="w-4 h-4" />
@@ -716,7 +704,7 @@ export default function ReleasesList({
                   {canDelete && (
                     <button
                       onClick={() => onDelete?.(release._id)}
-                      className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl font-medium border border-red-300 transition-all duration-200 hover:shadow-md"
+                      className="flex items-center justify-center space-x-1.5 px-3 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-medium border border-red-300 transition-all duration-200 text-sm"
                       title="Delete Release"
                     >
                       <Trash2 className="w-4 h-4" />
