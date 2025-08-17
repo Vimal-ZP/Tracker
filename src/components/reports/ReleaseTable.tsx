@@ -129,6 +129,55 @@ export default function ReleaseTable({ releases }: ReleaseTableProps) {
     }
   };
 
+  const getApplicationColors = (applicationName: string) => {
+    const colorMap: Record<string, { bg: string; text: string; icon: string; gradient: string }> = {
+      'NRE': {
+        bg: 'bg-blue-100',
+        text: 'text-blue-800',
+        icon: 'from-blue-500 to-blue-600',
+        gradient: 'bg-gradient-to-br from-blue-500 to-blue-600'
+      },
+      'NVE': {
+        bg: 'bg-green-100',
+        text: 'text-green-800',
+        icon: 'from-green-500 to-green-600',
+        gradient: 'bg-gradient-to-br from-green-500 to-green-600'
+      },
+      'E-Vite': {
+        bg: 'bg-purple-100',
+        text: 'text-purple-800',
+        icon: 'from-purple-500 to-purple-600',
+        gradient: 'bg-gradient-to-br from-purple-500 to-purple-600'
+      },
+      'Portal Plus': {
+        bg: 'bg-orange-100',
+        text: 'text-orange-800',
+        icon: 'from-orange-500 to-orange-600',
+        gradient: 'bg-gradient-to-br from-orange-500 to-orange-600'
+      },
+      'Fast 2.0': {
+        bg: 'bg-pink-100',
+        text: 'text-pink-800',
+        icon: 'from-pink-500 to-pink-600',
+        gradient: 'bg-gradient-to-br from-pink-500 to-pink-600'
+      },
+      'FMS': {
+        bg: 'bg-indigo-100',
+        text: 'text-indigo-800',
+        icon: 'from-indigo-500 to-indigo-600',
+        gradient: 'bg-gradient-to-br from-indigo-500 to-indigo-600'
+      }
+    };
+
+    // Return specific colors for known applications, or default colors for unknown ones
+    return colorMap[applicationName] || {
+      bg: 'bg-gray-100',
+      text: 'text-gray-800',
+      icon: 'from-gray-500 to-gray-600',
+      gradient: 'bg-gradient-to-br from-gray-500 to-gray-600'
+    };
+  };
+
   const clearFilters = () => {
     setFilterApplication('');
     setFilterType('');
@@ -169,10 +218,48 @@ export default function ReleaseTable({ releases }: ReleaseTableProps) {
                 {applications.length}
               </div>
               <div className="text-sm text-gray-600">Applications</div>
+              {/* Application color indicators */}
+              <div className="flex justify-center space-x-1 mt-1">
+                {applications.slice(0, 6).map((app) => {
+                  const colors = getApplicationColors(app);
+                  return (
+                    <div
+                      key={app}
+                      className={`w-2 h-2 rounded-full ${colors.gradient}`}
+                      title={app}
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Application Color Legend */}
+      {applications.length > 1 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-5 h-5 bg-gradient-to-br from-blue-500 to-purple-500 rounded flex items-center justify-center">
+                <Building className="w-3 h-3 text-white" />
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900">Application Color Guide</h3>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {applications.map((app) => {
+                const colors = getApplicationColors(app);
+                return (
+                  <div key={app} className="flex items-center space-x-2">
+                    <div className={`w-3 h-3 rounded-full ${colors.gradient}`} />
+                    <span className="text-xs font-medium text-gray-700">{app}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Advanced Filters Section */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -378,10 +465,10 @@ export default function ReleaseTable({ releases }: ReleaseTableProps) {
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+                      <div className={`w-8 h-8 ${getApplicationColors(release.applicationName).gradient} rounded-lg flex items-center justify-center shadow-sm`}>
                         <Building className="w-4 h-4 text-white" />
                       </div>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text} border border-opacity-20`}>
                         {release.applicationName}
                       </span>
                     </div>
