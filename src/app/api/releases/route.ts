@@ -4,7 +4,7 @@ import Release from '@/models/Release';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/auth';
 import { ReleaseType } from '@/types/release';
-import { getUserAccessibleApplications } from '@/types/user';
+import { getUserAccessibleApplications, UserRole } from '@/types/user';
 
 // GET /api/releases - Get all releases with filtering and pagination
 export async function GET(request: NextRequest) {
@@ -66,7 +66,11 @@ export async function GET(request: NextRequest) {
       query.type = type;
     }
 
-    if (published !== null) {
+    // Role-based filtering: Basic users can only see published releases
+    if (user.role === UserRole.BASIC) {
+      query.isPublished = true;
+    } else if (published !== null) {
+      // Super Admin and Admin can filter by published status if specified
       query.isPublished = published === 'true';
     }
 

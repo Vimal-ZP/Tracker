@@ -3,7 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Release from '@/models/Release';
 import User from '@/models/User';
 import { verifyToken } from '@/lib/auth';
-import { getUserAccessibleApplications } from '@/types/user';
+import { getUserAccessibleApplications, UserRole } from '@/types/user';
 
 // GET /api/releases/[id] - Get a specific release
 export async function GET(
@@ -53,6 +53,14 @@ export async function GET(
     if (!accessibleApplications.includes(release.applicationName)) {
       return NextResponse.json(
         { error: 'Access denied. You do not have permission to view this release.' },
+        { status: 403 }
+      );
+    }
+
+    // Basic users can only view published releases
+    if (user.role === UserRole.BASIC && !release.isPublished) {
+      return NextResponse.json(
+        { error: 'Access denied. This release is not published.' },
         { status: 403 }
       );
     }
