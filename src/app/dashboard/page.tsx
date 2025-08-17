@@ -227,16 +227,16 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="h-full flex flex-col space-y-4" data-testid="dashboard">
+        <div className="min-h-screen flex flex-col space-y-4 p-6" data-testid="dashboard">
             {/* Professional Welcome Banner */}
             <WelcomeBanner />
 
             {/* Main Content Area */}
-            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Recent Releases */}
-                <div className="lg:col-span-1 flex flex-col">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex-1 flex flex-col">
-                        <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                <div className="lg:col-span-1">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-96">
+                        <div className="p-4 border-b border-gray-200">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                                     <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center mr-3">
@@ -252,7 +252,7 @@ export default function DashboardPage() {
                                 </a>
                             </div>
                         </div>
-                        <div className="p-4 flex-1 overflow-y-auto">
+                        <div className="p-4 h-80 overflow-y-auto">
                             {releasesLoading ? (
                                 <div className="flex items-center justify-center h-32">
                                     <div className="animate-spin rounded-full border-2 border-gray-300 border-t-blue-600 w-6 h-6"></div>
@@ -331,9 +331,9 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Recent Activity */}
-                <div className="lg:col-span-1 flex flex-col">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex-1 flex flex-col">
-                        <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                <div className="lg:col-span-1">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-96">
+                        <div className="p-4 border-b border-gray-200">
                             <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                                 <div className="w-6 h-6 bg-green-100 rounded-md flex items-center justify-center mr-3">
                                     <CheckCircle className="w-4 h-4 text-green-600" />
@@ -341,7 +341,7 @@ export default function DashboardPage() {
                                 Recent Activity
                             </h2>
                         </div>
-                        <div className="p-4 flex-1 overflow-y-auto">
+                        <div className="p-4 h-80 overflow-y-auto">
                             <div className="flow-root">
                                 <ul className="-mb-8">
                                     {recentActivities.map((activity, activityIdx) => (
@@ -381,11 +381,11 @@ export default function DashboardPage() {
             </div>
 
             {/* Secondary Content Area */}
-            <div className="flex-shrink-0 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Quick Actions */}
-                <div className="flex flex-col">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex-1 flex flex-col">
-                        <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                <div>
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                        <div className="p-4 border-b border-gray-200">
                             <h2 className="text-lg font-semibold text-gray-900 flex items-center">
                                 <div className="w-6 h-6 bg-purple-100 rounded-md flex items-center justify-center mr-3">
                                     <Settings className="w-4 h-4 text-purple-600" />
@@ -393,9 +393,9 @@ export default function DashboardPage() {
                                 Quick Actions
                             </h2>
                         </div>
-                        <div className="p-4 flex-1">
+                        <div className="p-4">
                             {quickActions.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 h-full">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {quickActions.map((action) => (
                                         <a
                                             key={action.title}
@@ -419,7 +419,7 @@ export default function DashboardPage() {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-6 flex-1 flex flex-col justify-center">
+                                <div className="text-center py-6">
                                     <Shield className="mx-auto h-10 w-10 text-gray-400" />
                                     <h3 className="mt-2 text-sm font-semibold text-gray-900">No actions available</h3>
                                     <p className="mt-1 text-sm text-gray-500">
@@ -432,7 +432,7 @@ export default function DashboardPage() {
                 </div>
 
                 {/* User Statistics */}
-                <div className="flex flex-col">
+                <div>
                     <DashboardStats />
                 </div>
             </div>
