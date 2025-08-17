@@ -351,7 +351,7 @@ export default function ActivityPage() {
                                 <ActivityIcon className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-xl font-bold text-gray-900">Activity Monitor</h1>
+                                <h1 className="text-xl font-semibold text-gray-900">Activity Monitor</h1>
                                 <p className="text-sm text-gray-600">System-wide user activity tracking & analytics</p>
                             </div>
                         </div>
@@ -360,7 +360,7 @@ export default function ActivityPage() {
                         <div className="flex items-center space-x-4">
                             <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-100 rounded-full border border-green-200">
                                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                <span className="text-xs font-semibold text-green-700">LIVE</span>
+                                <span className="text-xs font-medium text-green-700">LIVE</span>
                             </div>
                             <button
                                 onClick={refresh}
@@ -383,7 +383,7 @@ export default function ActivityPage() {
                             </div>
                             <div>
                                 <p className="text-xs font-medium text-gray-600">Total Activities</p>
-                                <p className="text-lg font-bold text-gray-900">{state.stats.totalActivities.toLocaleString()}</p>
+                                <p className="text-lg font-semibold text-gray-900">{state.stats.totalActivities.toLocaleString()}</p>
                             </div>
                         </div>
 
@@ -393,7 +393,7 @@ export default function ActivityPage() {
                             </div>
                             <div>
                                 <p className="text-xs font-medium text-gray-600">Active Users</p>
-                                <p className="text-lg font-bold text-gray-900">{state.stats.uniqueUsers}</p>
+                                <p className="text-lg font-semibold text-gray-900">{state.stats.uniqueUsers}</p>
                             </div>
                         </div>
 
@@ -403,7 +403,7 @@ export default function ActivityPage() {
                             </div>
                             <div>
                                 <p className="text-xs font-medium text-gray-600">Applications</p>
-                                <p className="text-lg font-bold text-gray-900">{Object.keys(state.stats.activitiesByApplication || {}).length}</p>
+                                <p className="text-lg font-semibold text-gray-900">{Object.keys(state.stats.activitiesByApplication || {}).length}</p>
                             </div>
                         </div>
 
@@ -413,7 +413,7 @@ export default function ActivityPage() {
                             </div>
                             <div>
                                 <p className="text-xs font-medium text-gray-600">Last Activity</p>
-                                <p className="text-sm font-bold text-gray-900">
+                                <p className="text-sm font-medium text-gray-900">
                                     {state.stats.recentActivities?.length > 0 
                                         ? formatRelativeTime(state.stats.recentActivities[0].timestamp)
                                         : 'N/A'
@@ -435,14 +435,14 @@ export default function ActivityPage() {
                                 <Search className="w-4 h-4 text-white" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900">Search & Filter Activities</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Search & Filter Activities</h3>
                                 <p className="text-sm text-gray-600">Find specific activities using advanced search and filters</p>
                             </div>
                         </div>
                         <div className="flex items-center space-x-3">
                             <div className="flex items-center space-x-2 px-3 py-1.5 bg-blue-100 border border-blue-200 rounded-lg">
                                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span className="text-sm font-semibold text-blue-700">
+                                <span className="text-sm font-medium text-blue-700">
                                     {state.pagination.totalCount.toLocaleString()} results
                                 </span>
                             </div>
@@ -465,7 +465,7 @@ export default function ActivityPage() {
                                     placeholder="Search by user name, action, resource, or activity details..."
                                     value={state.filters.search || ''}
                                     onChange={(e) => setState(prev => ({ ...prev, filters: { ...prev.filters, search: e.target.value } }))}
-                                    className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
                                 />
                                 {state.filters.search && (
                                     <button
@@ -484,21 +484,21 @@ export default function ActivityPage() {
                         <div className="flex items-end">
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
-                                className={`flex items-center space-x-3 px-6 py-3.5 rounded-xl font-semibold border-2 transition-all duration-200 shadow-sm hover:shadow-md ${
+                                className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg font-medium border transition-all duration-200 ${
                                     showFilters 
-                                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 border-blue-500 text-white shadow-blue-200' 
-                                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                                        ? 'bg-blue-600 border-blue-600 text-white' 
+                                        : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                                 }`}
                             >
                                 <Filter className="w-5 h-5" />
                                 <span>Advanced Filters</span>
                                 {showFilters && (
-                                    <span className="bg-white bg-opacity-20 text-white px-2 py-0.5 rounded-full text-xs font-bold">
+                                                                            <span className="bg-white bg-opacity-20 text-white px-2 py-0.5 rounded-full text-xs font-medium">
                                         ON
                                     </span>
                                 )}
                                 {!showFilters && Object.values(state.filters).some(filter => filter !== 'all' && filter !== '7d' && filter !== '') && (
-                                    <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-bold">
+                                                                            <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-medium">
                                         ACTIVE
                                     </span>
                                 )}
@@ -514,7 +514,7 @@ export default function ActivityPage() {
                                     <div className="w-6 h-6 bg-indigo-100 rounded-md flex items-center justify-center">
                                         <Filter className="w-4 h-4 text-indigo-600" />
                                     </div>
-                                    <h4 className="text-lg font-bold text-gray-900">Advanced Filters</h4>
+                                    <h4 className="text-lg font-semibold text-gray-900">Advanced Filters</h4>
                                 </div>
                                 <button
                                     onClick={() => {
@@ -540,12 +540,12 @@ export default function ActivityPage() {
                                 <div className="space-y-3">
                                     <label className="flex items-center space-x-2">
                                         <Package className="w-4 h-4 text-blue-600" />
-                                        <span className="text-sm font-semibold text-gray-700">Application</span>
+                                        <span className="text-sm font-medium text-gray-700">Application</span>
                                     </label>
                                     <select
                                         value={state.filters.application}
                                         onChange={(e) => handleFilterChange('application', e.target.value)}
-                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
                                     >
                                         <option value="all">All Applications</option>
                                         {AVAILABLE_APPLICATIONS.map(app => (
@@ -559,12 +559,12 @@ export default function ActivityPage() {
                                 <div className="space-y-3">
                                     <label className="flex items-center space-x-2">
                                         <Settings className="w-4 h-4 text-green-600" />
-                                        <span className="text-sm font-semibold text-gray-700">Action</span>
+                                        <span className="text-sm font-medium text-gray-700">Action</span>
                                     </label>
                                     <select
                                         value={state.filters.action}
                                         onChange={(e) => handleFilterChange('action', e.target.value)}
-                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
                                     >
                                         <option value="all">All Actions</option>
                                         <option value="login">🔐 Login</option>
@@ -583,12 +583,12 @@ export default function ActivityPage() {
                                 <div className="space-y-3">
                                     <label className="flex items-center space-x-2">
                                         <FileText className="w-4 h-4 text-purple-600" />
-                                        <span className="text-sm font-semibold text-gray-700">Resource</span>
+                                        <span className="text-sm font-medium text-gray-700">Resource</span>
                                     </label>
                                     <select
                                         value={state.filters.resource}
                                         onChange={(e) => handleFilterChange('resource', e.target.value)}
-                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
                                     >
                                         <option value="all">All Resources</option>
                                         <option value="auth">🔒 Authentication</option>
@@ -603,12 +603,12 @@ export default function ActivityPage() {
                                 <div className="space-y-3">
                                     <label className="flex items-center space-x-2">
                                         <Calendar className="w-4 h-4 text-orange-600" />
-                                        <span className="text-sm font-semibold text-gray-700">Time Period</span>
+                                        <span className="text-sm font-medium text-gray-700">Time Period</span>
                                     </label>
                                     <select
                                         value={state.filters.dateRange}
                                         onChange={(e) => handleFilterChange('dateRange', e.target.value)}
-                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
                                     >
                                         <option value="1d">📅 Last 24 Hours</option>
                                         <option value="7d">📊 Last 7 Days</option>
@@ -624,7 +624,7 @@ export default function ActivityPage() {
                                 <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center space-x-2">
-                                            <span className="text-sm font-semibold text-blue-900">Active Filters:</span>
+                                            <span className="text-sm font-medium text-blue-900">Active Filters:</span>
                                             <div className="flex flex-wrap gap-2">
                                                 {state.filters.application !== 'all' && (
                                                     <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
@@ -666,7 +666,7 @@ export default function ActivityPage() {
                                                     }
                                                 }));
                                             }}
-                                            className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors duration-200"
+                                            className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200"
                                         >
                                             Clear All
                                         </button>
@@ -688,7 +688,7 @@ export default function ActivityPage() {
                                 <Package className="w-4 h-4 text-indigo-600" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900">Activities by Application</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Activities by Application</h3>
                                 <p className="text-xs text-gray-600">Distribution across platforms</p>
                             </div>
                         </div>
@@ -710,7 +710,7 @@ export default function ActivityPage() {
                                                 <div className="flex items-center space-x-4">
                                                     <div className={`w-4 h-4 bg-gradient-to-r ${colorClass} rounded-full shadow-lg`}></div>
                                                     <div>
-                                                        <span className="font-bold text-gray-900 text-lg">{app.application}</span>
+                                                        <span className="font-semibold text-gray-900 text-base">{app.application}</span>
                                                         <div className="flex items-center space-x-3 mt-1">
                                                             <span className="text-xs text-gray-500 font-medium">{app.uniqueUsers} users</span>
                                                             <span className="text-xs text-gray-400">•</span>
@@ -721,7 +721,7 @@ export default function ActivityPage() {
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className="text-2xl font-bold text-gray-900">{app.count.toLocaleString()}</div>
+                                                    <div className="text-xl font-semibold text-gray-900">{app.count.toLocaleString()}</div>
                                                     <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Activities</div>
                                                 </div>
                                             </div>
@@ -738,7 +738,7 @@ export default function ActivityPage() {
                                 <Users className="w-4 h-4 text-emerald-600" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900">Most Active Users</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Most Active Users</h3>
                                 <p className="text-xs text-gray-600">Top contributors this period</p>
                             </div>
                         </div>
@@ -748,7 +748,7 @@ export default function ActivityPage() {
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center space-x-4">
                                                 <div className="relative">
-                                                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                                                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
                                                         #{index + 1}
                                                     </div>
                                                     {index < 3 && (
@@ -758,7 +758,7 @@ export default function ActivityPage() {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-gray-900">{user.userName}</div>
+                                                    <div className="font-semibold text-gray-900">{user.userName}</div>
                                                     <div className="flex items-center space-x-2 mt-1">
                                                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                                                             user.userRole === 'super_admin' ? 'bg-red-100 text-red-700' :
@@ -771,7 +771,7 @@ export default function ActivityPage() {
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-2xl font-bold text-gray-900">{user.activityCount}</div>
+                                                <div className="text-xl font-semibold text-gray-900">{user.activityCount}</div>
                                                 <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Activities</div>
                                             </div>
                                         </div>
@@ -791,7 +791,7 @@ export default function ActivityPage() {
                                 <ActivityIcon className="w-4 h-4 text-slate-600" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold text-gray-900">Recent Activities</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">Recent Activities</h3>
                                 <p className="text-xs text-gray-600">Real-time system activity feed</p>
                             </div>
                         </div>
@@ -818,7 +818,7 @@ export default function ActivityPage() {
                         </div>
                     ) : state.error ? (
                         <div className="text-center py-12">
-                            <div className="text-red-600 mb-2">{state.error}</div>
+                                                                    <div className="text-red-600 mb-2 font-medium">{state.error}</div>
                             <button
                                 onClick={refresh}
                                 className="text-blue-600 hover:text-blue-800"
@@ -829,19 +829,19 @@ export default function ActivityPage() {
                     ) : state.activities.length === 0 ? (
                         <div className="text-center py-12">
                             <ActivityIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                            <p className="text-gray-500">No activities found for the selected filters.</p>
+                                                                    <p className="text-gray-500 font-medium">No activities found for the selected filters.</p>
                         </div>
                     ) : (
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-gray-200">
                             {state.activities.map((activity, index) => (
-                                <div key={activity._id} className="group relative p-4 hover:bg-gray-50 transition-all duration-200 border-b border-gray-100 last:border-b-0">
+                                <div key={activity._id} className="p-4 hover:bg-gray-50 transition-colors duration-200">
                                     <div className="grid grid-cols-12 gap-6 items-start">
                                         {/* Left Section - Icon & Activity Number */}
                                         <div className="col-span-1 flex flex-col items-center space-y-2">
                                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getActionColor(activity.action)}`}>
                                                 {getActionIcon(activity.action)}
                                             </div>
-                                            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-xs font-bold group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors duration-300">
+                                            <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 text-xs font-medium group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors duration-300">
                                                 {index + 1}
                                             </div>
                                         </div>
@@ -849,8 +849,8 @@ export default function ActivityPage() {
                                         {/* Main Content Section */}
                                         <div className="col-span-7">
                                             <div className="flex items-center space-x-3 mb-2">
-                                                <span className="font-bold text-gray-900 text-lg">{activity.userName}</span>
-                                                <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                                                <span className="font-semibold text-gray-900">{activity.userName}</span>
+                                                <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                                                     activity.userRole === 'super_admin' ? 'bg-red-100 text-red-700 border border-red-200' :
                                                     activity.userRole === 'admin' ? 'bg-blue-100 text-blue-700 border border-blue-200' :
                                                     'bg-gray-100 text-gray-700 border border-gray-200'
@@ -864,13 +864,13 @@ export default function ActivityPage() {
                                             <div className="flex items-center space-x-4 text-xs">
                                                 <div className="flex items-center space-x-2">
                                                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                    <span className="font-semibold text-gray-600 uppercase tracking-wide">
+                                                    <span className="font-medium text-gray-600 uppercase tracking-wide">
                                                         {activity.action.replace('_', ' ')}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center space-x-2">
                                                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                                    <span className="font-semibold text-gray-600 uppercase tracking-wide">
+                                                    <span className="font-medium text-gray-600 uppercase tracking-wide">
                                                         {activity.resource}
                                                     </span>
                                                 </div>
@@ -882,7 +882,7 @@ export default function ActivityPage() {
                                             {/* Application Badge */}
                                             {activity.application && (
                                                 <div className="flex justify-end">
-                                                    <span className="text-sm px-3 py-2 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 rounded-lg font-semibold border border-blue-200 shadow-sm">
+                                                    <span className="text-sm px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg font-medium border border-blue-200">
                                                         📱 {activity.application}
                                                     </span>
                                                 </div>
@@ -932,7 +932,7 @@ export default function ActivityPage() {
                         <button
                             onClick={loadMore}
                             disabled={state.loading}
-                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-2 mx-auto"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2 mx-auto"
                         >
                             {state.loading ? (
                                 <>
