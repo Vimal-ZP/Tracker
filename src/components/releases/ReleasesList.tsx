@@ -234,7 +234,7 @@ export default function ReleasesList({
                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                   <div className="flex items-center space-x-2">
                     <Calendar className="w-4 h-4 text-blue-600" />
-                    <span>Date</span>
+                    <span>Release Date</span>
                   </div>
                 </th>
                 {showActions && (
