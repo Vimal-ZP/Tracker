@@ -135,31 +135,30 @@ export default function SettingsPage() {
                 return <ApplicationManagement />;
             case 'general':
                 return (
-                    <div className="space-y-8">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {settingsCategories.slice(0, 1).map((category) => (
-                                <div key={category.title} className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${category.bgGradient} border-2 ${category.borderColor} hover:shadow-xl transition-all duration-300 cursor-pointer group`}>
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500"></div>
-                                    <div className="relative p-8">
-                                        <div className="flex items-start space-x-6">
-                                            <div className={`flex-shrink-0 w-16 h-16 bg-gradient-to-br ${category.gradient} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform duration-300`}>
-                                                <category.icon className="w-8 h-8" />
+                                <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                                    <div className="p-6">
+                                        <div className="flex items-start space-x-4">
+                                            <div className={`flex-shrink-0 w-12 h-12 bg-gradient-to-br ${category.gradient} rounded-lg flex items-center justify-center text-white shadow-sm`}>
+                                                <category.icon className="w-6 h-6" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                                     {category.title}
                                                 </h3>
-                                                <p className="text-gray-700 mb-6 leading-relaxed">
+                                                <p className="text-gray-600 mb-4 leading-relaxed">
                                                     {category.description}
                                                 </p>
-                                                <div className="space-y-4">
+                                                <div className="space-y-3">
                                                     {category.items.map((item) => (
-                                                        <div key={item.name} className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/50 hover:bg-white/80 transition-all duration-200">
+                                                        <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
                                                             <div className="flex items-center space-x-3">
                                                                 <div className={`w-2 h-2 rounded-full ${item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'}`}></div>
                                                                 <div>
-                                                                    <div className="font-semibold text-gray-900">{item.name}</div>
-                                                                    <div className="text-xs text-gray-600">{item.description}</div>
+                                                                    <div className="font-medium text-gray-900">{item.name}</div>
+                                                                    <div className="text-xs text-gray-500">{item.description}</div>
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center space-x-2">
@@ -170,7 +169,6 @@ export default function SettingsPage() {
                                                                         <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
                                                                     </div>
                                                                 )}
-                                                                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
                                                             </div>
                                                         </div>
                                                     ))}
@@ -182,39 +180,36 @@ export default function SettingsPage() {
                             ))}
                         </div>
                         
-                        {/* Enhanced System Information */}
-                        <div className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl border-2 border-slate-200 overflow-hidden">
-                            <div className="bg-gradient-to-r from-slate-100 to-gray-200 px-8 py-6 border-b border-slate-300">
-                                <div className="flex items-center space-x-4">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-slate-600 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
-                                        <Info className="w-6 h-6 text-white" />
+                        {/* System Information */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div className="p-4 border-b border-gray-200">
+                                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                                    <div className="w-6 h-6 bg-gray-100 rounded-md flex items-center justify-center mr-3">
+                                        <Info className="w-4 h-4 text-gray-600" />
                                     </div>
-                                    <div>
-                                        <h2 className="text-xl font-bold text-gray-900">System Information</h2>
-                                        <p className="text-gray-600">Current system status and configuration</p>
-                                    </div>
-                                </div>
+                                    System Information
+                                </h2>
                             </div>
-                            <div className="p-8">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                    <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-200">
-                                        <dt className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Version</dt>
-                                        <dd className="text-2xl font-bold text-gray-900">1.0.0</dd>
-                                        <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <div className="p-6">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                                        <dt className="text-sm font-medium text-gray-500 mb-1">Version</dt>
+                                        <dd className="text-xl font-bold text-gray-900">1.0.0</dd>
+                                        <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             Latest
                                         </div>
                                     </div>
-                                    <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-200">
-                                        <dt className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Environment</dt>
-                                        <dd className="text-2xl font-bold text-gray-900">Development</dd>
-                                        <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                                        <dt className="text-sm font-medium text-gray-500 mb-1">Environment</dt>
+                                        <dd className="text-xl font-bold text-gray-900">Development</dd>
+                                        <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                             Active
                                         </div>
                                     </div>
-                                    <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-gray-200">
-                                        <dt className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Last Updated</dt>
-                                        <dd className="text-2xl font-bold text-gray-900">{new Date().toLocaleDateString()}</dd>
-                                        <div className="mt-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                                        <dt className="text-sm font-medium text-gray-500 mb-1">Last Updated</dt>
+                                        <dd className="text-xl font-bold text-gray-900">{new Date().toLocaleDateString()}</dd>
+                                        <div className="mt-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                             Today
                                         </div>
                                     </div>
@@ -225,32 +220,31 @@ export default function SettingsPage() {
                 );
             case 'database':
                 return (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {settingsCategories.slice(1, 2).map((category) => (
-                            <div key={category.title} className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${category.bgGradient} border-2 ${category.borderColor} hover:shadow-xl transition-all duration-300 cursor-pointer group`}>
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500"></div>
-                                <div className="relative p-8">
-                                    <div className="flex items-start space-x-6">
-                                        <div className={`flex-shrink-0 w-16 h-16 bg-gradient-to-br ${category.gradient} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform duration-300`}>
-                                            <category.icon className="w-8 h-8" />
+                            <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                                <div className="p-6">
+                                    <div className="flex items-start space-x-4">
+                                        <div className={`flex-shrink-0 w-12 h-12 bg-gradient-to-br ${category.gradient} rounded-lg flex items-center justify-center text-white shadow-sm`}>
+                                            <category.icon className="w-6 h-6" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                                 {category.title}
                                             </h3>
-                                            <p className="text-gray-700 mb-6 leading-relaxed">
+                                            <p className="text-gray-600 mb-4 leading-relaxed">
                                                 {category.description}
                                             </p>
-                                            <div className="space-y-4">
+                                            <div className="space-y-3">
                                                 {category.items.map((item) => (
-                                                    <div key={item.name} className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/50 hover:bg-white/80 transition-all duration-200">
+                                                    <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
                                                         <div className="flex items-center space-x-3">
                                                             <div className={`w-2 h-2 rounded-full ${
                                                                 item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'
                                                             }`}></div>
                                                             <div>
-                                                                <div className="font-semibold text-gray-900">{item.name}</div>
-                                                                <div className="text-xs text-gray-600">{item.description}</div>
+                                                                <div className="font-medium text-gray-900">{item.name}</div>
+                                                                <div className="text-xs text-gray-500">{item.description}</div>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center space-x-2">
@@ -261,7 +255,6 @@ export default function SettingsPage() {
                                                                     <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
                                                                 </div>
                                                             )}
-                                                            <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
                                                         </div>
                                                     </div>
                                                 ))}
@@ -275,32 +268,31 @@ export default function SettingsPage() {
                 );
             case 'security':
                 return (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {settingsCategories.slice(2, 3).map((category) => (
-                            <div key={category.title} className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${category.bgGradient} border-2 ${category.borderColor} hover:shadow-xl transition-all duration-300 cursor-pointer group`}>
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500"></div>
-                                <div className="relative p-8">
-                                    <div className="flex items-start space-x-6">
-                                        <div className={`flex-shrink-0 w-16 h-16 bg-gradient-to-br ${category.gradient} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform duration-300`}>
-                                            <category.icon className="w-8 h-8" />
+                            <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                                <div className="p-6">
+                                    <div className="flex items-start space-x-4">
+                                        <div className={`flex-shrink-0 w-12 h-12 bg-gradient-to-br ${category.gradient} rounded-lg flex items-center justify-center text-white shadow-sm`}>
+                                            <category.icon className="w-6 h-6" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                                 {category.title}
                                             </h3>
-                                            <p className="text-gray-700 mb-6 leading-relaxed">
+                                            <p className="text-gray-600 mb-4 leading-relaxed">
                                                 {category.description}
                                             </p>
-                                            <div className="space-y-4">
+                                            <div className="space-y-3">
                                                 {category.items.map((item) => (
-                                                    <div key={item.name} className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/50 hover:bg-white/80 transition-all duration-200">
+                                                    <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
                                                         <div className="flex items-center space-x-3">
                                                             <div className={`w-2 h-2 rounded-full ${
                                                                 item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'
                                                             }`}></div>
                                                             <div>
-                                                                <div className="font-semibold text-gray-900">{item.name}</div>
-                                                                <div className="text-xs text-gray-600">{item.description}</div>
+                                                                <div className="font-medium text-gray-900">{item.name}</div>
+                                                                <div className="text-xs text-gray-500">{item.description}</div>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center space-x-2">
@@ -311,7 +303,6 @@ export default function SettingsPage() {
                                                                     <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
                                                                 </div>
                                                             )}
-                                                            <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
                                                         </div>
                                                     </div>
                                                 ))}
@@ -325,32 +316,31 @@ export default function SettingsPage() {
                 );
             case 'notifications':
                 return (
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {settingsCategories.slice(3, 4).map((category) => (
-                            <div key={category.title} className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${category.bgGradient} border-2 ${category.borderColor} hover:shadow-xl transition-all duration-300 cursor-pointer group`}>
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform duration-500"></div>
-                                <div className="relative p-8">
-                                    <div className="flex items-start space-x-6">
-                                        <div className={`flex-shrink-0 w-16 h-16 bg-gradient-to-br ${category.gradient} rounded-2xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform duration-300`}>
-                                            <category.icon className="w-8 h-8" />
+                            <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                                <div className="p-6">
+                                    <div className="flex items-start space-x-4">
+                                        <div className={`flex-shrink-0 w-12 h-12 bg-gradient-to-br ${category.gradient} rounded-lg flex items-center justify-center text-white shadow-sm`}>
+                                            <category.icon className="w-6 h-6" />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
                                                 {category.title}
                                             </h3>
-                                            <p className="text-gray-700 mb-6 leading-relaxed">
+                                            <p className="text-gray-600 mb-4 leading-relaxed">
                                                 {category.description}
                                             </p>
-                                            <div className="space-y-4">
+                                            <div className="space-y-3">
                                                 {category.items.map((item) => (
-                                                    <div key={item.name} className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/50 hover:bg-white/80 transition-all duration-200">
+                                                    <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
                                                         <div className="flex items-center space-x-3">
                                                             <div className={`w-2 h-2 rounded-full ${
                                                                 item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'
                                                             }`}></div>
                                                             <div>
-                                                                <div className="font-semibold text-gray-900">{item.name}</div>
-                                                                <div className="text-xs text-gray-600">{item.description}</div>
+                                                                <div className="font-medium text-gray-900">{item.name}</div>
+                                                                <div className="text-xs text-gray-500">{item.description}</div>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center space-x-2">
@@ -361,7 +351,6 @@ export default function SettingsPage() {
                                                                     <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
                                                                 </div>
                                                             )}
-                                                            <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
                                                         </div>
                                                     </div>
                                                 ))}
@@ -379,66 +368,73 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="h-full flex flex-col space-y-6">
-            {/* Elegant Header */}
-            <div className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="relative p-8">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-100/50 to-indigo-200/30 rounded-full -mr-16 -mt-16"></div>
-                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-indigo-100/40 to-blue-200/20 rounded-full -ml-12 -mb-12"></div>
-                    
-                    <div className="relative flex items-center space-x-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <SettingsIcon className="w-8 h-8 text-white" />
+        <div className="h-full flex flex-col space-y-4">
+            {/* Professional Header */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm">
+                <div className="p-4">
+                    <div className="flex justify-between items-center">
+                        {/* Left Section - Title and Icon */}
+                        <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
+                                <SettingsIcon className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold text-gray-900">System Settings</h1>
+                                <p className="text-sm text-gray-600">Configure and customize your application environment</p>
+                            </div>
                         </div>
-                        <div className="flex-1">
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">System Settings</h1>
-                            <p className="text-gray-600 text-lg leading-relaxed">
-                                Configure and customize your application environment with precision and control
-                            </p>
-                        </div>
-                        <div className="hidden md:flex items-center space-x-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-white/50 shadow-sm">
-                            <Sparkles className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm font-medium text-gray-700">Professional</span>
+
+                        {/* Right Section - Stats */}
+                        <div className="flex items-center space-x-4 text-sm">
+                            <div className="flex items-center space-x-1.5">
+                                <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center">
+                                    <SettingsIcon className="w-3 h-3 text-blue-600" />
+                                </div>
+                                <span className="font-semibold text-gray-900">{visibleTabs.length}</span>
+                                <span className="text-gray-600">Categories</span>
+                            </div>
+                            <div className="flex items-center space-x-1.5">
+                                <div className="w-6 h-6 bg-green-100 rounded-md flex items-center justify-center">
+                                    <CheckCircle2 className="w-3 h-3 text-green-600" />
+                                </div>
+                                <span className="font-semibold text-green-600">12</span>
+                                <span className="text-gray-600">Configured</span>
+                            </div>
+                            <div className="flex items-center space-x-1.5">
+                                <div className="w-6 h-6 bg-amber-100 rounded-md flex items-center justify-center">
+                                    <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                                </div>
+                                <span className="font-semibold text-amber-600">4</span>
+                                <span className="text-gray-600">Pending</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Elegant Tabs */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden flex-1">
-                <div className="border-b border-gray-100 bg-gradient-to-r from-gray-50 to-slate-50">
-                    <nav className="flex overflow-x-auto scrollbar-hide">
-                        {visibleTabs.map((tab, index) => (
+            {/* Professional Tabs */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex-1">
+                <div className="border-b border-gray-200">
+                    <nav className="-mb-px flex space-x-8 px-6">
+                        {visibleTabs.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`group relative flex items-center space-x-3 px-6 py-4 font-medium text-sm whitespace-nowrap transition-all duration-300 ${
+                                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-all duration-200 ${
                                     activeTab === tab.id
-                                        ? 'text-blue-600 bg-white shadow-sm'
-                                        : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                 }`}
                             >
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                                    activeTab === tab.id
-                                        ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md'
-                                        : 'bg-gray-100 text-gray-500 group-hover:bg-gray-200'
-                                }`}>
-                                    <tab.icon className="w-4 h-4" />
-                                </div>
-                                <div className="text-left">
-                                    <div className="font-semibold">{tab.name}</div>
-                                    <div className="text-xs text-gray-500 mt-0.5">{tab.description}</div>
-                                </div>
-                                {activeTab === tab.id && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
-                                )}
+                                <tab.icon className="w-4 h-4" />
+                                <span>{tab.name}</span>
                             </button>
                         ))}
                     </nav>
                 </div>
 
-                {/* Enhanced Tab Content */}
-                <div className="p-8 flex-1 overflow-y-auto">
+                {/* Tab Content */}
+                <div className="p-6 flex-1 overflow-y-auto">
                     {renderTabContent()}
                 </div>
             </div>
