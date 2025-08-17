@@ -398,7 +398,7 @@ export default function DashboardPage() {
                             {quickActions.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     {quickActions.map((action) => (
-                                        <a
+                                        <Link
                                             key={action.title}
                                             href={action.href}
                                             className="group relative rounded-lg p-3 bg-gray-50 hover:bg-white hover:shadow-sm border border-gray-200 hover:border-gray-300 transition-all duration-200 flex items-center"
@@ -416,7 +416,7 @@ export default function DashboardPage() {
                                                     </p>
                                                 </div>
                                             </div>
-                                        </a>
+                                        </Link>
                                     ))}
                                 </div>
                             ) : (
