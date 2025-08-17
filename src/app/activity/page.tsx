@@ -425,132 +425,258 @@ export default function ActivityPage() {
                 </div>
             )}
 
-            {/* Compact Search and Filters */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div className="p-4">
-                    <div className="flex flex-col md:flex-row gap-3 mb-4">
-                        <div className="flex-1">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                <input
-                                    type="text"
-                                    placeholder="Search activities by user, action, or details..."
-                                    value={state.filters.search || ''}
-                                    onChange={(e) => setState(prev => ({ ...prev, filters: { ...prev.filters, search: e.target.value } }))}
-                                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
-                                />
+            {/* Professional Search and Filters */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                {/* Search Header */}
+                <div className="bg-gradient-to-r from-gray-50 to-blue-50 border-b border-gray-200 px-6 py-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                                <Search className="w-4 h-4 text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900">Search & Filter Activities</h3>
+                                <p className="text-sm text-gray-600">Find specific activities using advanced search and filters</p>
                             </div>
                         </div>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => setShowFilters(!showFilters)}
-                                className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-medium border transition-all duration-200 ${
-                                    showFilters 
-                                        ? 'bg-blue-50 border-blue-200 text-blue-700' 
-                                        : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                                }`}
-                            >
-                                <Filter className="w-4 h-4" />
-                                <span>Filters</span>
-                                {showFilters && <span className="text-xs bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded-full ml-1">On</span>}
-                            </button>
-                        </div>
-                    </div>
-                        <div className="flex items-center space-x-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            <span className="text-sm font-medium text-blue-700">
-                                {state.pagination.totalCount.toLocaleString()} results
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                        {/* Application Filter */}
-                        <div className="space-y-2">
-                            <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Application</label>
-                            <select
-                                value={state.filters.application}
-                                onChange={(e) => handleFilterChange('application', e.target.value)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium"
-                            >
-                                <option value="all">All Applications</option>
-                                {AVAILABLE_APPLICATIONS.map(app => (
-                                    <option key={app} value={app}>{app}</option>
-                                ))}
-                                <option value="System">System</option>
-                            </select>
-                        </div>
-
-                        {/* Action Filter */}
-                        <div className="space-y-2">
-                            <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Action</label>
-                            <select
-                                value={state.filters.action}
-                                onChange={(e) => handleFilterChange('action', e.target.value)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium"
-                            >
-                                <option value="all">All Actions</option>
-                                <option value="login">Login</option>
-                                <option value="logout">Logout</option>
-                                <option value="user_created">User Created</option>
-                                <option value="user_updated">User Updated</option>
-                                <option value="user_deleted">User Deleted</option>
-                                <option value="prompt_created">Prompt Created</option>
-                                <option value="prompt_used">Prompt Used</option>
-                                <option value="release_created">Release Created</option>
-                                <option value="release_published">Release Published</option>
-                            </select>
-                        </div>
-
-                        {/* Resource Filter */}
-                        <div className="space-y-2">
-                            <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Resource</label>
-                            <select
-                                value={state.filters.resource}
-                                onChange={(e) => handleFilterChange('resource', e.target.value)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium"
-                            >
-                                <option value="all">All Resources</option>
-                                <option value="auth">Authentication</option>
-                                <option value="user">User</option>
-                                <option value="prompt">Prompt</option>
-                                <option value="release">Release</option>
-                                <option value="system">System</option>
-                            </select>
-                        </div>
-
-                        {/* Date Range Filter */}
-                        <div className="space-y-2">
-                            <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Time Period</label>
-                            <select
-                                value={state.filters.dateRange}
-                                onChange={(e) => handleFilterChange('dateRange', e.target.value)}
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium"
-                            >
-                                <option value="1d">Last 24 Hours</option>
-                                <option value="7d">Last 7 Days</option>
-                                <option value="30d">Last 30 Days</option>
-                                <option value="90d">Last 90 Days</option>
-                                <option value="all">All Time</option>
-                            </select>
-                        </div>
-
-                        {/* Search */}
-                        <div className="space-y-2">
-                            <label className="block text-sm font-bold text-gray-700 uppercase tracking-wide">Search</label>
-                            <div className="relative">
-                                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search activities..."
-                                    value={state.filters.search}
-                                    onChange={(e) => handleFilterChange('search', e.target.value)}
-                                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium placeholder-gray-500"
-                                />
+                        <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2 px-3 py-1.5 bg-blue-100 border border-blue-200 rounded-lg">
+                                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                <span className="text-sm font-semibold text-blue-700">
+                                    {state.pagination.totalCount.toLocaleString()} results
+                                </span>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                {/* Search Controls */}
+                <div className="p-6">
+                    <div className="flex flex-col lg:flex-row gap-4 mb-6">
+                        {/* Enhanced Search Input */}
+                        <div className="flex-1">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Search Activities
+                            </label>
+                            <div className="relative group">
+                                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 group-focus-within:text-blue-500 transition-colors duration-200" />
+                                <input
+                                    type="text"
+                                    placeholder="Search by user name, action, resource, or activity details..."
+                                    value={state.filters.search || ''}
+                                    onChange={(e) => setState(prev => ({ ...prev, filters: { ...prev.filters, search: e.target.value } }))}
+                                    className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                />
+                                {state.filters.search && (
+                                    <button
+                                        onClick={() => setState(prev => ({ ...prev, filters: { ...prev.filters, search: '' } }))}
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                                    >
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Filter Toggle Button */}
+                        <div className="flex items-end">
+                            <button
+                                onClick={() => setShowFilters(!showFilters)}
+                                className={`flex items-center space-x-3 px-6 py-3.5 rounded-xl font-semibold border-2 transition-all duration-200 shadow-sm hover:shadow-md ${
+                                    showFilters 
+                                        ? 'bg-gradient-to-r from-blue-500 to-indigo-600 border-blue-500 text-white shadow-blue-200' 
+                                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                                }`}
+                            >
+                                <Filter className="w-5 h-5" />
+                                <span>Advanced Filters</span>
+                                {showFilters && (
+                                    <span className="bg-white bg-opacity-20 text-white px-2 py-0.5 rounded-full text-xs font-bold">
+                                        ON
+                                    </span>
+                                )}
+                                {!showFilters && Object.values(state.filters).some(filter => filter !== 'all' && filter !== '7d' && filter !== '') && (
+                                    <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-bold">
+                                        ACTIVE
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                    
+                    {/* Advanced Filters */}
+                    {showFilters && (
+                        <div className="border-t border-gray-200 pt-6 mt-6">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-6 h-6 bg-indigo-100 rounded-md flex items-center justify-center">
+                                        <Filter className="w-4 h-4 text-indigo-600" />
+                                    </div>
+                                    <h4 className="text-lg font-bold text-gray-900">Advanced Filters</h4>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setState(prev => ({
+                                            ...prev,
+                                            filters: {
+                                                application: 'all',
+                                                action: 'all',
+                                                resource: 'all',
+                                                dateRange: '7d',
+                                                search: ''
+                                            }
+                                        }));
+                                    }}
+                                    className="text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                                >
+                                    Clear All Filters
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {/* Application Filter */}
+                                <div className="space-y-3">
+                                    <label className="flex items-center space-x-2">
+                                        <Package className="w-4 h-4 text-blue-600" />
+                                        <span className="text-sm font-semibold text-gray-700">Application</span>
+                                    </label>
+                                    <select
+                                        value={state.filters.application}
+                                        onChange={(e) => handleFilterChange('application', e.target.value)}
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                    >
+                                        <option value="all">All Applications</option>
+                                        {AVAILABLE_APPLICATIONS.map(app => (
+                                            <option key={app} value={app}>{app}</option>
+                                        ))}
+                                        <option value="System">System</option>
+                                    </select>
+                                </div>
+
+                                {/* Action Filter */}
+                                <div className="space-y-3">
+                                    <label className="flex items-center space-x-2">
+                                        <Settings className="w-4 h-4 text-green-600" />
+                                        <span className="text-sm font-semibold text-gray-700">Action</span>
+                                    </label>
+                                    <select
+                                        value={state.filters.action}
+                                        onChange={(e) => handleFilterChange('action', e.target.value)}
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                    >
+                                        <option value="all">All Actions</option>
+                                        <option value="login">🔐 Login</option>
+                                        <option value="logout">🚪 Logout</option>
+                                        <option value="user_created">👤 User Created</option>
+                                        <option value="user_updated">✏️ User Updated</option>
+                                        <option value="user_deleted">🗑️ User Deleted</option>
+                                        <option value="prompt_created">📝 Prompt Created</option>
+                                        <option value="prompt_used">🎯 Prompt Used</option>
+                                        <option value="release_created">📦 Release Created</option>
+                                        <option value="release_published">🚀 Release Published</option>
+                                    </select>
+                                </div>
+
+                                {/* Resource Filter */}
+                                <div className="space-y-3">
+                                    <label className="flex items-center space-x-2">
+                                        <FileText className="w-4 h-4 text-purple-600" />
+                                        <span className="text-sm font-semibold text-gray-700">Resource</span>
+                                    </label>
+                                    <select
+                                        value={state.filters.resource}
+                                        onChange={(e) => handleFilterChange('resource', e.target.value)}
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                    >
+                                        <option value="all">All Resources</option>
+                                        <option value="auth">🔒 Authentication</option>
+                                        <option value="user">👥 User</option>
+                                        <option value="prompt">💬 Prompt</option>
+                                        <option value="release">📋 Release</option>
+                                        <option value="system">⚙️ System</option>
+                                    </select>
+                                </div>
+
+                                {/* Date Range Filter */}
+                                <div className="space-y-3">
+                                    <label className="flex items-center space-x-2">
+                                        <Calendar className="w-4 h-4 text-orange-600" />
+                                        <span className="text-sm font-semibold text-gray-700">Time Period</span>
+                                    </label>
+                                    <select
+                                        value={state.filters.dateRange}
+                                        onChange={(e) => handleFilterChange('dateRange', e.target.value)}
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white font-medium shadow-sm hover:shadow-md"
+                                    >
+                                        <option value="1d">📅 Last 24 Hours</option>
+                                        <option value="7d">📊 Last 7 Days</option>
+                                        <option value="30d">📈 Last 30 Days</option>
+                                        <option value="90d">📉 Last 90 Days</option>
+                                        <option value="all">🌐 All Time</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Active Filters Summary */}
+                            {Object.values(state.filters).some(filter => filter !== 'all' && filter !== '7d' && filter !== '') && (
+                                <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-sm font-semibold text-blue-900">Active Filters:</span>
+                                            <div className="flex flex-wrap gap-2">
+                                                {state.filters.application !== 'all' && (
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
+                                                        App: {state.filters.application}
+                                                    </span>
+                                                )}
+                                                {state.filters.action !== 'all' && (
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                                                        Action: {state.filters.action.replace('_', ' ')}
+                                                    </span>
+                                                )}
+                                                {state.filters.resource !== 'all' && (
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                                                        Resource: {state.filters.resource}
+                                                    </span>
+                                                )}
+                                                {state.filters.dateRange !== '7d' && (
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-orange-100 text-orange-800">
+                                                        Period: {state.filters.dateRange === '1d' ? '24h' : state.filters.dateRange === '30d' ? '30d' : state.filters.dateRange === '90d' ? '90d' : 'All'}
+                                                    </span>
+                                                )}
+                                                {state.filters.search && (
+                                                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                                                        Search: "{state.filters.search.substring(0, 20)}{state.filters.search.length > 20 ? '...' : ''}"
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                setState(prev => ({
+                                                    ...prev,
+                                                    filters: {
+                                                        application: 'all',
+                                                        action: 'all',
+                                                        resource: 'all',
+                                                        dateRange: '7d',
+                                                        search: ''
+                                                    }
+                                                }));
+                                            }}
+                                            className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors duration-200"
+                                        >
+                                            Clear All
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
 
             {/* Analytics Section */}
             {state.stats?.activitiesByApplication && (
