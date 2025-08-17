@@ -249,29 +249,29 @@ export default function ReleasesList({
                 <tr key={release._id} className="hover:bg-blue-50/50 transition-colors duration-200">
                   <td className="px-6 py-5">
                     <div>
-                      <div className="text-sm font-semibold text-gray-900 mb-1">
-                        {release.title}
-                      </div>
-                      <div className="text-sm text-gray-600 truncate max-w-xs">
-                        {release.description}
-                      </div>
-                      <div className="flex items-center mt-2">
-                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${release.isPublished
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {release.title}
+                        </div>
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-medium ml-2 flex-shrink-0 ${release.isPublished
                           ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
                           }`}>
                           {release.isPublished ? (
                             <>
-                              <CheckCircle className="w-3 h-3 mr-1" />
+                              <CheckCircle className="w-2.5 h-2.5 mr-1" />
                               Published
                             </>
                           ) : (
                             <>
-                              <Clock className="w-3 h-3 mr-1" />
+                              <Clock className="w-2.5 h-2.5 mr-1" />
                               Draft
                             </>
                           )}
                         </span>
+                      </div>
+                      <div className="text-sm text-gray-600 truncate max-w-xs">
+                        {release.description}
                       </div>
                     </div>
                   </td>
