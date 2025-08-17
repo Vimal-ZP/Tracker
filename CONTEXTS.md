@@ -152,11 +152,11 @@ function SettingsPage() {
 ```
 
 ### 6. ReleasesContext
-**Purpose**: Manages software release data, tracking, and analytics
+**Purpose**: Manages application release data, tracking, and analytics
 **Location**: `src/contexts/ReleasesContext.tsx`
 
 **State:**
-- `releases`: Array of software releases
+- `releases`: Array of application releases
 - `loading`: Loading state for release operations
 - `error`: Error messages
 - `filters`: Current release filters (application, type, status)
@@ -351,7 +351,7 @@ function ReleasesPage() {
   
   return (
     <div>
-      <h1>Software Releases</h1>
+      <h1>Application Releases</h1>
       {loading ? <LoadingSpinner /> : <ReleaseTable releases={releases} />}
     </div>
   );

@@ -506,7 +506,7 @@ export default function ReleasesPage() {
                   <Package className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">Software Releases</h1>
+                  <h1 className="text-xl font-bold text-gray-900">Application Releases</h1>
                   <p className="text-sm text-gray-600">Manage and track your application releases</p>
                 </div>
               </div>
@@ -604,11 +604,10 @@ export default function ReleasesPage() {
               <button
                 type="button"
                 onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-medium border transition-all duration-200 ${
-                  showFilters 
-                    ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-medium border transition-all duration-200 ${showFilters
+                    ? 'bg-blue-50 border-blue-200 text-blue-700'
                     : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
-                }`}
+                  }`}
               >
                 <Filter className="w-4 h-4" />
                 <span>Filters</span>
@@ -732,7 +731,7 @@ export default function ReleasesPage() {
               Page <span className="font-semibold text-gray-900">{currentPage}</span> of{' '}
               <span className="font-semibold text-gray-900">{totalPages}</span>
             </div>
-            
+
             <div className="flex items-center space-x-1">
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -753,11 +752,10 @@ export default function ReleasesPage() {
                     <button
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
-                      className={`w-8 h-8 rounded-md text-xs font-medium transition-all duration-200 ${
-                        currentPage === pageNum
+                      className={`w-8 h-8 rounded-md text-xs font-medium transition-all duration-200 ${currentPage === pageNum
                           ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm'
                           : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                        }`}
                     >
                       {pageNum}
                     </button>

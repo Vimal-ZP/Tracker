@@ -160,7 +160,7 @@ export default function DashboardPage() {
     const quickActions = [
         {
             title: 'Manage Releases',
-            description: 'Create, edit, and manage software releases',
+            description: 'Create, edit, and manage application releases',
             icon: Package,
             href: '/releases',
             color: 'bg-blue-500',
@@ -296,7 +296,7 @@ export default function DashboardPage() {
                                                         </div>
                                                     )}
                                                 </div>
-                                                <a
+                                                <Link
                                                     href={`/releases/${release._id}`}
                                                     className="ml-2 text-blue-600 hover:text-blue-800"
                                                     title="View release details"
@@ -304,7 +304,7 @@ export default function DashboardPage() {
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                                     </svg>
-                                                </a>
+                                                </Link>
                                             </div>
                                         </div>
                                     ))}

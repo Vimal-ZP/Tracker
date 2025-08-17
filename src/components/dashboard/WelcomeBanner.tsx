@@ -86,7 +86,7 @@ export default function WelcomeBanner() {
                                 <Sparkles className="w-5 h-5 text-yellow-500 ml-2" />
                             </h1>
                             <p className="text-gray-600 text-sm flex items-center flex-wrap">
-                                Welcome to your 
+                                Welcome to your
                                 <span className="mx-1 px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                                     {getRoleDisplayName(user.role)}
                                 </span>
@@ -94,7 +94,7 @@ export default function WelcomeBanner() {
                             </p>
                         </div>
                     </div>
-                    
+
                     {/* Status Indicator */}
                     <div className="flex items-center space-x-2 px-3 py-1.5 bg-green-100 border border-green-200 rounded-full">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -114,7 +114,7 @@ export default function WelcomeBanner() {
                                 <h2 className="text-sm font-semibold text-gray-900">About Tracker</h2>
                             </div>
                             <p className="text-gray-700 text-sm leading-relaxed mb-3">
-                                <strong>Tracker</strong> is a comprehensive project management platform designed to streamline your development workflow and manage software releases effectively.
+                                <strong>Tracker</strong> is a comprehensive project management platform designed to streamline your development workflow and manage application releases effectively.
                             </p>
                             <div className="flex flex-wrap gap-1.5">
                                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
