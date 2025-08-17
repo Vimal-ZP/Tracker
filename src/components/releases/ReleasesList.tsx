@@ -311,48 +311,58 @@ export default function ReleasesList({
                         <div className="flex items-center space-x-3">
                           {totalItems > 0 ? (
                             <>
-                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <span className="text-xs font-bold text-blue-600">{totalItems}</span>
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                                <span className="text-xs font-bold text-white">{totalItems}</span>
                               </div>
-                              <div className="flex items-center space-x-2 text-xs">
+                              <div className="flex items-center space-x-1.5 text-xs">
                                 {counts.epic > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
-                                    {getWorkItemIcon('epic')}
-                                    <span className="ml-1 font-medium">{counts.epic}</span>
+                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-purple-100 to-purple-50 border border-purple-200/50 text-purple-700 rounded-md shadow-sm">
+                                    <div className="w-3 h-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-sm flex items-center justify-center mr-1">
+                                      {getWorkItemIcon('epic')}
+                                    </div>
+                                    <span className="font-semibold">{counts.epic}</span>
                                   </div>
                                 )}
                                 {counts.feature > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
-                                    {getWorkItemIcon('feature')}
-                                    <span className="ml-1 font-medium">{counts.feature}</span>
+                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-blue-100 to-blue-50 border border-blue-200/50 text-blue-700 rounded-md shadow-sm">
+                                    <div className="w-3 h-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-sm flex items-center justify-center mr-1">
+                                      {getWorkItemIcon('feature')}
+                                    </div>
+                                    <span className="font-semibold">{counts.feature}</span>
                                   </div>
                                 )}
                                 {counts.user_story > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-green-100 text-green-700 rounded-full">
-                                    {getWorkItemIcon('user_story')}
-                                    <span className="ml-1 font-medium">{counts.user_story}</span>
+                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-emerald-100 to-emerald-50 border border-emerald-200/50 text-emerald-700 rounded-md shadow-sm">
+                                    <div className="w-3 h-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-sm flex items-center justify-center mr-1">
+                                      {getWorkItemIcon('user_story')}
+                                    </div>
+                                    <span className="font-semibold">{counts.user_story}</span>
                                   </div>
                                 )}
                                 {counts.bug > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-full">
-                                    {getWorkItemIcon('bug')}
-                                    <span className="ml-1 font-medium">{counts.bug}</span>
+                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-red-100 to-red-50 border border-red-200/50 text-red-700 rounded-md shadow-sm">
+                                    <div className="w-3 h-3 bg-gradient-to-br from-red-500 to-red-600 rounded-sm flex items-center justify-center mr-1">
+                                      {getWorkItemIcon('bug')}
+                                    </div>
+                                    <span className="font-semibold">{counts.bug}</span>
                                   </div>
                                 )}
                                 {counts.incident > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-orange-100 text-orange-700 rounded-full">
-                                    {getWorkItemIcon('incident')}
-                                    <span className="ml-1 font-medium">{counts.incident}</span>
+                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200/50 text-amber-700 rounded-md shadow-sm">
+                                    <div className="w-3 h-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-sm flex items-center justify-center mr-1">
+                                      {getWorkItemIcon('incident')}
+                                    </div>
+                                    <span className="font-semibold">{counts.incident}</span>
                                   </div>
                                 )}
                               </div>
                             </>
                           ) : (
                             <div className="flex items-center space-x-2 text-gray-400">
-                              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                                <span className="text-xs">0</span>
+                              <div className="w-8 h-8 bg-gradient-to-br from-slate-200 to-slate-300 rounded-lg flex items-center justify-center">
+                                <span className="text-xs font-medium text-slate-600">0</span>
                               </div>
-                              <span className="text-sm">No work items</span>
+                              <span className="text-sm text-slate-500">No work items</span>
                             </div>
                           )}
                         </div>
@@ -534,12 +544,12 @@ export default function ReleasesList({
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 {/* Compact Header Section */}
-                <div className="flex items-start space-x-3 mb-3">
+                <div className="flex items-start space-x-3 mb-2">
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
                     <Package className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-1">
+                    <div className="flex items-center space-x-2">
                       <h3 className="text-lg font-bold text-gray-900">
                         {release.title}
                       </h3>
@@ -561,41 +571,39 @@ export default function ReleasesList({
                         )}
                       </span>
                     </div>
-                    
-                    {/* Application Badge */}
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-5 h-5 ${getApplicationColors(release.applicationName).gradient} rounded-md flex items-center justify-center`}>
-                        <Building className="w-3 h-3 text-white" />
-                      </div>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text} border border-opacity-20`}>
-                        {release.applicationName}
-                      </span>
-                    </div>
                   </div>
                 </div>
 
                 {/* Description */}
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-2">
+                <p className="text-gray-600 mb-3 text-sm leading-relaxed line-clamp-2">
                   {release.description}
                 </p>
 
                 {/* Compact Metadata Row */}
-                <div className="flex flex-wrap items-center gap-4 mb-4 text-xs">
+                <div className="flex flex-wrap items-center gap-3 mb-3 text-xs">
+                  {/* Application Name - First Priority */}
                   <div className="flex items-center space-x-1.5">
-                    <div className="w-5 h-5 bg-indigo-100 rounded-md flex items-center justify-center">
-                      <Calendar className="w-3 h-3 text-indigo-600" />
+                    <div className={`w-4 h-4 ${getApplicationColors(release.applicationName).gradient} rounded-sm flex items-center justify-center`}>
+                      <Building className="w-2.5 h-2.5 text-white" />
                     </div>
-                    <span className="text-gray-500">Date:</span>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text}`}>
+                      {release.applicationName}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center space-x-1.5">
+                    <div className="w-4 h-4 bg-indigo-100 rounded-sm flex items-center justify-center">
+                      <Calendar className="w-2.5 h-2.5 text-indigo-600" />
+                    </div>
                     <span className="font-medium text-gray-900">{formatDate(release.releaseDate)}</span>
                   </div>
 
                   <div className="flex items-center space-x-1.5">
-                    <div className="w-5 h-5 bg-gray-100 rounded-md flex items-center justify-center">
-                      <Tag className="w-3 h-3 text-gray-600" />
+                    <div className="w-4 h-4 bg-gray-100 rounded-sm flex items-center justify-center">
+                      <Tag className="w-2.5 h-2.5 text-gray-600" />
                     </div>
-                    <span className="text-gray-500">Version:</span>
                     <span className="font-medium text-gray-900">
-                      {release.version ? `v${release.version}` : 'None'}
+                      {release.version ? `v${release.version}` : 'No version'}
                     </span>
                   </div>
 
@@ -611,69 +619,108 @@ export default function ReleasesList({
 
                   {release.author && (
                     <div className="flex items-center space-x-1.5">
-                      <div className="w-5 h-5 bg-green-100 rounded-md flex items-center justify-center">
-                        <User className="w-3 h-3 text-green-600" />
+                      <div className="w-4 h-4 bg-green-100 rounded-sm flex items-center justify-center">
+                        <User className="w-2.5 h-2.5 text-green-600" />
                       </div>
-                      <span className="text-gray-500">By:</span>
                       <span className="font-medium text-gray-900">{release.author.name}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Compact Work Items Summary */}
+                {/* Elegant Work Items Summary */}
                 {(() => {
                   const counts = getWorkItemCounts(release.workItems);
                   const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
                   return (
-                    <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-3 border border-gray-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center space-x-1.5">
-                          <div className="w-5 h-5 bg-blue-100 rounded-md flex items-center justify-center">
-                            <Layers className="w-3 h-3 text-blue-600" />
-                          </div>
-                          <span className="text-sm font-semibold text-gray-900">Work Items</span>
-                        </div>
-                        <span className="text-sm font-bold text-blue-600">{totalItems}</span>
-                      </div>
+                    <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 rounded-xl border border-slate-200/60 shadow-sm">
+                      {/* Subtle background pattern */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent"></div>
                       
-                      {totalItems > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {counts.epic > 0 && (
-                            <div className="flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded-md text-xs font-medium">
-                              {getWorkItemIcon('epic')}
-                              <span className="ml-1">{counts.epic}</span>
+                      <div className="relative p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                              <Layers className="w-3.5 h-3.5 text-white" />
                             </div>
-                          )}
-                          {counts.feature > 0 && (
-                            <div className="flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs font-medium">
-                              {getWorkItemIcon('feature')}
-                              <span className="ml-1">{counts.feature}</span>
+                            <span className="text-sm font-semibold text-slate-800">Work Items</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs text-slate-500">Total</span>
+                            <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center shadow-sm">
+                              <span className="text-xs font-bold text-white">{totalItems}</span>
                             </div>
-                          )}
-                          {counts.user_story > 0 && (
-                            <div className="flex items-center px-2 py-1 bg-green-100 text-green-700 rounded-md text-xs font-medium">
-                              {getWorkItemIcon('user_story')}
-                              <span className="ml-1">{counts.user_story}</span>
-                            </div>
-                          )}
-                          {counts.bug > 0 && (
-                            <div className="flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-md text-xs font-medium">
-                              {getWorkItemIcon('bug')}
-                              <span className="ml-1">{counts.bug}</span>
-                            </div>
-                          )}
-                          {counts.incident > 0 && (
-                            <div className="flex items-center px-2 py-1 bg-orange-100 text-orange-700 rounded-md text-xs font-medium">
-                              {getWorkItemIcon('incident')}
-                              <span className="ml-1">{counts.incident}</span>
-                            </div>
-                          )}
+                          </div>
                         </div>
-                      ) : (
-                        <div className="text-center py-1">
-                          <span className="text-xs text-gray-500">No work items</span>
-                        </div>
-                      )}
+                        
+                        {totalItems > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {counts.epic > 0 && (
+                              <div className="group relative">
+                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-purple-100 to-purple-50 border border-purple-200/50 text-purple-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
+                                  <div className="w-4 h-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-sm flex items-center justify-center mr-1.5">
+                                    {getWorkItemIcon('epic')}
+                                  </div>
+                                  <span className="font-semibold">{counts.epic}</span>
+                                  <span className="ml-1 text-purple-600">Epic{counts.epic > 1 ? 's' : ''}</span>
+                                </div>
+                              </div>
+                            )}
+                            {counts.feature > 0 && (
+                              <div className="group relative">
+                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-100 to-blue-50 border border-blue-200/50 text-blue-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
+                                  <div className="w-4 h-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-sm flex items-center justify-center mr-1.5">
+                                    {getWorkItemIcon('feature')}
+                                  </div>
+                                  <span className="font-semibold">{counts.feature}</span>
+                                  <span className="ml-1 text-blue-600">Feature{counts.feature > 1 ? 's' : ''}</span>
+                                </div>
+                              </div>
+                            )}
+                            {counts.user_story > 0 && (
+                              <div className="group relative">
+                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-emerald-100 to-emerald-50 border border-emerald-200/50 text-emerald-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
+                                  <div className="w-4 h-4 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-sm flex items-center justify-center mr-1.5">
+                                    {getWorkItemIcon('user_story')}
+                                  </div>
+                                  <span className="font-semibold">{counts.user_story}</span>
+                                  <span className="ml-1 text-emerald-600">Stor{counts.user_story > 1 ? 'ies' : 'y'}</span>
+                                </div>
+                              </div>
+                            )}
+                            {counts.bug > 0 && (
+                              <div className="group relative">
+                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-red-100 to-red-50 border border-red-200/50 text-red-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
+                                  <div className="w-4 h-4 bg-gradient-to-br from-red-500 to-red-600 rounded-sm flex items-center justify-center mr-1.5">
+                                    {getWorkItemIcon('bug')}
+                                  </div>
+                                  <span className="font-semibold">{counts.bug}</span>
+                                  <span className="ml-1 text-red-600">Bug{counts.bug > 1 ? 's' : ''}</span>
+                                </div>
+                              </div>
+                            )}
+                            {counts.incident > 0 && (
+                              <div className="group relative">
+                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200/50 text-amber-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
+                                  <div className="w-4 h-4 bg-gradient-to-br from-amber-500 to-amber-600 rounded-sm flex items-center justify-center mr-1.5">
+                                    {getWorkItemIcon('incident')}
+                                  </div>
+                                  <span className="font-semibold">{counts.incident}</span>
+                                  <span className="ml-1 text-amber-600">Incident{counts.incident > 1 ? 's' : ''}</span>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-center py-3">
+                            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 border border-slate-200/50 rounded-lg">
+                              <div className="w-4 h-4 bg-slate-300 rounded-full flex items-center justify-center">
+                                <span className="text-xs text-slate-600">0</span>
+                              </div>
+                              <span className="text-xs text-slate-500 font-medium">No work items assigned</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })()}
