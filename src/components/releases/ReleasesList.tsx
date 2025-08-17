@@ -231,7 +231,7 @@ export default function ReleasesList({
                     <span>Type</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 w-40">
                   <div className="flex items-center space-x-2">
                     <Calendar className="w-4 h-4 text-blue-600" />
                     <span>Release Date</span>
