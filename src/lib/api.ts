@@ -192,6 +192,59 @@ class ApiClient {
     async getApplication(id: string): Promise<{ application: any }> {
         return this.request(`/applications/${id}`);
     }
+
+    // Release management endpoints
+    async getReleases(params?: {
+        page?: number;
+        limit?: number;
+        search?: string;
+        type?: string;
+        applicationName?: string;
+        releaseDate?: string;
+        published?: string;
+    }): Promise<{
+        releases: any[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+    }> {
+        const searchParams = new URLSearchParams();
+        if (params?.page) searchParams.set('page', params.page.toString());
+        if (params?.limit) searchParams.set('limit', params.limit.toString());
+        if (params?.search) searchParams.set('search', params.search);
+        if (params?.type) searchParams.set('type', params.type);
+        if (params?.applicationName) searchParams.set('applicationName', params.applicationName);
+        if (params?.releaseDate) searchParams.set('releaseDate', params.releaseDate);
+        if (params?.published) searchParams.set('published', params.published);
+
+        const query = searchParams.toString();
+        return this.request(`/releases${query ? `?${query}` : ''}`);
+    }
+
+    async getRelease(id: string): Promise<any> {
+        return this.request(`/releases/${id}`);
+    }
+
+    async createRelease(releaseData: any): Promise<{ release: any; message: string }> {
+        return this.request('/releases', {
+            method: 'POST',
+            body: JSON.stringify(releaseData),
+        });
+    }
+
+    async updateRelease(id: string, releaseData: any): Promise<{ release: any; message: string }> {
+        return this.request(`/releases/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(releaseData),
+        });
+    }
+
+    async deleteRelease(id: string): Promise<{ message: string }> {
+        return this.request(`/releases/${id}`, {
+            method: 'DELETE',
+        });
+    }
 }
 
 export const apiClient = new ApiClient();

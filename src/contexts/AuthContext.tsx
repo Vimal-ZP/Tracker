@@ -38,26 +38,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        // Immediate synchronous check to prevent flash
+                // Immediate synchronous check to prevent flash
         const initAuth = async () => {
-            console.log('AuthContext: Starting initAuth');
-
             if (typeof window === 'undefined') {
-                console.log('AuthContext: Server-side, setting initialized');
                 setLoading(false);
                 setIsInitialized(true);
                 return;
             }
 
             // Check for token immediately
-            const token = localStorage.getItem('auth_token') ||
-                document.cookie.match(/auth_token=([^;]+)/)?.[1];
-
-            console.log('AuthContext: Token check result:', !!token);
+            const token = localStorage.getItem('auth_token') || 
+                         document.cookie.match(/auth_token=([^;]+)/)?.[1];
 
             if (!token) {
                 // No token, user is definitely not authenticated
-                console.log('AuthContext: No token found, setting user to null');
                 setUser(null);
                 setLoading(false);
                 setIsInitialized(true);
@@ -65,28 +59,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
 
             // We have a token, validate it
-            console.log('AuthContext: Validating token with API');
             try {
                 apiClient.setToken(token);
                 const response = await apiClient.getProfile();
-                console.log('AuthContext: API response received:', !!response.user);
 
                 // Validate user object structure
                 if (response.user && !Array.isArray(response.user.assignedApplications)) {
                     response.user.assignedApplications = [];
                 }
 
-                console.log('AuthContext: Setting user and completing initialization');
                 setUser(response.user);
             } catch (error) {
-                console.error('AuthContext: Auth validation failed:', error);
+                console.error('Auth validation failed:', error);
                 // Token is invalid, clear it
                 localStorage.removeItem('auth_token');
                 document.cookie = 'auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
                 apiClient.setToken(null);
                 setUser(null);
             } finally {
-                console.log('AuthContext: Finalizing initialization');
                 setLoading(false);
                 setIsInitialized(true);
             }
