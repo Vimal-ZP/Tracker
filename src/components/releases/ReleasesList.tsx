@@ -75,20 +75,62 @@ const getWorkItemIcon = (type: string) => {
   }
 };
 
-// Type color mapping
+// Enhanced type color mapping with gradients
 const getTypeColor = (type: ReleaseType): string => {
   switch (type) {
     case 'major':
-      return 'bg-purple-100 text-purple-800';
+      return 'bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-md';
     case 'minor':
-      return 'bg-blue-100 text-blue-800';
+      return 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md';
     case 'patch':
-      return 'bg-green-100 text-green-800';
+      return 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md';
     case 'hotfix':
-      return 'bg-red-100 text-red-800';
+      return 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md';
     default:
-      return 'bg-gray-100 text-gray-800';
+      return 'bg-gradient-to-r from-gray-500 to-gray-600 text-white shadow-md';
   }
+};
+
+// Application color mapping (similar to reports table)
+const getApplicationColors = (applicationName: string) => {
+  const colorMap: Record<string, { bg: string; text: string; gradient: string }> = {
+    'NRE': {
+      bg: 'bg-blue-100',
+      text: 'text-blue-800',
+      gradient: 'bg-gradient-to-br from-blue-500 to-blue-600'
+    },
+    'NVE': {
+      bg: 'bg-green-100',
+      text: 'text-green-800',
+      gradient: 'bg-gradient-to-br from-green-500 to-green-600'
+    },
+    'E-Vite': {
+      bg: 'bg-purple-100',
+      text: 'text-purple-800',
+      gradient: 'bg-gradient-to-br from-purple-500 to-purple-600'
+    },
+    'Portal Plus': {
+      bg: 'bg-orange-100',
+      text: 'text-orange-800',
+      gradient: 'bg-gradient-to-br from-orange-500 to-orange-600'
+    },
+    'Fast 2.0': {
+      bg: 'bg-pink-100',
+      text: 'text-pink-800',
+      gradient: 'bg-gradient-to-br from-pink-500 to-pink-600'
+    },
+    'FMS': {
+      bg: 'bg-indigo-100',
+      text: 'text-indigo-800',
+      gradient: 'bg-gradient-to-br from-indigo-500 to-indigo-600'
+    }
+  };
+
+  return colorMap[applicationName] || {
+    bg: 'bg-gray-100',
+    text: 'text-gray-800',
+    gradient: 'bg-gradient-to-br from-gray-500 to-gray-600'
+  };
 };
 
 // Format date
@@ -151,148 +193,225 @@ export default function ReleasesList({
     );
   }
 
-  // Table View
+  // Enhanced Professional Table View
   if (viewMode === 'table') {
     return (
-      <div className={`card ${className}`}>
+      <div className={`bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden ${className}`}>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full">
+            <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Release
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <div className="flex items-center space-x-2">
+                    <Package className="w-4 h-4 text-blue-600" />
+                    <span>Release</span>
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Application
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <div className="flex items-center space-x-2">
+                    <Building className="w-4 h-4 text-blue-600" />
+                    <span>Application</span>
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Version
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <div className="flex items-center space-x-2">
+                    <Tag className="w-4 h-4 text-blue-600" />
+                    <span>Version</span>
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Work Items
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <div className="flex items-center space-x-2">
+                    <Layers className="w-4 h-4 text-blue-600" />
+                    <span>Work Items</span>
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <div className="flex items-center space-x-2">
+                    <Zap className="w-4 h-4 text-blue-600" />
+                    <span>Type</span>
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                  <div className="flex items-center space-x-2">
+                    <Calendar className="w-4 h-4 text-blue-600" />
+                    <span>Date</span>
+                  </div>
                 </th>
                 {showActions && (
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">
                     Actions
                   </th>
                 )}
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {releases.map((release) => (
-                <tr key={release._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <Package className="w-5 h-5 text-gray-400 mr-3" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
+            <tbody className="bg-white divide-y divide-gray-100">
+              {releases.map((release, index) => (
+                <tr key={release._id} className="hover:bg-blue-50/50 transition-colors duration-200">
+                  <td className="px-6 py-5">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
+                        <Package className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-gray-900 mb-1">
                           {release.title}
                         </div>
-                        <div className="text-sm text-gray-500 truncate max-w-xs">
+                        <div className="text-sm text-gray-600 truncate max-w-xs">
                           {release.description}
+                        </div>
+                        <div className="flex items-center mt-2">
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            release.isPublished 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {release.isPublished ? (
+                              <>
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                Published
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="w-3 h-3 mr-1" />
+                                Draft
+                              </>
+                            )}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-900">
-                      <Building className="w-4 h-4 text-gray-400 mr-2" />
-                      {release.applicationName}
+                  <td className="px-6 py-5">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-8 h-8 ${getApplicationColors(release.applicationName).gradient} rounded-lg flex items-center justify-center shadow-sm`}>
+                        <Building className="w-4 h-4 text-white" />
+                      </div>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text} border border-opacity-20`}>
+                        {release.applicationName}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-900">
-                      <Tag className="w-4 h-4 text-gray-400 mr-2" />
-                      {release.version ? `v${release.version}` : '-'}
+                  <td className="px-6 py-5">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <Tag className="w-4 h-4 text-gray-600" />
+                      </div>
+                      <span className="text-sm font-medium text-gray-900">
+                        {release.version ? `v${release.version}` : (
+                          <span className="text-gray-400 italic">No version</span>
+                        )}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-5">
                     {(() => {
                       const counts = getWorkItemCounts(release.workItems);
+                      const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
                       return (
-                        <div className="flex items-center space-x-3 text-xs">
-                          {counts.epic > 0 && (
-                            <div className="flex items-center text-purple-600">
-                              {getWorkItemIcon('epic')}
-                              <span className="ml-1">{counts.epic}</span>
+                        <div className="flex items-center space-x-3">
+                          {totalItems > 0 ? (
+                            <>
+                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <span className="text-xs font-bold text-blue-600">{totalItems}</span>
+                              </div>
+                              <div className="flex items-center space-x-2 text-xs">
+                                {counts.epic > 0 && (
+                                  <div className="flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                                    {getWorkItemIcon('epic')}
+                                    <span className="ml-1 font-medium">{counts.epic}</span>
+                                  </div>
+                                )}
+                                {counts.feature > 0 && (
+                                  <div className="flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                                    {getWorkItemIcon('feature')}
+                                    <span className="ml-1 font-medium">{counts.feature}</span>
+                                  </div>
+                                )}
+                                {counts.user_story > 0 && (
+                                  <div className="flex items-center px-2 py-1 bg-green-100 text-green-700 rounded-full">
+                                    {getWorkItemIcon('user_story')}
+                                    <span className="ml-1 font-medium">{counts.user_story}</span>
+                                  </div>
+                                )}
+                                {counts.bug > 0 && (
+                                  <div className="flex items-center px-2 py-1 bg-red-100 text-red-700 rounded-full">
+                                    {getWorkItemIcon('bug')}
+                                    <span className="ml-1 font-medium">{counts.bug}</span>
+                                  </div>
+                                )}
+                                {counts.incident > 0 && (
+                                  <div className="flex items-center px-2 py-1 bg-orange-100 text-orange-700 rounded-full">
+                                    {getWorkItemIcon('incident')}
+                                    <span className="ml-1 font-medium">{counts.incident}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex items-center space-x-2 text-gray-400">
+                              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <span className="text-xs">0</span>
+                              </div>
+                              <span className="text-sm">No work items</span>
                             </div>
-                          )}
-                          {counts.feature > 0 && (
-                            <div className="flex items-center text-blue-600">
-                              {getWorkItemIcon('feature')}
-                              <span className="ml-1">{counts.feature}</span>
-                            </div>
-                          )}
-                          {counts.user_story > 0 && (
-                            <div className="flex items-center text-green-600">
-                              {getWorkItemIcon('user_story')}
-                              <span className="ml-1">{counts.user_story}</span>
-                            </div>
-                          )}
-                          {counts.bug > 0 && (
-                            <div className="flex items-center text-red-600">
-                              {getWorkItemIcon('bug')}
-                              <span className="ml-1">{counts.bug}</span>
-                            </div>
-                          )}
-                          {counts.incident > 0 && (
-                            <div className="flex items-center text-orange-600">
-                              {getWorkItemIcon('incident')}
-                              <span className="ml-1">{counts.incident}</span>
-                            </div>
-                          )}
-                          {Object.values(counts).every(count => count === 0) && (
-                            <span className="text-gray-400">No items</span>
                           )}
                         </div>
                       );
                     })()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(release.type)}`}>
-                      {release.type}
+                  <td className="px-6 py-5">
+                    <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold ${getTypeColor(release.type)}`}>
+                      {release.type === 'major' && '🚀'}
+                      {release.type === 'minor' && '✨'}
+                      {release.type === 'patch' && '🔧'}
+                      {release.type === 'hotfix' && '🔥'}
+                      <span className="ml-1 capitalize">{release.type}</span>
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <div className="flex items-center">
-                      <Calendar className="w-4 h-4 text-gray-400 mr-2" />
-                      <div>{formatDate(release.releaseDate)}</div>
+                  <td className="px-6 py-5">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-indigo-600" />
+                      </div>
+                      <div className="text-sm">
+                        <div className="font-medium text-gray-900">{formatDate(release.releaseDate)}</div>
+                        <div className="text-xs text-gray-500">
+                          {release.author?.name && `by ${release.author.name}`}
+                        </div>
+                      </div>
                     </div>
                   </td>
                   {showActions && (
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-5 text-right">
                       <div className="flex items-center justify-end space-x-2">
                         <button
                           onClick={() => onView?.(release)}
-                          className="text-blue-600 hover:text-blue-900 p-1"
+                          className="inline-flex items-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors duration-200"
                           title="View Details"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-4 h-4 mr-1" />
+                          View
                         </button>
 
                         {canEdit && (
                           <button
                             onClick={() => onEdit?.(release)}
-                            className="text-gray-600 hover:text-gray-900 p-1"
+                            className="inline-flex items-center px-3 py-2 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200"
                             title="Edit Release"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
                           </button>
                         )}
 
                         {canDelete && (
                           <button
                             onClick={() => onDelete?.(release._id)}
-                            className="text-red-600 hover:text-red-900 p-1"
+                            className="inline-flex items-center px-3 py-2 text-xs font-medium text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors duration-200"
                             title="Delete Release"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Delete
                           </button>
                         )}
                       </div>
@@ -406,124 +525,187 @@ export default function ReleasesList({
     );
   }
 
-  // Card View (Default)
+  // Enhanced Professional Card View (Default)
   return (
-    <div className={`space-y-4 ${className}`}>
+    <div className={`space-y-6 ${className}`}>
       {releases.map((release) => (
-        <div key={release._id} className="card hover:shadow-lg transition-shadow">
-          <div className="card-body">
+        <div key={release._id} className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-300 overflow-hidden">
+          <div className="p-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <div className="flex items-center space-x-3 mb-2">
-                  <Package className="w-6 h-6 text-blue-600" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {release.title}
-                  </h3>
-                  <div className="flex items-center text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                    <Building className="w-4 h-4 mr-1" />
-                    <span>{release.applicationName}</span>
+                {/* Header Section */}
+                <div className="flex items-start space-x-4 mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Package className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {release.title}
+                      </h3>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        release.isPublished 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {release.isPublished ? (
+                          <>
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Published
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-3 h-3 mr-1" />
+                            Draft
+                          </>
+                        )}
+                      </span>
+                    </div>
+                    
+                    {/* Application Badge */}
+                    <div className="flex items-center space-x-2 mb-3">
+                      <div className={`w-6 h-6 ${getApplicationColors(release.applicationName).gradient} rounded-lg flex items-center justify-center`}>
+                        <Building className="w-3 h-3 text-white" />
+                      </div>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text} border border-opacity-20`}>
+                        {release.applicationName}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <p className="text-gray-600 mb-4 line-clamp-2">
+                {/* Description */}
+                <p className="text-gray-600 mb-6 text-base leading-relaxed line-clamp-3">
                   {release.description}
                 </p>
 
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <Calendar className="w-4 h-4 mr-1" />
-                    <span>{formatDate(release.releaseDate)}</span>
+                {/* Enhanced Metadata Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Release Date</div>
+                      <div className="text-sm font-medium text-gray-900">{formatDate(release.releaseDate)}</div>
+                    </div>
                   </div>
 
-                  {release.version && (
-                    <div className="flex items-center">
-                      <Tag className="w-4 h-4 mr-1" />
-                      <span>v{release.version}</span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Tag className="w-4 h-4 text-gray-600" />
                     </div>
-                  )}
+                    <div>
+                      <div className="text-xs text-gray-500">Version</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {release.version ? `v${release.version}` : 'No version'}
+                      </div>
+                    </div>
+                  </div>
 
-                  <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getTypeColor(release.type)}`}>
-                    {release.type}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-500">Type</div>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold ${getTypeColor(release.type)}`}>
+                        {release.type === 'major' && '🚀'}
+                        {release.type === 'minor' && '✨'}
+                        {release.type === 'patch' && '🔧'}
+                        {release.type === 'hotfix' && '🔥'}
+                        <span className="ml-1 capitalize">{release.type}</span>
+                      </span>
+                    </div>
+                  </div>
 
                   {release.author && (
-                    <div className="flex items-center">
-                      <User className="w-4 h-4 mr-1" />
-                      <span>{release.author.name}</span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <User className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500">Author</div>
+                        <div className="text-sm font-medium text-gray-900">{release.author.name}</div>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {/* Work Items Summary */}
+                {/* Enhanced Work Items Summary */}
                 {(() => {
                   const counts = getWorkItemCounts(release.workItems);
                   const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
-                  return totalItems > 0 ? (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <div className="flex items-center space-x-4 text-sm">
-                        <span className="text-gray-500 font-medium">Work Items:</span>
-                        {counts.epic > 0 && (
-                          <div className="flex items-center text-purple-600">
-                            {getWorkItemIcon('epic')}
-                            <span className="ml-1 font-medium">{counts.epic}</span>
-                            <span className="ml-1 text-gray-500">Epic{counts.epic > 1 ? 's' : ''}</span>
+                  return (
+                    <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-xl p-4 border border-gray-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <Layers className="w-3 h-3 text-blue-600" />
                           </div>
-                        )}
-                        {counts.feature > 0 && (
-                          <div className="flex items-center text-blue-600">
-                            {getWorkItemIcon('feature')}
-                            <span className="ml-1 font-medium">{counts.feature}</span>
-                            <span className="ml-1 text-gray-500">Feature{counts.feature > 1 ? 's' : ''}</span>
-                          </div>
-                        )}
-                        {counts.user_story > 0 && (
-                          <div className="flex items-center text-green-600">
-                            {getWorkItemIcon('user_story')}
-                            <span className="ml-1 font-medium">{counts.user_story}</span>
-                            <span className="ml-1 text-gray-500">User Stor{counts.user_story > 1 ? 'ies' : 'y'}</span>
-                          </div>
-                        )}
-                        {counts.bug > 0 && (
-                          <div className="flex items-center text-red-600">
-                            {getWorkItemIcon('bug')}
-                            <span className="ml-1 font-medium">{counts.bug}</span>
-                            <span className="ml-1 text-gray-500">Bug{counts.bug > 1 ? 's' : ''}</span>
-                          </div>
-                        )}
-                        {counts.incident > 0 && (
-                          <div className="flex items-center text-orange-600">
-                            {getWorkItemIcon('incident')}
-                            <span className="ml-1 font-medium">{counts.incident}</span>
-                            <span className="ml-1 text-gray-500">Incident{counts.incident > 1 ? 's' : ''}</span>
-                          </div>
-                        )}
+                          <span className="text-sm font-semibold text-gray-900">Work Items</span>
+                        </div>
+                        <span className="text-lg font-bold text-blue-600">{totalItems}</span>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="mt-3 pt-3 border-t border-gray-100">
-                      <div className="flex items-center text-sm text-gray-400">
-                        <span>No work items</span>
-                      </div>
+                      
+                      {totalItems > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {counts.epic > 0 && (
+                            <div className="flex items-center px-3 py-1.5 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium">
+                              {getWorkItemIcon('epic')}
+                              <span className="ml-1">{counts.epic} Epic{counts.epic > 1 ? 's' : ''}</span>
+                            </div>
+                          )}
+                          {counts.feature > 0 && (
+                            <div className="flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-xs font-medium">
+                              {getWorkItemIcon('feature')}
+                              <span className="ml-1">{counts.feature} Feature{counts.feature > 1 ? 's' : ''}</span>
+                            </div>
+                          )}
+                          {counts.user_story > 0 && (
+                            <div className="flex items-center px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
+                              {getWorkItemIcon('user_story')}
+                              <span className="ml-1">{counts.user_story} User Stor{counts.user_story > 1 ? 'ies' : 'y'}</span>
+                            </div>
+                          )}
+                          {counts.bug > 0 && (
+                            <div className="flex items-center px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-medium">
+                              {getWorkItemIcon('bug')}
+                              <span className="ml-1">{counts.bug} Bug{counts.bug > 1 ? 's' : ''}</span>
+                            </div>
+                          )}
+                          {counts.incident > 0 && (
+                            <div className="flex items-center px-3 py-1.5 bg-orange-100 text-orange-700 rounded-lg text-xs font-medium">
+                              {getWorkItemIcon('incident')}
+                              <span className="ml-1">{counts.incident} Incident{counts.incident > 1 ? 's' : ''}</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center py-2">
+                          <span className="text-sm text-gray-500">No work items assigned</span>
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
               </div>
 
               {showActions && (
-                <div className="flex items-center space-x-2 ml-4">
+                <div className="flex flex-col space-y-3 ml-6">
                   <button
                     onClick={() => onView?.(release)}
-                    className="btn btn-sm btn-secondary flex items-center space-x-1"
+                    className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
                     title="View Details"
                   >
                     <Eye className="w-4 h-4" />
-                    <span>View</span>
+                    <span>View Details</span>
                   </button>
 
                   {canEdit && (
                     <button
                       onClick={() => onEdit?.(release)}
-                      className="btn btn-sm btn-secondary flex items-center space-x-1"
+                      className="flex items-center justify-center space-x-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium border border-gray-300 transition-all duration-200 hover:shadow-md"
                       title="Edit Release"
                     >
                       <Edit className="w-4 h-4" />
@@ -534,7 +716,7 @@ export default function ReleasesList({
                   {canDelete && (
                     <button
                       onClick={() => onDelete?.(release._id)}
-                      className="btn btn-sm btn-danger flex items-center space-x-1"
+                      className="flex items-center justify-center space-x-2 px-4 py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl font-medium border border-red-300 transition-all duration-200 hover:shadow-md"
                       title="Delete Release"
                     >
                       <Trash2 className="w-4 h-4" />

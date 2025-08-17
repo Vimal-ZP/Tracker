@@ -494,98 +494,180 @@ export default function ReleasesPage() {
   if (!user) return null;
 
   return (
-    <div className="h-full flex flex-col space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-3">
-            <Package className="w-8 h-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">Releases</h1>
+    <div className="h-full flex flex-col space-y-8">
+      {/* Professional Header with Gradient Background */}
+      <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl border border-blue-100 shadow-sm">
+        <div className="p-8">
+          <div className="flex justify-between items-start">
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Package className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Software Releases</h1>
+                  <p className="text-gray-600 text-lg">Manage and track your application releases</p>
+                </div>
+              </div>
+
+              {/* View Mode Toggle with Enhanced Styling */}
+              <div className="flex items-center bg-white/80 backdrop-blur-sm rounded-xl p-1.5 shadow-sm border border-white/50">
+                <button
+                  onClick={() => setViewMode('card')}
+                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${viewMode === 'card'
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md transform scale-105'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
+                    }`}
+                >
+                  <Grid className="w-4 h-4" />
+                  <span>Cards</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${viewMode === 'table'
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md transform scale-105'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-white/60'
+                    }`}
+                >
+                  <List className="w-4 h-4" />
+                  <span>Table</span>
+                </button>
+              </div>
+            </div>
+
+            {permissions?.canCreateUsers && (
+              <button
+                onClick={() => setShowNewReleaseModal(true)}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2"
+              >
+                <Plus className="w-5 h-5" />
+                <span>New Release</span>
+              </button>
+            )}
           </div>
 
-          {/* View Mode Toggle */}
-          <div className="flex items-center bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setViewMode('card')}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'card'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-                }`}
-            >
-              <Grid className="w-4 h-4" />
-              <span>Cards</span>
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${viewMode === 'table'
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-                }`}
-            >
-              <List className="w-4 h-4" />
-              <span>Table</span>
-            </button>
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Releases</p>
+                  <p className="text-2xl font-bold text-gray-900">{releases.length}</p>
+                </div>
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Package className="w-5 h-5 text-blue-600" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Published</p>
+                  <p className="text-2xl font-bold text-green-600">{releases.filter(r => r.isPublished).length}</p>
+                </div>
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Package className="w-5 h-5 text-green-600" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Applications</p>
+                  <p className="text-2xl font-bold text-purple-600">{Array.from(new Set(releases.map(r => r.applicationName))).length}</p>
+                </div>
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <Package className="w-5 h-5 text-purple-600" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">This Month</p>
+                  <p className="text-2xl font-bold text-orange-600">
+                    {releases.filter(r => {
+                      const releaseDate = new Date(r.releaseDate);
+                      const now = new Date();
+                      return releaseDate.getMonth() === now.getMonth() && releaseDate.getFullYear() === now.getFullYear();
+                    }).length}
+                  </p>
+                </div>
+                <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <Package className="w-5 h-5 text-orange-600" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-
-        {permissions?.canCreateUsers && (
-          <button
-            onClick={() => setShowNewReleaseModal(true)}
-            className="btn btn-primary flex items-center space-x-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Release</span>
-          </button>
-        )}
       </div>
 
-      {/* Search and Filters */}
-      <div className="card">
-        <div className="card-body">
+      {/* Enhanced Search and Filters */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200">
+        <div className="p-6">
+          <div className="flex items-center space-x-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-600 rounded-lg flex items-center justify-center">
+              <Search className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Search & Filter</h2>
+              <p className="text-sm text-gray-600">Find specific releases quickly</p>
+            </div>
+          </div>
+
           <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Search releases..."
+                  placeholder="Search releases by name, version, or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="input pl-10 w-full"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500"
                 />
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-3 rounded-xl font-medium shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200"
               >
                 Search
               </button>
               <button
                 type="button"
                 onClick={() => setShowFilters(!showFilters)}
-                className="btn btn-secondary flex items-center space-x-2"
+                className={`flex items-center space-x-2 px-6 py-3 rounded-xl font-medium border transition-all duration-200 ${
+                  showFilters 
+                    ? 'bg-blue-50 border-blue-200 text-blue-700' 
+                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                }`}
               >
                 <Filter className="w-4 h-4" />
                 <span>Filters</span>
+                {showFilters && <span className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded-full">Active</span>}
               </button>
             </div>
           </form>
 
-          {/* Advanced Filters */}
+          {/* Enhanced Advanced Filters */}
           {showFilters && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="mb-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Advanced Filters</h3>
+                <p className="text-xs text-gray-600">Narrow down your search with specific criteria</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Application
                   </label>
                   <select
                     value={filters.applicationName || ''}
                     onChange={(e) => handleFilterChange('applicationName', e.target.value || undefined)}
-                    className="input w-full"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900"
                   >
                     <option value="">All Applications</option>
                     {accessibleApplications.map((application) => (
@@ -597,31 +679,31 @@ export default function ReleasesPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Type
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Release Type
                   </label>
                   <select
                     value={filters.type || ''}
                     onChange={(e) => handleFilterChange('type', e.target.value || undefined)}
-                    className="input w-full"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900"
                   >
                     <option value="">All Types</option>
-                    <option value="major">Major</option>
-                    <option value="minor">Minor</option>
-                    <option value="patch">Patch</option>
-                    <option value="hotfix">Hotfix</option>
+                    <option value="major">🚀 Major</option>
+                    <option value="minor">✨ Minor</option>
+                    <option value="patch">🔧 Patch</option>
+                    <option value="hotfix">🔥 Hotfix</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Release Date
                   </label>
                   <input
                     type="date"
                     value={filters.releaseDate ? filters.releaseDate.toISOString().split('T')[0] : ''}
                     onChange={(e) => handleFilterChange('releaseDate', e.target.value ? new Date(e.target.value) : undefined)}
-                    className="input w-full"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900"
                   />
                 </div>
 
@@ -629,13 +711,46 @@ export default function ReleasesPage() {
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="btn btn-secondary w-full"
+                    className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-xl font-medium border border-gray-300 transition-all duration-200 hover:shadow-md"
                   >
-                    Clear Filters
+                    Clear All Filters
                   </button>
                 </div>
-
               </div>
+
+              {/* Active Filters Display */}
+              {(filters.applicationName || filters.type || filters.releaseDate) && (
+                <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-blue-900">Active Filters:</span>
+                      <div className="flex flex-wrap gap-2">
+                        {filters.applicationName && (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            App: {filters.applicationName}
+                          </span>
+                        )}
+                        {filters.type && (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            Type: {filters.type}
+                          </span>
+                        )}
+                        {filters.releaseDate && (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            Date: {filters.releaseDate.toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={clearFilters}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -654,28 +769,59 @@ export default function ReleasesPage() {
         />
       </div>
 
-      {/* Pagination */}
+      {/* Enhanced Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-2">
-          <button
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            className="btn btn-secondary disabled:opacity-50"
-          >
-            Previous
-          </button>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-600">
+              Showing page <span className="font-semibold text-gray-900">{currentPage}</span> of{' '}
+              <span className="font-semibold text-gray-900">{totalPages}</span>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                <span>Previous</span>
+              </button>
 
-          <span className="text-sm text-gray-600">
-            Page {currentPage} of {totalPages}
-          </span>
+              {/* Page Numbers */}
+              <div className="flex items-center space-x-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const pageNum = i + 1;
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-10 h-10 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        currentPage === pageNum
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
 
-          <button
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage === totalPages}
-            className="btn btn-secondary disabled:opacity-50"
-          >
-            Next
-          </button>
+              <button
+                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              >
+                <span>Next</span>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
