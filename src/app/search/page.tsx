@@ -211,62 +211,116 @@ export default function SearchPage() {
                     {/* Search Form */}
                     <form onSubmit={handleSearch} className="space-y-4">
                         <div className="flex flex-col lg:flex-row gap-4">
-                            {/* Search Input */}
+                            {/* Enhanced Search Input */}
                             <div className="flex-1">
-                                <div className="relative">
-                                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <div className="relative group">
+                                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-300">
+                                        <Search className="w-full h-full" />
+                                    </div>
                                     <input
                                         type="text"
-                                        placeholder="Search by work item ID or title (Epic, Feature, User Story, Bug, Incident)..."
+                                        placeholder="Search by ID (e.g., EPIC-001, BUG-123) or title keywords..."
                                         value={query}
                                         onChange={(e) => setQuery(e.target.value)}
-                                        className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500 bg-white font-medium shadow-sm hover:shadow-md"
+                                        className="w-full pl-14 pr-14 py-5 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300 text-gray-900 placeholder-gray-500 bg-white font-medium shadow-lg hover:shadow-xl text-lg focus:shadow-2xl"
                                     />
                                     {query && (
                                         <button
                                             type="button"
                                             onClick={() => setQuery('')}
-                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                            className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400 hover:text-gray-600 transition-all duration-200 hover:bg-gray-100 rounded-full p-1 hover:scale-110"
                                         >
-                                            <X className="w-5 h-5" />
+                                            <X className="w-full h-full" />
                                         </button>
                                     )}
+                                    <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-focus-within:ring-blue-200 transition-all duration-300 pointer-events-none"></div>
+                                    
+                                    {/* Floating label effect */}
+                                    <div className="absolute left-14 top-1/2 transform -translate-y-1/2 pointer-events-none transition-all duration-200">
+                                        {!query && (
+                                            <div className="flex items-center space-x-2 text-gray-400">
+                                                <span className="text-sm font-medium opacity-60">Try:</span>
+                                                <div className="flex items-center space-x-1">
+                                                    <kbd className="px-2 py-1 text-xs bg-gray-100 border border-gray-300 rounded text-gray-600">EPIC-001</kbd>
+                                                    <span className="text-xs opacity-60">or</span>
+                                                    <kbd className="px-2 py-1 text-xs bg-gray-100 border border-gray-300 rounded text-gray-600">login bug</kbd>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                {/* Search suggestions */}
+                                <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                                    <span className="font-medium">Quick search:</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setQuery('EPIC')}
+                                        className="flex items-center space-x-1 px-2 py-1 bg-purple-50 text-purple-700 rounded-full hover:bg-purple-100 transition-colors duration-200"
+                                    >
+                                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                        <span>Epic</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setQuery('FEATURE')}
+                                        className="flex items-center space-x-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors duration-200"
+                                    >
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        <span>Feature</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setQuery('BUG')}
+                                        className="flex items-center space-x-1 px-2 py-1 bg-red-50 text-red-700 rounded-full hover:bg-red-100 transition-colors duration-200"
+                                    >
+                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                        <span>Bug</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setQuery('USER STORY')}
+                                        className="flex items-center space-x-1 px-2 py-1 bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors duration-200"
+                                    >
+                                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <span>Story</span>
+                                    </button>
                                 </div>
                             </div>
 
-                            {/* Search Button */}
+                            {/* Enhanced Search Button */}
                             <button
                                 type="submit"
                                 disabled={loading || query.trim().length < 2}
-                                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3.5 rounded-xl font-semibold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center space-x-2"
+                                className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-10 py-5 rounded-2xl font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-3 transform hover:scale-105 disabled:hover:scale-100"
                             >
                                 {loading ? (
                                     <>
-                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        <span>Searching...</span>
+                                        <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span className="text-lg">Searching...</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Search className="w-5 h-5" />
-                                        <span>Search</span>
+                                        <Search className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+                                        <span className="text-lg">Search</span>
                                     </>
                                 )}
                             </button>
 
-                            {/* Filter Toggle */}
+                            {/* Enhanced Filter Toggle */}
                             <button
                                 type="button"
                                 onClick={() => setShowFilters(!showFilters)}
-                                className={`flex items-center space-x-2 px-6 py-3.5 rounded-xl font-semibold border-2 transition-all duration-200 ${
+                                className={`group flex items-center space-x-3 px-8 py-5 rounded-2xl font-bold border-2 transition-all duration-300 transform hover:scale-105 ${
                                     showFilters || typeFilter
-                                        ? 'bg-blue-50 border-blue-200 text-blue-700'
-                                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                                        ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-300 text-blue-700 shadow-lg'
+                                        : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-md hover:shadow-lg'
                                 }`}
                             >
-                                <Filter className="w-5 h-5" />
-                                <span>Filters</span>
+                                <Filter className="w-6 h-6 group-hover:rotate-12 transition-transform duration-200" />
+                                <span className="text-lg">Filters</span>
                                 {typeFilter && (
-                                    <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs font-bold">
+                                    <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
                                         1
                                     </span>
                                 )}

@@ -204,31 +204,52 @@ export default function GlobalSearch() {
                         setIsOpen(true);
                         setTimeout(() => inputRef.current?.focus(), 100);
                     }}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 min-w-[200px] md:min-w-[300px]"
+                    className="group flex items-center space-x-3 px-4 py-3 text-sm bg-white border-2 border-gray-200 hover:border-blue-300 rounded-xl transition-all duration-300 min-w-[280px] md:min-w-[380px] shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                    <Search className="w-4 h-4" />
-                    <span>Search work items...</span>
-                    <div className="ml-auto">
-                        <kbd className="px-2 py-1 text-xs font-semibold text-gray-500 bg-white border border-gray-300 rounded">
-                            ⌘K
-                        </kbd>
+                    <div className="flex items-center space-x-3 flex-1">
+                        <div className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors duration-200">
+                            <Search className="w-full h-full" />
+                        </div>
+                        <span className="text-gray-500 group-hover:text-gray-700 font-medium">
+                            Search work items by ID or title...
+                        </span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <div className="hidden sm:flex items-center space-x-1 text-xs text-gray-400">
+                            <span>Press</span>
+                            <kbd className="px-2 py-1 text-xs font-semibold text-gray-600 bg-gray-100 border border-gray-300 rounded-md shadow-sm">
+                                ⌘K
+                            </kbd>
+                        </div>
+                        <div className="w-1 h-1 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
                     </div>
                 </button>
 
                 {/* Search Modal */}
                 {isOpen && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-w-2xl">
-                        {/* Search Header */}
-                        <div className="p-4 border-b border-gray-200">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        {/* Enhanced Search Header */}
+                        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50">
+                            <div className="flex items-center space-x-3 mb-4">
+                                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
+                                    <Search className="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Global Search</h3>
+                                    <p className="text-sm text-gray-600">Find work items across all releases</p>
+                                </div>
+                            </div>
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200">
+                                    <Search className="w-full h-full" />
+                                </div>
                                 <input
                                     ref={inputRef}
                                     type="text"
-                                    placeholder="Search by work item ID or title (Epic, Feature, User Story, Bug, Incident)..."
+                                    placeholder="Search by ID (e.g., EPIC-001) or title keywords..."
                                     value={query}
                                     onChange={handleInputChange}
-                                    className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                                    className="w-full pl-12 pr-12 py-4 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-500 bg-white font-medium shadow-sm hover:shadow-md text-lg"
                                 />
                                 {query && (
                                     <button
@@ -237,11 +258,39 @@ export default function GlobalSearch() {
                                             setResults([]);
                                             setMessage('');
                                         }}
-                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors duration-200 hover:bg-gray-100 rounded-full p-1"
                                     >
-                                        <X className="w-5 h-5" />
+                                        <X className="w-full h-full" />
                                     </button>
                                 )}
+                                <div className="absolute inset-0 rounded-xl ring-2 ring-transparent group-focus-within:ring-blue-200 transition-all duration-200 pointer-events-none"></div>
+                            </div>
+                            <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
+                                <div className="flex items-center space-x-4">
+                                    <span className="flex items-center space-x-1">
+                                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                        <span>Epic</span>
+                                    </span>
+                                    <span className="flex items-center space-x-1">
+                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        <span>Feature</span>
+                                    </span>
+                                    <span className="flex items-center space-x-1">
+                                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                        <span>User Story</span>
+                                    </span>
+                                    <span className="flex items-center space-x-1">
+                                        <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                        <span>Bug</span>
+                                    </span>
+                                    <span className="flex items-center space-x-1">
+                                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                                        <span>Incident</span>
+                                    </span>
+                                </div>
+                                <span className="font-medium">
+                                    {loading ? 'Searching...' : `${results.length} results`}
+                                </span>
                             </div>
                         </div>
 
