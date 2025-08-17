@@ -104,8 +104,8 @@ export default function SettingsPage() {
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {settingsCategories.slice(0, 1).map((category) => (
-                                <div key={category.title} className="card hover:shadow-lg transition-shadow cursor-pointer">
-                                    <div className="card-body">
+                                <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                                    <div className="p-6">
                                         <div className="flex items-start">
                                             <div className={`flex-shrink-0 w-12 h-12 ${category.color} rounded-lg flex items-center justify-center text-white`}>
                                                 <category.icon className="w-6 h-6" />
@@ -137,7 +137,7 @@ export default function SettingsPage() {
                             <div className="card-header">
                                 <h2 className="text-lg font-medium text-gray-900">System Information</h2>
                             </div>
-                            <div className="card-body">
+                            <div className="p-6">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div>
                                         <dt className="text-sm font-medium text-gray-500">Version</dt>
@@ -160,8 +160,8 @@ export default function SettingsPage() {
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {settingsCategories.slice(1, 2).map((category) => (
-                            <div key={category.title} className="card hover:shadow-lg transition-shadow cursor-pointer">
-                                <div className="card-body">
+                            <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                                <div className="p-6">
                                     <div className="flex items-start">
                                         <div className={`flex-shrink-0 w-12 h-12 ${category.color} rounded-lg flex items-center justify-center text-white`}>
                                             <category.icon className="w-6 h-6" />
@@ -194,8 +194,8 @@ export default function SettingsPage() {
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {settingsCategories.slice(2, 3).map((category) => (
-                            <div key={category.title} className="card hover:shadow-lg transition-shadow cursor-pointer">
-                                <div className="card-body">
+                            <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                                <div className="p-6">
                                     <div className="flex items-start">
                                         <div className={`flex-shrink-0 w-12 h-12 ${category.color} rounded-lg flex items-center justify-center text-white`}>
                                             <category.icon className="w-6 h-6" />
@@ -228,8 +228,8 @@ export default function SettingsPage() {
                 return (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {settingsCategories.slice(3, 4).map((category) => (
-                            <div key={category.title} className="card hover:shadow-lg transition-shadow cursor-pointer">
-                                <div className="card-body">
+                            <div key={category.title} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-200 cursor-pointer">
+                                <div className="p-6">
                                     <div className="flex items-start">
                                         <div className={`flex-shrink-0 w-12 h-12 ${category.color} rounded-lg flex items-center justify-center text-white`}>
                                             <category.icon className="w-6 h-6" />

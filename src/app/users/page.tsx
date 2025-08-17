@@ -15,15 +15,25 @@ export default function UsersPage() {
 
     if (!permissions.canViewAllUsers) {
         return (
-            <div className="text-center py-12">
-                <Shield className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Access Denied</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                    You don't have permission to view this page.
-                </p>
+            <div className="h-full flex flex-col space-y-4">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
+                    <div className="text-center">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <Shield className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
+                        <p className="text-sm text-gray-500">
+                            You don't have permission to view this page.
+                        </p>
+                    </div>
+                </div>
             </div>
         );
     }
 
-    return <UserList />;
+    return (
+        <div className="h-full flex flex-col">
+            <UserList />
+        </div>
+    );
 }
