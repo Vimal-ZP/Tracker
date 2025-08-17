@@ -198,40 +198,40 @@ export default function ReleasesList({
     return (
       <div className={`bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden ${className}`}>
         <div className="overflow-x-auto">
-          <table className="min-w-full">
+          <table className="min-w-full table-fixed">
             <thead className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '40%' }}>
                   <div className="flex items-center space-x-2">
                     <Package className="w-4 h-4 text-blue-600" />
                     <span>Release</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '15%' }}>
                   <div className="flex items-center space-x-2">
                     <Building className="w-4 h-4 text-blue-600" />
                     <span>Application</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '10%' }}>
                   <div className="flex items-center space-x-2">
                     <Tag className="w-4 h-4 text-blue-600" />
                     <span>Version</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '15%' }}>
                   <div className="flex items-center space-x-2">
                     <Layers className="w-4 h-4 text-blue-600" />
                     <span>Work Items</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '8%' }}>
                   <div className="flex items-center space-x-2">
                     <Zap className="w-4 h-4 text-blue-600" />
                     <span>Type</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 w-40">
+                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900" style={{ width: '18%' }}>
                   <div className="flex items-center space-x-2">
                     <Calendar className="w-4 h-4 text-blue-600" />
                     <span>Release Date</span>
@@ -247,88 +247,69 @@ export default function ReleasesList({
             <tbody className="bg-white divide-y divide-gray-100">
               {releases.map((release, index) => (
                 <tr key={release._id} className="hover:bg-blue-50/50 transition-colors duration-200">
-                  <td className="px-6 py-5">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="text-sm font-semibold text-gray-900">
+                  <td className="px-4 py-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-gray-900 truncate pr-2">
                           {release.title}
-                        </div>
-                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-medium ml-2 flex-shrink-0 ${release.isPublished
+                        </h3>
+                        <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${release.isPublished
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
+                          : 'bg-amber-100 text-amber-800'
                           }`}>
-                          {release.isPublished ? (
-                            <>
-                              <CheckCircle className="w-2.5 h-2.5 mr-1" />
-                              Published
-                            </>
-                          ) : (
-                            <>
-                              <Clock className="w-2.5 h-2.5 mr-1" />
-                              Draft
-                            </>
-                          )}
+                          {release.isPublished ? 'Live' : 'Draft'}
                         </span>
                       </div>
-                      <div className="text-sm text-gray-600 truncate max-w-xs">
+                      <p className="text-xs text-gray-600 line-clamp-1">
                         {release.description}
-                      </div>
+                      </p>
                     </div>
                   </td>
-                  <td className="px-6 py-5">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text} border border-opacity-20`}>
+                  <td className="px-3 py-3">
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text}`}>
                       {release.applicationName}
                     </span>
                   </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Tag className="w-4 h-4 text-gray-600" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">
-                        {release.version ? `v${release.version}` : (
-                          <span className="text-gray-400 italic">No version</span>
-                        )}
-                      </span>
-                    </div>
+                  <td className="px-3 py-3">
+                    <span className="text-sm font-medium text-gray-900">
+                      {release.version ? `v${release.version}` : (
+                        <span className="text-gray-400 text-xs">—</span>
+                      )}
+                    </span>
                   </td>
-                  <td className="px-6 py-5">
+                  <td className="px-3 py-3">
                     {(() => {
                       const counts = getWorkItemCounts(release.workItems);
                       const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
-
+ 
                       const workItemTypes = [
-                        { key: 'epic', count: counts.epic, bgColor: 'bg-purple-100', iconColor: 'text-purple-600', textColor: 'text-purple-800', badgeBg: 'bg-purple-100', label: 'Epic' },
-                        { key: 'feature', count: counts.feature, bgColor: 'bg-blue-100', iconColor: 'text-blue-600', textColor: 'text-blue-800', badgeBg: 'bg-blue-100', label: 'Feature' },
-                        { key: 'user_story', count: counts.user_story, bgColor: 'bg-emerald-100', iconColor: 'text-emerald-600', textColor: 'text-emerald-800', badgeBg: 'bg-emerald-100', label: 'Story' },
-                        { key: 'bug', count: counts.bug, bgColor: 'bg-red-100', iconColor: 'text-red-600', textColor: 'text-red-800', badgeBg: 'bg-red-100', label: 'Bug' },
-                        { key: 'incident', count: counts.incident, bgColor: 'bg-amber-100', iconColor: 'text-amber-600', textColor: 'text-amber-800', badgeBg: 'bg-amber-100', label: 'Incident' }
+                        { key: 'epic', count: counts.epic, color: 'bg-purple-500', label: 'E' },
+                        { key: 'feature', count: counts.feature, color: 'bg-blue-500', label: 'F' },
+                        { key: 'user_story', count: counts.user_story, color: 'bg-emerald-500', label: 'S' },
+                        { key: 'bug', count: counts.bug, color: 'bg-red-500', label: 'B' },
+                        { key: 'incident', count: counts.incident, color: 'bg-amber-500', label: 'I' }
                       ].filter(item => item.count > 0);
 
                       return (
-                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <div className="flex items-center space-x-1">
                           {workItemTypes.length > 0 ? (
                             workItemTypes.map((item) => (
-                              <div key={item.key} className="flex items-center space-x-1">
-                                <div className={`w-3 h-3 ${item.bgColor} rounded-sm flex items-center justify-center`}>
-                                  <div className={`w-2 h-2 ${item.iconColor}`}>
-                                    {getWorkItemIcon(item.key)}
-                                  </div>
+                              <div key={item.key} className="flex items-center space-x-0.5" title={`${item.count} ${item.key.replace('_', ' ')}`}>
+                                <div className={`w-4 h-4 ${item.color} rounded text-white text-xs font-bold flex items-center justify-center`}>
+                                  {item.label}
                                 </div>
-                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold ${item.badgeBg} ${item.textColor}`}>
-                                  {item.count}
-                                </span>
+                                <span className="text-xs font-semibold text-gray-700">{item.count}</span>
                               </div>
                             ))
                           ) : (
-                            <span className="text-xs text-gray-400 font-medium">None</span>
+                            <span className="text-xs text-gray-400">—</span>
                           )}
                         </div>
                       );
                     })()}
                   </td>
-                  <td className="px-6 py-5">
-                    <span className={`inline-flex items-center px-3 py-1.5 rounded-xl text-xs font-semibold ${getTypeColor(release.type)}`}>
+                  <td className="px-3 py-3">
+                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getTypeColor(release.type)}`}>
                       {release.type === 'major' && '🚀'}
                       {release.type === 'minor' && '✨'}
                       {release.type === 'patch' && '🔧'}
@@ -336,47 +317,44 @@ export default function ReleasesList({
                       <span className="ml-1 capitalize">{release.type}</span>
                     </span>
                   </td>
-                  <td className="px-6 py-5">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
-                        <Calendar className="w-4 h-4 text-indigo-600" />
-                      </div>
-                      <div className="text-sm">
-                        <div className="font-medium text-gray-900">{formatDate(release.releaseDate)}</div>
+                  <td className="px-3 py-3">
+                    <div className="text-sm">
+                      <div className="font-medium text-gray-900">{formatDate(release.releaseDate)}</div>
+                      {release.author?.name && (
                         <div className="text-xs text-gray-500">
-                          {release.author?.name && `by ${release.author.name}`}
+                          {release.author.name}
                         </div>
-                      </div>
+                      )}
                     </div>
                   </td>
                   {showActions && (
-                    <td className="px-6 py-5 text-right">
-                      <div className="flex items-center justify-end space-x-1">
+                    <td className="px-2 py-3 text-right">
+                      <div className="flex items-center justify-end space-x-0.5">
                         <button
                           onClick={() => onView?.(release)}
-                          className="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors duration-200"
+                          className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors duration-200"
                           title="View Details"
                         >
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-3.5 h-3.5" />
                         </button>
 
                         {canEdit && (
                           <button
                             onClick={() => onEdit?.(release)}
-                            className="p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                            className="p-1 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors duration-200"
                             title="Edit Release"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-3.5 h-3.5" />
                           </button>
                         )}
 
                         {canDelete && (
                           <button
                             onClick={() => onDelete?.(release._id)}
-                            className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200"
+                            className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors duration-200"
                             title="Delete Release"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>
