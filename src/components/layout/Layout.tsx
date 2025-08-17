@@ -1,9 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts';
 import { useUI } from '@/contexts/UIContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -15,13 +16,19 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
     const { user, loading } = useAuth();
     const { isSidebarOpen, openSidebar, closeSidebar, globalLoading } = useUI();
+    const pathname = usePathname();
+    const [isClient, setIsClient] = useState(false);
     
     // Initialize keyboard shortcuts
     useKeyboardShortcuts();
 
-    // Get current path
-    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-    const isAuthPage = currentPath === '/login' || currentPath === '/register';
+    // Track client-side hydration
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    // Get current path safely
+    const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password';
 
     // Show loading spinner for global loading
     if (globalLoading) {
@@ -38,7 +45,7 @@ export default function Layout({ children }: LayoutProps) {
     }
 
     return (
-        <div className={`h-screen flex flex-col bg-gray-50 ${user ? 'auth-loaded' : 'auth-loading'}`}>
+        <div className={`h-screen flex flex-col bg-gray-50 ${isClient && user ? 'auth-loaded' : 'auth-loading'}`}>
             <Navbar onToggleSidebar={openSidebar} />
 
             <div className="flex flex-1 overflow-hidden">
@@ -47,7 +54,7 @@ export default function Layout({ children }: LayoutProps) {
                     onClose={closeSidebar}
                 />
 
-                <main className="flex-1 overflow-auto lg">
+                <main className="flex-1 overflow-auto">
                     <div className="h-full">
                         <div className="h-full px-4 py-6 sm:px-6 lg:px-8">
                             {children}

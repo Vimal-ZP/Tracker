@@ -77,6 +77,8 @@ export function UIProvider({ children }: UIProviderProps) {
 
     // Resolve theme based on system preference
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+        
         const savedTheme = localStorage.getItem('theme') as Theme;
         if (savedTheme) {
             setThemeState(savedTheme);
@@ -101,11 +103,14 @@ export function UIProvider({ children }: UIProviderProps) {
 
     // Apply theme to document
     useEffect(() => {
+        if (typeof window === 'undefined') return;
         document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
     }, [resolvedTheme]);
 
     // Responsive breakpoint detection
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+        
         const updateBreakpoints = () => {
             const width = window.innerWidth;
             setIsMobile(width < 768);
