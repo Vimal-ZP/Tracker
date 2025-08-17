@@ -4,14 +4,15 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts';
-import { rolePermissions } from '@/types/user';
+import { rolePermissions, UserRole } from '@/types/user';
 import {
     Home,
     Users,
     BarChart3,
     Settings,
     X,
-    Package
+    Package,
+    Activity
 } from 'lucide-react';
 import clsx from 'clsx';
 
@@ -46,6 +47,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             href: '/reports',
             icon: BarChart3,
             show: permissions.canViewReports,
+        },
+        {
+            name: 'Activity',
+            href: '/activity',
+            icon: Activity,
+            show: user.role === UserRole.SUPER_ADMIN, // Only Super Admin can view activities
         },
         {
             name: 'Users',
