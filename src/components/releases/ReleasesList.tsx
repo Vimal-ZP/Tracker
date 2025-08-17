@@ -276,14 +276,9 @@ export default function ReleasesList({
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-8 h-8 ${getApplicationColors(release.applicationName).gradient} rounded-lg flex items-center justify-center shadow-sm`}>
-                        <Building className="w-4 h-4 text-white" />
-                      </div>
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text} border border-opacity-20`}>
-                        {release.applicationName}
-                      </span>
-                    </div>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getApplicationColors(release.applicationName).bg} ${getApplicationColors(release.applicationName).text} border border-opacity-20`}>
+                      {release.applicationName}
+                    </span>
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex items-center space-x-2">
