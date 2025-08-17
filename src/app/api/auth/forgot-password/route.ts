@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { connectDB } from '@/lib/db';
+import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import { EmailService } from '@/lib/email';
+import EmailService from '@/lib/email';
 
 export async function POST(request: NextRequest) {
     try {
