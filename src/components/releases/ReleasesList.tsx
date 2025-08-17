@@ -509,7 +509,7 @@ export default function ReleasesList({
       {releases.map((release) => (
         <div key={release._id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-gray-300 transition-all duration-300 overflow-hidden">
           <div className="p-4">
-            <div className="flex items-start justify-between">
+            <div className="flex justify-between">
               <div className="flex-1">
                 {/* Clean Header Section */}
                 <div className="mb-2">
@@ -630,7 +630,7 @@ export default function ReleasesList({
               </div>
 
               {showActions && (
-                <div className="flex flex-col space-y-2 ml-4">
+                <div className="flex flex-col space-y-2 ml-4 self-start">
                   <button
                     onClick={() => onView?.(release)}
                     className="flex items-center justify-center space-x-1.5 px-3 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 text-sm"
