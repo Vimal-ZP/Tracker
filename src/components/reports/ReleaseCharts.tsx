@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import { Release, ReleaseType } from '@/types/release';
+import { BarChart3, Package, TrendingUp, CheckCircle } from 'lucide-react';
 
 ChartJS.register(
   CategoryScale,
@@ -181,11 +182,16 @@ export default function ReleaseCharts({ releases }: ReleaseChartsProps) {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Releases by Application */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="text-lg font-medium text-gray-900">Releases by Application</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center mr-3">
+                <BarChart3 className="w-4 h-4 text-blue-600" />
+              </div>
+              Releases by Application
+            </h3>
           </div>
-          <div className="card-body">
+          <div className="p-4">
             <div className="h-64">
               <Bar data={applicationChartData} options={chartOptions} />
             </div>
@@ -193,11 +199,16 @@ export default function ReleaseCharts({ releases }: ReleaseChartsProps) {
         </div>
 
         {/* Releases by Type */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="text-lg font-medium text-gray-900">Releases by Type</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <div className="w-6 h-6 bg-green-100 rounded-md flex items-center justify-center mr-3">
+                <Package className="w-4 h-4 text-green-600" />
+              </div>
+              Releases by Type
+            </h3>
           </div>
-          <div className="card-body">
+          <div className="p-4">
             <div className="h-64">
               <Pie data={typeChartData} options={chartOptions} />
             </div>
@@ -205,11 +216,16 @@ export default function ReleaseCharts({ releases }: ReleaseChartsProps) {
         </div>
 
         {/* Release Timeline */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="text-lg font-medium text-gray-900">Release Timeline (Last 6 Months)</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <div className="w-6 h-6 bg-indigo-100 rounded-md flex items-center justify-center mr-3">
+                <TrendingUp className="w-4 h-4 text-indigo-600" />
+              </div>
+              Release Timeline (Last 6 Months)
+            </h3>
           </div>
-          <div className="card-body">
+          <div className="p-4">
             <div className="h-64">
               <Line data={timelineChartData} options={chartOptions} />
             </div>
@@ -217,11 +233,16 @@ export default function ReleaseCharts({ releases }: ReleaseChartsProps) {
         </div>
 
         {/* Published Status */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="text-lg font-medium text-gray-900">Publication Status</h3>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="text-lg font-medium text-gray-900 flex items-center">
+              <div className="w-6 h-6 bg-purple-100 rounded-md flex items-center justify-center mr-3">
+                <CheckCircle className="w-4 h-4 text-purple-600" />
+              </div>
+              Publication Status
+            </h3>
           </div>
-          <div className="card-body">
+          <div className="p-4">
             <div className="h-64">
               <Pie data={publishStatusData} options={chartOptions} />
             </div>

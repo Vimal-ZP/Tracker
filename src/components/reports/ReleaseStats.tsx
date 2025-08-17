@@ -128,17 +128,15 @@ export default function ReleaseStats({ releases }: ReleaseStatsProps) {
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {stats.map((stat) => (
-          <div key={stat.title} className="card">
-            <div className="card-body">
-              <div className="flex items-center">
-                <div className={`flex-shrink-0 w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center text-white`}>
-                  <stat.icon className="w-5 h-5" />
-                </div>
-                <div className="ml-3 flex-1">
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-xs text-gray-500">{stat.description}</p>
-                </div>
+          <div key={stat.title} className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 hover:shadow-md transition-all duration-200">
+            <div className="flex items-center">
+              <div className={`flex-shrink-0 w-10 h-10 ${stat.color} rounded-lg flex items-center justify-center text-white shadow-sm`}>
+                <stat.icon className="w-5 h-5" />
+              </div>
+              <div className="ml-3 flex-1">
+                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                <p className="text-xs text-gray-500">{stat.description}</p>
               </div>
             </div>
           </div>
@@ -147,14 +145,16 @@ export default function ReleaseStats({ releases }: ReleaseStatsProps) {
 
       {/* Release Type Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card">
-          <div className="card-header">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
             <h3 className="text-lg font-medium text-gray-900 flex items-center">
-              <BarChart3 className="w-5 h-5 mr-2" />
+              <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center mr-3">
+                <BarChart3 className="w-4 h-4 text-blue-600" />
+              </div>
               Release Type Distribution
             </h3>
           </div>
-          <div className="card-body">
+          <div className="p-4">
             <div className="space-y-4">
               {typeBreakdown.map((item) => (
                 <div key={item.type} className="flex items-center justify-between">
@@ -173,14 +173,16 @@ export default function ReleaseStats({ releases }: ReleaseStatsProps) {
         </div>
 
         {/* Top Applications */}
-        <div className="card">
-          <div className="card-header">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div className="p-4 border-b border-gray-200">
             <h3 className="text-lg font-medium text-gray-900 flex items-center">
-              <Building className="w-5 h-5 mr-2" />
+              <div className="w-6 h-6 bg-purple-100 rounded-md flex items-center justify-center mr-3">
+                <Building className="w-4 h-4 text-purple-600" />
+              </div>
               Top Applications
             </h3>
           </div>
-          <div className="card-body">
+          <div className="p-4">
             <div className="space-y-4">
               {Object.entries(releasesByApplication)
                 .sort(([,a], [,b]) => b - a)
@@ -197,7 +199,7 @@ export default function ReleaseStats({ releases }: ReleaseStatsProps) {
                       <span className="text-sm text-gray-600">{count} releases</span>
                       <div className="w-16 bg-gray-200 rounded-full h-2">
                         <div 
-                          className="bg-blue-500 h-2 rounded-full" 
+                          className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full" 
                           style={{ width: `${(count / Math.max(...Object.values(releasesByApplication))) * 100}%` }}
                         ></div>
                       </div>
