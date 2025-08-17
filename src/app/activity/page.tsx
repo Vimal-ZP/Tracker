@@ -143,10 +143,11 @@ export default function ActivityPage() {
         }
     });
 
-    // Redirect if not Super Admin
+    // Fetch data when user is authenticated and is Super Admin
     useEffect(() => {
-        if (user && user.role !== UserRole.SUPER_ADMIN) {
-            window.location.href = '/dashboard';
+        if (user && user.role === UserRole.SUPER_ADMIN) {
+            fetchActivities(true);
+            fetchStats();
         }
     }, [user]);
 
@@ -301,13 +302,38 @@ export default function ActivityPage() {
         fetchStats();
     };
 
-    if (!user || user.role !== UserRole.SUPER_ADMIN) {
+    if (!user) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <Shield className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">Authentication Required</h1>
+                    <p className="text-gray-600 mb-4">Please log in to access the Activity Monitor.</p>
+                    <a
+                        href="/login"
+                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                    >
+                        Go to Login
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
+    if (user.role !== UserRole.SUPER_ADMIN) {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-                    <p className="text-gray-600">This page is only accessible to Super Administrators.</p>
+                    <p className="text-gray-600 mb-2">This page is only accessible to Super Administrators.</p>
+                    <p className="text-sm text-gray-500 mb-4">Current role: {user.role}</p>
+                    <a
+                        href="/dashboard"
+                        className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                    >
+                        Go to Dashboard
+                    </a>
                 </div>
             </div>
         );
@@ -797,9 +823,8 @@ export default function ActivityPage() {
                         <p className="text-xs text-gray-600 mt-2">
                             Showing {state.activities.length} of {state.pagination.totalCount.toLocaleString()} activities
                         </p>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );
