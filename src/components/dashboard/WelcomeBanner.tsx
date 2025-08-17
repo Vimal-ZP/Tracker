@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/contexts';
 import { UserRole } from '@/types/user';
 import {
@@ -167,13 +168,13 @@ export default function WelcomeBanner() {
                                     <Target className="w-4 h-4 text-blue-600" />
                                 </div>
                                 <h3 className="text-sm font-semibold text-gray-900 mb-2">Ready to Start?</h3>
-                                <a
+                                <Link
                                     href="/releases"
                                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center group"
                                 >
                                     Get Started
                                     <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserRole, AVAILABLE_APPLICATIONS } from '@/types/user';
 import { Activity, ActivityAction, ActivityResource, ActivityStats } from '@/types/activity';
@@ -309,12 +310,12 @@ export default function ActivityPage() {
                     <Shield className="w-16 h-16 text-blue-500 mx-auto mb-4" />
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Authentication Required</h1>
                     <p className="text-gray-600 mb-4">Please log in to access the Activity Monitor.</p>
-                    <a
+                    <Link
                         href="/login"
                         className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200"
                     >
                         Go to Login
-                    </a>
+                    </Link>
                 </div>
             </div>
         );
@@ -328,12 +329,12 @@ export default function ActivityPage() {
                     <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
                     <p className="text-gray-600 mb-2">This page is only accessible to Super Administrators.</p>
                     <p className="text-sm text-gray-500 mb-4">Current role: {user.role}</p>
-                    <a
+                    <Link
                         href="/dashboard"
                         className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-6 py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200"
                     >
                         Go to Dashboard
-                    </a>
+                    </Link>
                 </div>
             </div>
         );

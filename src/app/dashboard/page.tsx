@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useAuth } from '@/contexts';
 import { UserRole, rolePermissions } from '@/types/user';
 import { Release } from '@/types/release';
@@ -100,12 +101,12 @@ export default function DashboardPage() {
                             </div>
                         </div>
                         <div className="mt-4">
-                            <a
+                            <Link
                                 href="/login"
                                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-flex items-center"
                             >
                                 Go to Login
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -244,12 +245,12 @@ export default function DashboardPage() {
                                     </div>
                                     Recent Releases
                                 </h2>
-                                <a
+                                <Link
                                     href="/releases"
                                     className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                                 >
                                     View All
-                                </a>
+                                </Link>
                             </div>
                         </div>
                         <div className="p-4 h-80 overflow-y-auto">
@@ -316,13 +317,13 @@ export default function DashboardPage() {
                                         Get started by creating your first release.
                                     </p>
                                     <div className="mt-4">
-                                        <a
+                                        <Link
                                             href="/releases"
                                             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 inline-flex items-center"
                                         >
                                             <Package className="w-4 h-4 mr-2" />
                                             Create Release
-                                        </a>
+                                        </Link>
                                     </div>
                                 </div>
                             )}
