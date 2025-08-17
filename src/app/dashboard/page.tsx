@@ -5,9 +5,9 @@ import { useAuth } from '@/contexts';
 import { UserRole, rolePermissions } from '@/types/user';
 import { Release } from '@/types/release';
 import DashboardStats from '@/components/dashboard/DashboardStats';
+import WelcomeBanner from '@/components/dashboard/WelcomeBanner';
 import {
     Calendar,
-    Clock,
     Users,
     Settings,
     BarChart3,
@@ -154,25 +154,7 @@ export default function DashboardPage() {
 
     const permissions = rolePermissions[user.role];
 
-    const getRoleDisplayName = (role: UserRole) => {
-        switch (role) {
-            case UserRole.SUPER_ADMIN:
-                return 'Super Administrator';
-            case UserRole.ADMIN:
-                return 'Administrator';
-            case UserRole.BASIC:
-                return 'Basic User';
-            default:
-                return role;
-        }
-    };
 
-    const getWelcomeMessage = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return 'Good morning';
-        if (hour < 18) return 'Good afternoon';
-        return 'Good evening';
-    };
 
     const quickActions = [
         {
@@ -246,53 +228,8 @@ export default function DashboardPage() {
 
     return (
         <div className="h-full flex flex-col space-y-4" data-testid="dashboard">
-            {/* Professional Header */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm">
-                <div className="p-4">
-                    <div className="flex justify-between items-center">
-                        {/* Left Section - Welcome */}
-                        <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-md">
-                                <BarChart3 className="w-5 h-5 text-white" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-semibold text-gray-900">
-                                    {getWelcomeMessage()}, {user.name}!
-                                </h1>
-                                <p className="text-sm text-gray-600">
-                                    Welcome to your dashboard. You are logged in as {getRoleDisplayName(user.role)}.
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Right Section - Date/Time */}
-                        <div className="flex items-center space-x-4 text-sm">
-                            <div className="flex items-center space-x-1.5">
-                                <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center">
-                                    <Calendar className="w-3 h-3 text-blue-600" />
-                                </div>
-                                <span className="font-medium text-gray-700">
-                                    {new Date().toLocaleDateString('en-US', {
-                                        month: 'short',
-                                        day: 'numeric'
-                                    })}
-                                </span>
-                            </div>
-                            <div className="flex items-center space-x-1.5">
-                                <div className="w-6 h-6 bg-green-100 rounded-md flex items-center justify-center">
-                                    <Clock className="w-3 h-3 text-green-600" />
-                                </div>
-                                <span className="font-medium text-gray-700">
-                                    {new Date().toLocaleTimeString('en-US', {
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {/* Professional Welcome Banner */}
+            <WelcomeBanner />
 
             {/* Main Content Area */}
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
