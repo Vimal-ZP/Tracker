@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { rolePermissions, getUserAccessibleApplications } from '@/types/user';
 import { Release } from '@/types/release';
 import { apiClient } from '@/lib/api';
-import { Shield, BarChart3, TrendingUp, Users, Activity, RefreshCw } from 'lucide-react';
+import { Shield, BarChart3, Activity, RefreshCw } from 'lucide-react';
 import { ReleaseCharts, ReleaseTable, ReleaseStats } from '@/components/reports';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
@@ -15,7 +15,7 @@ export default function ReportsPage() {
     const [releases, setReleases] = useState<Release[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [activeTab, setActiveTab] = useState<'overview' | 'charts' | 'table'>('overview');
+
 
     if (!user) return null;
 
@@ -64,11 +64,7 @@ export default function ReportsPage() {
         toast.success('Data refreshed successfully');
     };
 
-    const tabs = [
-        { id: 'overview', name: 'Overview', icon: BarChart3 },
-        { id: 'charts', name: 'Charts', icon: TrendingUp },
-        { id: 'table', name: 'Detailed Table', icon: Activity },
-    ];
+
 
     if (loading) {
         return (
@@ -108,70 +104,44 @@ export default function ReportsPage() {
                 </div>
             </div>
 
-            {/* Professional Tabs */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div className="border-b border-gray-200">
-                    <nav className="-mb-px flex space-x-8 px-6">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-all duration-200 ${
-                                    activeTab === tab.id
-                                        ? 'border-blue-500 text-blue-600'
-                                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
-                            >
-                                <tab.icon className="w-4 h-4" />
-                                <span>{tab.name}</span>
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-
-                {/* Tab Content */}
-                <div className="p-6 min-h-96">
-                    {activeTab === 'overview' && (
-                        <div className="space-y-6">
-                            <ReleaseStats releases={releases} />
-                            {releases.length === 0 && (
-                                <div className="text-center py-12">
-                                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <BarChart3 className="w-8 h-8 text-gray-400" />
+            {/* Consolidated Content */}
+            <div className="flex-1 space-y-6">
+                {releases.length === 0 ? (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
+                        <div className="text-center">
+                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <BarChart3 className="w-8 h-8 text-gray-400" />
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">No release data available</h3>
+                            <p className="text-sm text-gray-500">
+                                Create some releases to see comprehensive analytics and insights here.
+                            </p>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        {/* Statistics Overview */}
+                        <ReleaseStats releases={releases} />
+                        
+                        {/* Visual Charts */}
+                        <ReleaseCharts releases={releases} />
+                        
+                        {/* Detailed Table */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+                            <div className="p-4 border-b border-gray-200">
+                                <h3 className="text-lg font-medium text-gray-900 flex items-center">
+                                    <div className="w-6 h-6 bg-gray-100 rounded-md flex items-center justify-center mr-3">
+                                        <Activity className="w-4 h-4 text-gray-600" />
                                     </div>
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">No release data available</h3>
-                                    <p className="text-sm text-gray-500">
-                                        Create some releases to see analytics and insights here.
-                                    </p>
-                                </div>
-                            )}
+                                    Detailed Release Table
+                                </h3>
+                            </div>
+                            <div className="p-4">
+                                <ReleaseTable releases={releases} />
+                            </div>
                         </div>
-                    )}
-
-                    {activeTab === 'charts' && (
-                        <div>
-                            {releases.length > 0 ? (
-                                <ReleaseCharts releases={releases} />
-                            ) : (
-                                <div className="text-center py-12">
-                                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <TrendingUp className="w-8 h-8 text-gray-400" />
-                                    </div>
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">No data to visualize</h3>
-                                    <p className="text-sm text-gray-500">
-                                        Charts will appear here once you have release data.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    )}
-
-                    {activeTab === 'table' && (
-                        <div>
-                            <ReleaseTable releases={releases} />
-                        </div>
-                    )}
-                </div>
+                    </>
+                )}
             </div>
         </div>
     );
