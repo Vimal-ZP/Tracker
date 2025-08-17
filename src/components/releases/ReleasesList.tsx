@@ -231,8 +231,8 @@ export default function ReleasesList({
                     <span>Type</span>
                   </div>
                 </th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900" style={{ width: '18%' }}>
-                  <div className="flex items-center justify-end space-x-2">
+                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900" style={{ width: '18%' }}>
+                  <div className="flex items-center justify-center space-x-2">
                     <Calendar className="w-4 h-4 text-blue-600" />
                     <span>Release Date</span>
                   </div>
@@ -321,7 +321,7 @@ export default function ReleasesList({
                       <span className="ml-1 capitalize">{release.type}</span>
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-right">
+                  <td className="px-3 py-3 text-center">
                     <div className="text-sm">
                       <div className="font-medium text-gray-900">{formatDate(release.releaseDate)}</div>
                       {release.author?.name && (
