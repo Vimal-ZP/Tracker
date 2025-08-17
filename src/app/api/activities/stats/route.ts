@@ -1,26 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withRoleAuth } from '@/lib/middleware';
 import { UserRole } from '@/types/user';
 import Activity from '@/models/Activity';
-import { connectDB } from '@/lib/mongodb';
+import connectDB from '@/lib/mongodb';
 import { ActivityAction, ActivityResource } from '@/types/activity';
-
-interface AuthenticatedRequest extends NextRequest {
-    user?: {
-        userId: string;
-        email: string;
-        role: UserRole;
-        name: string;
-    };
-}
+import { verifyToken } from '@/lib/auth';
+import User from '@/models/User';
 
 // GET /api/activities/stats - Get activity statistics (Super Admin only)
-async function getHandler(req: AuthenticatedRequest) {
+export async function GET(request: NextRequest) {
     try {
-
         await connectDB();
 
-        const { searchParams } = new URL(req.url);
+        // Verify authentication using cookie (same pattern as other APIs)
+        const token = request.cookies.get('auth_token')?.value;
+        if (!token) {
+            return NextResponse.json(
+                { error: 'Authentication required' },
+                { status: 401 }
+            );
+        }
+
+        const decoded = verifyToken(token);
+        if (!decoded) {
+            return NextResponse.json(
+                { error: 'Invalid token' },
+                { status: 401 }
+            );
+        }
+
+        // Check if user is Super Admin
+        if (decoded.role !== UserRole.SUPER_ADMIN) {
+            return NextResponse.json(
+                { error: 'Access denied. Super Admin role required.' },
+                { status: 403 }
+            );
+        }
+
+        // Get user details
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+            return NextResponse.json(
+                { error: 'User not found' },
+                { status: 404 }
+            );
+        }
+
+        const { searchParams } = new URL(request.url);
         
         // Parse query parameters
         const startDate = searchParams.get('startDate');
@@ -130,10 +155,10 @@ async function getHandler(req: AuthenticatedRequest) {
 
         // Log this activity
         await Activity.logActivity({
-            userId: req.user.userId,
-            userName: req.user.name,
-            userEmail: req.user.email,
-            userRole: req.user.role,
+            userId: decoded.userId,
+            userName: user.name,
+            userEmail: user.email,
+            userRole: decoded.role,
             action: ActivityAction.REPORT_GENERATED,
             resource: ActivityResource.SYSTEM,
             details: 'Viewed activity statistics dashboard',
@@ -157,4 +182,4 @@ async function getHandler(req: AuthenticatedRequest) {
     }
 }
 
-export const GET = withRoleAuth([UserRole.SUPER_ADMIN])(getHandler);
+
