@@ -308,62 +308,52 @@ export default function ReleasesList({
                       const counts = getWorkItemCounts(release.workItems);
                       const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
                       return (
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center space-x-1.5">
                           {totalItems > 0 ? (
                             <>
-                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
-                                <span className="text-xs font-bold text-white">{totalItems}</span>
-                              </div>
-                              <div className="flex items-center space-x-1.5 text-xs">
-                                {counts.epic > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-purple-100 to-purple-50 border border-purple-200/50 text-purple-700 rounded-md shadow-sm">
-                                    <div className="w-3 h-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-sm flex items-center justify-center mr-1">
-                                      {getWorkItemIcon('epic')}
-                                    </div>
-                                    <span className="font-semibold">{counts.epic}</span>
+                              {counts.epic > 0 && (
+                                <div className="flex items-center space-x-0.5 bg-purple-100 rounded-full px-1.5 py-0.5" title="Epics">
+                                  <div className="w-3 h-3 bg-purple-500 rounded-full flex items-center justify-center">
+                                    {getWorkItemIcon('epic')}
                                   </div>
-                                )}
-                                {counts.feature > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-blue-100 to-blue-50 border border-blue-200/50 text-blue-700 rounded-md shadow-sm">
-                                    <div className="w-3 h-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-sm flex items-center justify-center mr-1">
-                                      {getWorkItemIcon('feature')}
-                                    </div>
-                                    <span className="font-semibold">{counts.feature}</span>
+                                  <span className="text-xs font-bold text-purple-700">{counts.epic}</span>
+                                </div>
+                              )}
+                              {counts.feature > 0 && (
+                                <div className="flex items-center space-x-0.5 bg-blue-100 rounded-full px-1.5 py-0.5" title="Features">
+                                  <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                                    {getWorkItemIcon('feature')}
                                   </div>
-                                )}
-                                {counts.user_story > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-emerald-100 to-emerald-50 border border-emerald-200/50 text-emerald-700 rounded-md shadow-sm">
-                                    <div className="w-3 h-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-sm flex items-center justify-center mr-1">
-                                      {getWorkItemIcon('user_story')}
-                                    </div>
-                                    <span className="font-semibold">{counts.user_story}</span>
+                                  <span className="text-xs font-bold text-blue-700">{counts.feature}</span>
+                                </div>
+                              )}
+                              {counts.user_story > 0 && (
+                                <div className="flex items-center space-x-0.5 bg-emerald-100 rounded-full px-1.5 py-0.5" title="User Stories">
+                                  <div className="w-3 h-3 bg-emerald-500 rounded-full flex items-center justify-center">
+                                    {getWorkItemIcon('user_story')}
                                   </div>
-                                )}
-                                {counts.bug > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-red-100 to-red-50 border border-red-200/50 text-red-700 rounded-md shadow-sm">
-                                    <div className="w-3 h-3 bg-gradient-to-br from-red-500 to-red-600 rounded-sm flex items-center justify-center mr-1">
-                                      {getWorkItemIcon('bug')}
-                                    </div>
-                                    <span className="font-semibold">{counts.bug}</span>
+                                  <span className="text-xs font-bold text-emerald-700">{counts.user_story}</span>
+                                </div>
+                              )}
+                              {counts.bug > 0 && (
+                                <div className="flex items-center space-x-0.5 bg-red-100 rounded-full px-1.5 py-0.5" title="Bugs">
+                                  <div className="w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                                    {getWorkItemIcon('bug')}
                                   </div>
-                                )}
-                                {counts.incident > 0 && (
-                                  <div className="flex items-center px-2 py-1 bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200/50 text-amber-700 rounded-md shadow-sm">
-                                    <div className="w-3 h-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-sm flex items-center justify-center mr-1">
-                                      {getWorkItemIcon('incident')}
-                                    </div>
-                                    <span className="font-semibold">{counts.incident}</span>
+                                  <span className="text-xs font-bold text-red-700">{counts.bug}</span>
+                                </div>
+                              )}
+                              {counts.incident > 0 && (
+                                <div className="flex items-center space-x-0.5 bg-amber-100 rounded-full px-1.5 py-0.5" title="Incidents">
+                                  <div className="w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
+                                    {getWorkItemIcon('incident')}
                                   </div>
-                                )}
-                              </div>
+                                  <span className="text-xs font-bold text-amber-700">{counts.incident}</span>
+                                </div>
+                              )}
                             </>
                           ) : (
-                            <div className="flex items-center space-x-2 text-gray-400">
-                              <div className="w-8 h-8 bg-gradient-to-br from-slate-200 to-slate-300 rounded-lg flex items-center justify-center">
-                                <span className="text-xs font-medium text-slate-600">0</span>
-                              </div>
-                              <span className="text-sm text-slate-500">No work items</span>
-                            </div>
+                            <span className="text-xs text-gray-400 font-medium">None</span>
                           )}
                         </div>
                       );
@@ -627,100 +617,63 @@ export default function ReleasesList({
                   )}
                 </div>
 
-                {/* Elegant Work Items Summary */}
+                {/* Ultra-Compact Work Items */}
                 {(() => {
                   const counts = getWorkItemCounts(release.workItems);
                   const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
                   return (
-                    <div className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 rounded-xl border border-slate-200/60 shadow-sm">
-                      {/* Subtle background pattern */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent"></div>
-                      
-                      <div className="relative p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center space-x-2">
-                            <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
-                              <Layers className="w-3.5 h-3.5 text-white" />
-                            </div>
-                            <span className="text-sm font-semibold text-slate-800">Work Items</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs text-slate-500">Total</span>
-                            <div className="w-6 h-6 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-full flex items-center justify-center shadow-sm">
-                              <span className="text-xs font-bold text-white">{totalItems}</span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {totalItems > 0 ? (
-                          <div className="flex flex-wrap gap-2">
-                            {counts.epic > 0 && (
-                              <div className="group relative">
-                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-purple-100 to-purple-50 border border-purple-200/50 text-purple-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
-                                  <div className="w-4 h-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-sm flex items-center justify-center mr-1.5">
-                                    {getWorkItemIcon('epic')}
-                                  </div>
-                                  <span className="font-semibold">{counts.epic}</span>
-                                  <span className="ml-1 text-purple-600">Epic{counts.epic > 1 ? 's' : ''}</span>
-                                </div>
-                              </div>
-                            )}
-                            {counts.feature > 0 && (
-                              <div className="group relative">
-                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-blue-100 to-blue-50 border border-blue-200/50 text-blue-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
-                                  <div className="w-4 h-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-sm flex items-center justify-center mr-1.5">
-                                    {getWorkItemIcon('feature')}
-                                  </div>
-                                  <span className="font-semibold">{counts.feature}</span>
-                                  <span className="ml-1 text-blue-600">Feature{counts.feature > 1 ? 's' : ''}</span>
-                                </div>
-                              </div>
-                            )}
-                            {counts.user_story > 0 && (
-                              <div className="group relative">
-                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-emerald-100 to-emerald-50 border border-emerald-200/50 text-emerald-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
-                                  <div className="w-4 h-4 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-sm flex items-center justify-center mr-1.5">
-                                    {getWorkItemIcon('user_story')}
-                                  </div>
-                                  <span className="font-semibold">{counts.user_story}</span>
-                                  <span className="ml-1 text-emerald-600">Stor{counts.user_story > 1 ? 'ies' : 'y'}</span>
-                                </div>
-                              </div>
-                            )}
-                            {counts.bug > 0 && (
-                              <div className="group relative">
-                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-red-100 to-red-50 border border-red-200/50 text-red-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
-                                  <div className="w-4 h-4 bg-gradient-to-br from-red-500 to-red-600 rounded-sm flex items-center justify-center mr-1.5">
-                                    {getWorkItemIcon('bug')}
-                                  </div>
-                                  <span className="font-semibold">{counts.bug}</span>
-                                  <span className="ml-1 text-red-600">Bug{counts.bug > 1 ? 's' : ''}</span>
-                                </div>
-                              </div>
-                            )}
-                            {counts.incident > 0 && (
-                              <div className="group relative">
-                                <div className="flex items-center px-3 py-1.5 bg-gradient-to-r from-amber-100 to-amber-50 border border-amber-200/50 text-amber-700 rounded-lg text-xs font-medium shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105">
-                                  <div className="w-4 h-4 bg-gradient-to-br from-amber-500 to-amber-600 rounded-sm flex items-center justify-center mr-1.5">
-                                    {getWorkItemIcon('incident')}
-                                  </div>
-                                  <span className="font-semibold">{counts.incident}</span>
-                                  <span className="ml-1 text-amber-600">Incident{counts.incident > 1 ? 's' : ''}</span>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <div className="text-center py-3">
-                            <div className="inline-flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 border border-slate-200/50 rounded-lg">
-                              <div className="w-4 h-4 bg-slate-300 rounded-full flex items-center justify-center">
-                                <span className="text-xs text-slate-600">0</span>
-                              </div>
-                              <span className="text-xs text-slate-500 font-medium">No work items assigned</span>
-                            </div>
-                          </div>
-                        )}
+                    <div className="flex items-center justify-between bg-gradient-to-r from-slate-50 to-gray-50 rounded-lg border border-gray-200 px-3 py-2">
+                      <div className="flex items-center space-x-1">
+                        <Layers className="w-3.5 h-3.5 text-gray-600" />
+                        <span className="text-xs font-medium text-gray-700">Items</span>
                       </div>
+                      
+                      {totalItems > 0 ? (
+                        <div className="flex items-center space-x-2">
+                          {counts.epic > 0 && (
+                            <div className="flex items-center space-x-1 bg-purple-100 rounded-full px-2 py-1" title="Epics">
+                              <div className="w-3 h-3 bg-purple-500 rounded-full flex items-center justify-center">
+                                {getWorkItemIcon('epic')}
+                              </div>
+                              <span className="text-xs font-bold text-purple-700">{counts.epic}</span>
+                            </div>
+                          )}
+                          {counts.feature > 0 && (
+                            <div className="flex items-center space-x-1 bg-blue-100 rounded-full px-2 py-1" title="Features">
+                              <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                                {getWorkItemIcon('feature')}
+                              </div>
+                              <span className="text-xs font-bold text-blue-700">{counts.feature}</span>
+                            </div>
+                          )}
+                          {counts.user_story > 0 && (
+                            <div className="flex items-center space-x-1 bg-emerald-100 rounded-full px-2 py-1" title="User Stories">
+                              <div className="w-3 h-3 bg-emerald-500 rounded-full flex items-center justify-center">
+                                {getWorkItemIcon('user_story')}
+                              </div>
+                              <span className="text-xs font-bold text-emerald-700">{counts.user_story}</span>
+                            </div>
+                          )}
+                          {counts.bug > 0 && (
+                            <div className="flex items-center space-x-1 bg-red-100 rounded-full px-2 py-1" title="Bugs">
+                              <div className="w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+                                {getWorkItemIcon('bug')}
+                              </div>
+                              <span className="text-xs font-bold text-red-700">{counts.bug}</span>
+                            </div>
+                          )}
+                          {counts.incident > 0 && (
+                            <div className="flex items-center space-x-1 bg-amber-100 rounded-full px-2 py-1" title="Incidents">
+                              <div className="w-3 h-3 bg-amber-500 rounded-full flex items-center justify-center">
+                                {getWorkItemIcon('incident')}
+                              </div>
+                              <span className="text-xs font-bold text-amber-700">{counts.incident}</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400 font-medium">None</span>
+                      )}
                     </div>
                   );
                 })()}
