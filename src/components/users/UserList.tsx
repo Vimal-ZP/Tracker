@@ -368,7 +368,7 @@ export default function UserList() {
                                 Page <span className="font-semibold text-gray-900">{currentPage}</span> of{' '}
                                 <span className="font-semibold text-gray-900">{totalPages}</span>
                             </div>
-                            
+
                             <div className="flex items-center space-x-2">
                                 <button
                                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
