@@ -517,7 +517,7 @@ export default function ReleasesList({
                     <Package className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 mb-1">
                       <h3 className="text-lg font-bold text-gray-900">
                         {release.title}
                       </h3>
@@ -538,13 +538,12 @@ export default function ReleasesList({
                         )}
                       </span>
                     </div>
+                    {/* Description directly below title */}
+                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+                      {release.description}
+                    </p>
                   </div>
                 </div>
-
-                {/* Description */}
-                <p className="text-gray-600 mb-3 text-sm leading-relaxed line-clamp-2">
-                  {release.description}
-                </p>
 
                 {/* Compact Metadata Row */}
                 <div className="flex flex-wrap items-center gap-3 mb-3 text-xs">
