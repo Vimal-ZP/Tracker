@@ -509,7 +509,7 @@ export default function ActivityPage() {
                     
                     {/* Advanced Filters */}
                     {showFilters && (
-                        <div className="border-t border-gray-200 pt-6 mt-6">
+                        <div className="pt-6 mt-6">
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center space-x-3">
                                     <div className="w-6 h-6 bg-indigo-100 rounded-md flex items-center justify-center">
