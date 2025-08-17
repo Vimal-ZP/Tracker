@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAuth } from '@/lib/middleware';
+import { withRoleAuth } from '@/lib/middleware';
 import { UserRole } from '@/types/user';
 import Activity from '@/models/Activity';
 import { connectDB } from '@/lib/mongodb';
@@ -7,7 +7,7 @@ import { ActivityFilters, ActivityAction, ActivityResource } from '@/types/activ
 
 interface AuthenticatedRequest extends NextRequest {
     user?: {
-        id: string;
+        userId: string;
         email: string;
         role: UserRole;
         name: string;
@@ -17,13 +17,6 @@ interface AuthenticatedRequest extends NextRequest {
 // GET /api/activities - Get activities (Super Admin only)
 async function getHandler(req: AuthenticatedRequest) {
     try {
-        // Only Super Admin can access activities
-        if (req.user?.role !== UserRole.SUPER_ADMIN) {
-            return NextResponse.json(
-                { error: 'Access denied. Super Admin role required.' },
-                { status: 403 }
-            );
-        }
 
         await connectDB();
 
@@ -77,7 +70,7 @@ async function getHandler(req: AuthenticatedRequest) {
 
         // Log this activity
         await Activity.logActivity({
-            userId: req.user.id,
+            userId: req.user.userId,
             userName: req.user.name,
             userEmail: req.user.email,
             userRole: req.user.role,
@@ -132,10 +125,5 @@ async function postHandler(req: AuthenticatedRequest) {
     }
 }
 
-export async function GET(request: NextRequest) {
-    return verifyAuth(request, getHandler);
-}
-
-export async function POST(request: NextRequest) {
-    return verifyAuth(request, postHandler);
-}
+export const GET = withRoleAuth([UserRole.SUPER_ADMIN])(getHandler);
+export const POST = withRoleAuth([UserRole.SUPER_ADMIN])(postHandler);

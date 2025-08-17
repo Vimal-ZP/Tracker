@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAuth } from '@/lib/middleware';
+import { withRoleAuth } from '@/lib/middleware';
 import { UserRole } from '@/types/user';
 import Activity from '@/models/Activity';
 import { connectDB } from '@/lib/mongodb';
@@ -7,7 +7,7 @@ import { ActivityAction, ActivityResource } from '@/types/activity';
 
 interface AuthenticatedRequest extends NextRequest {
     user?: {
-        id: string;
+        userId: string;
         email: string;
         role: UserRole;
         name: string;
@@ -17,13 +17,6 @@ interface AuthenticatedRequest extends NextRequest {
 // GET /api/activities/stats - Get activity statistics (Super Admin only)
 async function getHandler(req: AuthenticatedRequest) {
     try {
-        // Only Super Admin can access activity stats
-        if (req.user?.role !== UserRole.SUPER_ADMIN) {
-            return NextResponse.json(
-                { error: 'Access denied. Super Admin role required.' },
-                { status: 403 }
-            );
-        }
 
         await connectDB();
 
@@ -46,15 +39,23 @@ async function getHandler(req: AuthenticatedRequest) {
         // Get basic stats
         const stats = await Activity.getActivityStats(dateRange);
 
-        // Get activities by application
-        const applicationPipeline: any[] = [
+        // Get activities by application (simplified)
+        const matchQuery: any = {};
+        if (dateRange) {
+            matchQuery.timestamp = {
+                $gte: dateRange.start,
+                $lte: dateRange.end
+            };
+        }
+
+        const activitiesByApplication = await Activity.aggregate([
+            { $match: matchQuery },
             {
                 $group: {
                     _id: { $ifNull: ['$application', 'System'] },
                     count: { $sum: 1 },
                     uniqueUsers: { $addToSet: '$userId' },
-                    lastActivity: { $max: '$timestamp' },
-                    actions: { $push: '$action' }
+                    lastActivity: { $max: '$timestamp' }
                 }
             },
             {
@@ -62,46 +63,15 @@ async function getHandler(req: AuthenticatedRequest) {
                     application: '$_id',
                     count: 1,
                     uniqueUsers: { $size: '$uniqueUsers' },
-                    lastActivity: 1,
-                    mostCommonAction: {
-                        $arrayElemAt: [
-                            {
-                                $map: {
-                                    input: {
-                                        $slice: [
-                                            {
-                                                $sortByCount: '$actions'
-                                            },
-                                            1
-                                        ]
-                                    },
-                                    as: 'action',
-                                    in: '$$action._id'
-                                }
-                            },
-                            0
-                        ]
-                    }
+                    lastActivity: 1
                 }
             },
             { $sort: { count: -1 } }
-        ];
+        ]);
 
-        if (dateRange) {
-            applicationPipeline.unshift({
-                $match: {
-                    timestamp: {
-                        $gte: dateRange.start,
-                        $lte: dateRange.end
-                    }
-                }
-            });
-        }
-
-        const activitiesByApplication = await Activity.aggregate(applicationPipeline);
-
-        // Get top users
-        const topUsersPipeline: any[] = [
+        // Get top users (simplified)
+        const topUsers = await Activity.aggregate([
+            { $match: matchQuery },
             {
                 $group: {
                     _id: '$userId',
@@ -114,20 +84,7 @@ async function getHandler(req: AuthenticatedRequest) {
             },
             { $sort: { activityCount: -1 } },
             { $limit: 10 }
-        ];
-
-        if (dateRange) {
-            topUsersPipeline.unshift({
-                $match: {
-                    timestamp: {
-                        $gte: dateRange.start,
-                        $lte: dateRange.end
-                    }
-                }
-            });
-        }
-
-        const topUsers = await Activity.aggregate(topUsersPipeline);
+        ]);
 
         // Get recent activities
         const recentQuery: any = {};
@@ -173,7 +130,7 @@ async function getHandler(req: AuthenticatedRequest) {
 
         // Log this activity
         await Activity.logActivity({
-            userId: req.user.id,
+            userId: req.user.userId,
             userName: req.user.name,
             userEmail: req.user.email,
             userRole: req.user.role,
@@ -200,6 +157,4 @@ async function getHandler(req: AuthenticatedRequest) {
     }
 }
 
-export async function GET(request: NextRequest) {
-    return verifyAuth(request, getHandler);
-}
+export const GET = withRoleAuth([UserRole.SUPER_ADMIN])(getHandler);

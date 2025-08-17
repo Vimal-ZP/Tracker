@@ -144,99 +144,43 @@ ActivitySchema.statics.getActivityStats = async function(dateRange?: { start: Da
         };
     }
 
-    const pipeline = [
+    // Simple aggregation for basic stats
+    const totalActivities = await this.countDocuments(matchStage);
+    const uniqueUsers = await this.distinct('userId', matchStage);
+    
+    // Get activities by action
+    const actionStats = await this.aggregate([
         { $match: matchStage },
-        {
-            $group: {
-                _id: null,
-                totalActivities: { $sum: 1 },
-                uniqueUsers: { $addToSet: '$userId' },
-                activitiesByAction: {
-                    $push: {
-                        action: '$action',
-                        count: 1
-                    }
-                },
-                activitiesByApplication: {
-                    $push: {
-                        application: '$application',
-                        count: 1
-                    }
-                },
-                activitiesByResource: {
-                    $push: {
-                        resource: '$resource',
-                        count: 1
-                    }
-                }
-            }
-        },
-        {
-            $project: {
-                totalActivities: 1,
-                uniqueUsers: { $size: '$uniqueUsers' },
-                activitiesByAction: {
-                    $reduce: {
-                        input: '$activitiesByAction',
-                        initialValue: {},
-                        in: {
-                            $mergeObjects: [
-                                '$$value',
-                                {
-                                    $arrayToObject: [[{
-                                        k: '$$this.action',
-                                        v: { $add: [{ $ifNull: [{ $getField: { field: '$$this.action', input: '$$value' } }, 0] }, 1] }
-                                    }]]
-                                }
-                            ]
-                        }
-                    }
-                },
-                activitiesByApplication: {
-                    $reduce: {
-                        input: '$activitiesByApplication',
-                        initialValue: {},
-                        in: {
-                            $mergeObjects: [
-                                '$$value',
-                                {
-                                    $arrayToObject: [[{
-                                        k: { $ifNull: ['$$this.application', 'system'] },
-                                        v: { $add: [{ $ifNull: [{ $getField: { field: { $ifNull: ['$$this.application', 'system'] }, input: '$$value' } }, 0] }, 1] }
-                                    }]]
-                                }
-                            ]
-                        }
-                    }
-                },
-                activitiesByResource: {
-                    $reduce: {
-                        input: '$activitiesByResource',
-                        initialValue: {},
-                        in: {
-                            $mergeObjects: [
-                                '$$value',
-                                {
-                                    $arrayToObject: [[{
-                                        k: '$$this.resource',
-                                        v: { $add: [{ $ifNull: [{ $getField: { field: '$$this.resource', input: '$$value' } }, 0] }, 1] }
-                                    }]]
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        }
-    ];
+        { $group: { _id: '$action', count: { $sum: 1 } } }
+    ]);
+    
+    // Get activities by application
+    const appStats = await this.aggregate([
+        { $match: matchStage },
+        { $group: { _id: { $ifNull: ['$application', 'System'] }, count: { $sum: 1 } } }
+    ]);
+    
+    // Get activities by resource
+    const resourceStats = await this.aggregate([
+        { $match: matchStage },
+        { $group: { _id: '$resource', count: { $sum: 1 } } }
+    ]);
 
-    const result = await this.aggregate(pipeline);
-    return result[0] || {
-        totalActivities: 0,
-        uniqueUsers: 0,
-        activitiesByAction: {},
-        activitiesByApplication: {},
-        activitiesByResource: {}
+    return {
+        totalActivities,
+        uniqueUsers: uniqueUsers.length,
+        activitiesByAction: actionStats.reduce((acc: any, item: any) => {
+            acc[item._id] = item.count;
+            return acc;
+        }, {}),
+        activitiesByApplication: appStats.reduce((acc: any, item: any) => {
+            acc[item._id] = item.count;
+            return acc;
+        }, {}),
+        activitiesByResource: resourceStats.reduce((acc: any, item: any) => {
+            acc[item._id] = item.count;
+            return acc;
+        }, {})
     };
 };
 
