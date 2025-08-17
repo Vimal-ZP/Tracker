@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts';
 import { UserRole, rolePermissions } from '@/types/user';
+import GlobalSearch from '@/components/ui/GlobalSearch';
 import {
     LogOut,
     Shield,
@@ -93,6 +94,11 @@ export default function Navbar({ onToggleSidebar }: NavbarProps) {
                             <Shield className="h-8 w-8 text-primary-600" />
                             <span className="ml-2 text-xl font-bold text-gray-900">Tracker</span>
                         </Link>
+                    </div>
+
+                    {/* Global Search */}
+                    <div className="flex-1 max-w-2xl mx-8 hidden md:block">
+                        <GlobalSearch />
                     </div>
 
                     <div className="flex items-center">

@@ -3,6 +3,7 @@
 import React from 'react';
 import { useAuth } from '@/contexts';
 import { useUI } from '@/contexts/UIContext';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
@@ -14,6 +15,9 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
     const { user, loading } = useAuth();
     const { isSidebarOpen, openSidebar, closeSidebar, globalLoading } = useUI();
+    
+    // Initialize keyboard shortcuts
+    useKeyboardShortcuts();
 
     // Get current path
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
