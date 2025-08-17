@@ -105,7 +105,7 @@ export default function ReportsPage() {
             </div>
 
             {/* Consolidated Content */}
-            <div className="flex-1 space-y-6">
+            <div className="flex-1 space-y-4">
                 {releases.length === 0 ? (
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
                         <div className="text-center">
