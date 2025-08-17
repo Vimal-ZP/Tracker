@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
         request.headers.get('authorization')?.replace('Bearer ', '');
 
     // Public routes that don't require authentication
-    const publicRoutes = ['/login', '/register'];
+    const publicRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
     const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
     // API routes are handled by their own middleware

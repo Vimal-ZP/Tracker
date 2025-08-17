@@ -15,7 +15,7 @@ export default function AuthGate({ children }: AuthGateProps) {
     const pathname = usePathname();
     const [isReady, setIsReady] = useState(false);
 
-    const isAuthPage = pathname === '/login' || pathname === '/register';
+    const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password';
 
     useEffect(() => {
         console.log('AuthGate: State check', {
