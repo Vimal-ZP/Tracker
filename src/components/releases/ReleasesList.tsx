@@ -283,22 +283,26 @@ export default function ReleasesList({
                       const totalItems = Object.values(counts).reduce((sum, count) => sum + count, 0);
  
                       const workItemTypes = [
-                        { key: 'epic', count: counts.epic, color: 'bg-purple-500', label: 'E' },
-                        { key: 'feature', count: counts.feature, color: 'bg-blue-500', label: 'F' },
-                        { key: 'user_story', count: counts.user_story, color: 'bg-emerald-500', label: 'S' },
-                        { key: 'bug', count: counts.bug, color: 'bg-red-500', label: 'B' },
-                        { key: 'incident', count: counts.incident, color: 'bg-amber-500', label: 'I' }
+                        { key: 'epic', count: counts.epic, bgColor: 'bg-purple-100', iconColor: 'text-purple-600', textColor: 'text-purple-800', badgeBg: 'bg-purple-100', label: 'Epic' },
+                        { key: 'feature', count: counts.feature, bgColor: 'bg-blue-100', iconColor: 'text-blue-600', textColor: 'text-blue-800', badgeBg: 'bg-blue-100', label: 'Feature' },
+                        { key: 'user_story', count: counts.user_story, bgColor: 'bg-emerald-100', iconColor: 'text-emerald-600', textColor: 'text-emerald-800', badgeBg: 'bg-emerald-100', label: 'Story' },
+                        { key: 'bug', count: counts.bug, bgColor: 'bg-red-100', iconColor: 'text-red-600', textColor: 'text-red-800', badgeBg: 'bg-red-100', label: 'Bug' },
+                        { key: 'incident', count: counts.incident, bgColor: 'bg-amber-100', iconColor: 'text-amber-600', textColor: 'text-amber-800', badgeBg: 'bg-amber-100', label: 'Incident' }
                       ].filter(item => item.count > 0);
 
                       return (
-                        <div className="flex items-center space-x-1">
+                        <div className="flex flex-wrap items-center gap-1 text-xs">
                           {workItemTypes.length > 0 ? (
                             workItemTypes.map((item) => (
-                              <div key={item.key} className="flex items-center space-x-0.5" title={`${item.count} ${item.key.replace('_', ' ')}`}>
-                                <div className={`w-4 h-4 ${item.color} rounded text-white text-xs font-bold flex items-center justify-center`}>
-                                  {item.label}
+                              <div key={item.key} className="flex items-center space-x-1">
+                                <div className={`w-4 h-4 ${item.bgColor} rounded-sm flex items-center justify-center`}>
+                                  <div className={`w-2.5 h-2.5 ${item.iconColor}`}>
+                                    {getWorkItemIcon(item.key)}
+                                  </div>
                                 </div>
-                                <span className="text-xs font-semibold text-gray-700">{item.count}</span>
+                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold ${item.badgeBg} ${item.textColor}`}>
+                                  {item.count}
+                                </span>
                               </div>
                             ))
                           ) : (
