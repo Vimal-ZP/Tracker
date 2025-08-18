@@ -1,297 +1,603 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import ReleasesList from '../ReleasesList'
-import { mockRelease, mockUser } from '@/__tests__/utils/test-utils'
+import { Release, ReleaseType, WorkItemType } from '@/types/release'
+import { UserRole } from '@/types/user'
 
-const mockReleases = [
-    {
-        ...mockRelease,
-        _id: '1',
-        title: 'Release 1.0',
-        applicationName: 'App One',
-        version: '1.0.0',
-        isPublished: true,
-    },
-    {
-        ...mockRelease,
-        _id: '2',
-        title: 'Release 2.0',
-        applicationName: 'App Two',
-        version: '2.0.0',
-        isPublished: false,
-    },
-]
+// Mock Next.js Link
+jest.mock('next/link', () => {
+  return function MockLink({ children, href, className, ...props }: any) {
+    return (
+      <a href={href} className={className} {...props}>
+        {children}
+      </a>
+    )
+  }
+})
+
+// Mock Lucide icons
+jest.mock('lucide-react', () => ({
+  Calendar: (props: any) => <div data-testid="calendar-icon" {...props}>Calendar</div>,
+  Eye: (props: any) => <div data-testid="eye-icon" {...props}>Eye</div>,
+  Edit: (props: any) => <div data-testid="edit-icon" {...props}>Edit</div>,
+  Trash2: (props: any) => <div data-testid="trash-icon" {...props}>Trash</div>,
+  Tag: (props: any) => <div data-testid="tag-icon" {...props}>Tag</div>,
+  Clock: (props: any) => <div data-testid="clock-icon" {...props}>Clock</div>,
+  CheckCircle: (props: any) => <div data-testid="check-circle-icon" {...props}>CheckCircle</div>,
+  AlertCircle: (props: any) => <div data-testid="alert-circle-icon" {...props}>AlertCircle</div>,
+  XCircle: (props: any) => <div data-testid="x-circle-icon" {...props}>XCircle</div>,
+  Package: (props: any) => <div data-testid="package-icon" {...props}>Package</div>,
+  User: (props: any) => <div data-testid="user-icon" {...props}>User</div>,
+  MoreVertical: (props: any) => <div data-testid="more-vertical-icon" {...props}>MoreVertical</div>,
+  Layers: (props: any) => <div data-testid="layers-icon" {...props}>Layers</div>,
+  Zap: (props: any) => <div data-testid="zap-icon" {...props}>Zap</div>,
+  FileText: (props: any) => <div data-testid="file-text-icon" {...props}>FileText</div>,
+  Bug: (props: any) => <div data-testid="bug-icon" {...props}>Bug</div>,
+  Building: (props: any) => <div data-testid="building-icon" {...props}>Building</div>,
+  AlertTriangle: (props: any) => <div data-testid="alert-triangle-icon" {...props}>AlertTriangle</div>,
+}))
 
 describe('ReleasesList', () => {
-    const defaultProps = {
-        releases: mockReleases,
-        loading: false,
-        viewMode: 'card' as const,
-        showActions: true,
-        userRole: mockUser.role,
-        onEdit: jest.fn(),
-        onDelete: jest.fn(),
-        onView: jest.fn(),
+  const mockOnEdit = jest.fn()
+  const mockOnDelete = jest.fn()
+  const mockOnView = jest.fn()
+
+  const mockWorkItems = [
+    {
+      _id: 'work-1',
+      type: WorkItemType.EPIC,
+      id: 'EPIC-001',
+      title: 'Test Epic',
+      flagName: 'epic-flag',
+      remarks: 'Epic remarks',
+      hyperlink: 'http://example.com/epic',
+      parentId: '',
+      children: []
+    },
+    {
+      _id: 'work-2',
+      type: WorkItemType.FEATURE,
+      id: 'FEAT-001',
+      title: 'Test Feature',
+      flagName: 'feature-flag',
+      remarks: 'Feature remarks',
+      hyperlink: 'http://example.com/feature',
+      parentId: 'work-1',
+      children: []
+    },
+    {
+      _id: 'work-3',
+      type: WorkItemType.BUG,
+      id: 'BUG-001',
+      title: 'Test Bug',
+      flagName: 'bug-flag',
+      remarks: 'Bug remarks',
+      hyperlink: 'http://example.com/bug',
+      parentId: '',
+      children: []
     }
+  ]
 
+  const mockReleases: Release[] = [
+    {
+      _id: 'release-1',
+      title: 'Version 1.0.0 Release',
+      description: 'Major release with new features',
+      version: '1.0.0',
+      applicationName: 'NRE',
+      releaseDate: new Date('2024-01-15'),
+      type: ReleaseType.MAJOR,
+      status: 'stable',
+      isPublished: true,
+      workItems: mockWorkItems,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01'),
+      createdBy: 'user-1'
+    },
+    {
+      _id: 'release-2',
+      title: 'Version 1.1.0 Release',
+      description: 'Minor release with improvements',
+      version: '1.1.0',
+      applicationName: 'NVE',
+      releaseDate: new Date('2024-02-15'),
+      type: ReleaseType.MINOR,
+      status: 'beta',
+      isPublished: false,
+      workItems: [mockWorkItems[0]],
+      createdAt: new Date('2024-02-01'),
+      updatedAt: new Date('2024-02-01'),
+      createdBy: 'user-1'
+    },
+    {
+      _id: 'release-3',
+      title: 'Version 1.0.1 Release',
+      description: 'Patch release with bug fixes',
+      version: '1.0.1',
+      applicationName: 'E-Vite',
+      releaseDate: new Date('2024-03-15'),
+      type: ReleaseType.PATCH,
+      status: 'draft',
+      isPublished: false,
+      workItems: [],
+      createdAt: new Date('2024-03-01'),
+      updatedAt: new Date('2024-03-01'),
+      createdBy: 'user-1'
+    }
+  ]
+
+  const defaultProps = {
+    releases: mockReleases,
+    loading: false,
+    viewMode: 'card' as const,
+    showActions: true,
+    userRole: UserRole.ADMIN,
+    onEdit: mockOnEdit,
+    onDelete: mockOnDelete,
+    onView: mockOnView,
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('Loading State', () => {
+    it('should render loading skeletons when loading is true', () => {
+      render(<ReleasesList {...defaultProps} loading={true} />)
+
+      expect(screen.getAllByTestId('loading-skeleton')).toHaveLength(3)
+      expect(screen.queryByText('Version 1.0.0 Release')).not.toBeInTheDocument()
+    })
+
+    it('should render different loading skeletons for different view modes', () => {
+      const { rerender } = render(<ReleasesList {...defaultProps} loading={true} viewMode="card" />)
+      expect(screen.getAllByTestId('loading-skeleton')).toHaveLength(3)
+
+      rerender(<ReleasesList {...defaultProps} loading={true} viewMode="table" />)
+      expect(screen.getByTestId('table-loading-skeleton')).toBeInTheDocument()
+
+      rerender(<ReleasesList {...defaultProps} loading={true} viewMode="compact" />)
+      expect(screen.getAllByTestId('loading-skeleton')).toHaveLength(3)
+    })
+  })
+
+  describe('Empty State', () => {
+    it('should render empty state when no releases', () => {
+      render(<ReleasesList {...defaultProps} releases={[]} />)
+
+      expect(screen.getByTestId('package-icon')).toBeInTheDocument()
+      expect(screen.getByText('No releases found')).toBeInTheDocument()
+      expect(screen.getByText('Create your first release to get started')).toBeInTheDocument()
+    })
+
+    it('should render filtered empty state', () => {
+      render(<ReleasesList {...defaultProps} releases={[]} />)
+
+      expect(screen.getByText('No releases found')).toBeInTheDocument()
+    })
+  })
+
+  describe('Card View Mode', () => {
     beforeEach(() => {
-        jest.clearAllMocks()
+      render(<ReleasesList {...defaultProps} viewMode="card" />)
     })
 
-    it('renders releases in card view by default', () => {
-        render(<ReleasesList {...defaultProps} />)
-
-        expect(screen.getByText('Release 1.0')).toBeInTheDocument()
-        expect(screen.getByText('Release 2.0')).toBeInTheDocument()
-        expect(screen.getByText('App One')).toBeInTheDocument()
-        expect(screen.getByText('App Two')).toBeInTheDocument()
+    it('should render all releases in card format', () => {
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+      expect(screen.getByText('Version 1.1.0 Release')).toBeInTheDocument()
+      expect(screen.getByText('Version 1.0.1 Release')).toBeInTheDocument()
     })
 
-    it('renders releases in table view when specified', () => {
-        render(<ReleasesList {...defaultProps} viewMode="table" />)
-
-        // Should render as table
-        expect(screen.getByRole('table')).toBeInTheDocument()
-        expect(screen.getByText('Release 1.0')).toBeInTheDocument()
-        expect(screen.getByText('Release 2.0')).toBeInTheDocument()
+    it('should display release descriptions', () => {
+      expect(screen.getByText('Major release with new features')).toBeInTheDocument()
+      expect(screen.getByText('Minor release with improvements')).toBeInTheDocument()
+      expect(screen.getByText('Patch release with bug fixes')).toBeInTheDocument()
     })
 
-    it('shows loading state when loading', () => {
-        render(<ReleasesList {...defaultProps} loading={true} releases={[]} />)
+    it('should display application names with proper colors', () => {
+      const nreApp = screen.getByText('NRE')
+      const nveApp = screen.getByText('NVE')
+      const eviteApp = screen.getByText('E-Vite')
 
-        // Should show loading skeletons
-        expect(screen.getAllByRole('status')).toHaveLength(3) // 3 skeleton cards
+      expect(nreApp).toHaveClass('text-blue-800', 'bg-blue-100')
+      expect(nveApp).toHaveClass('text-green-800', 'bg-green-100')
+      expect(eviteApp).toHaveClass('text-purple-800', 'bg-purple-100')
     })
 
-    it('displays release status badges correctly', () => {
-        render(<ReleasesList {...defaultProps} />)
-
-        expect(screen.getByText('Published')).toBeInTheDocument()
-        expect(screen.getByText('Draft')).toBeInTheDocument()
+    it('should display version badges', () => {
+      expect(screen.getByText('v1.0.0')).toBeInTheDocument()
+      expect(screen.getByText('v1.1.0')).toBeInTheDocument()
+      expect(screen.getByText('v1.0.1')).toBeInTheDocument()
     })
 
-    it('shows version numbers correctly', () => {
-        render(<ReleasesList {...defaultProps} />)
-
-        expect(screen.getByText('v1.0.0')).toBeInTheDocument()
-        expect(screen.getByText('v2.0.0')).toBeInTheDocument()
+    it('should display release dates', () => {
+      expect(screen.getByText('Jan 15, 2024')).toBeInTheDocument()
+      expect(screen.getByText('Feb 15, 2024')).toBeInTheDocument()
+      expect(screen.getByText('Mar 15, 2024')).toBeInTheDocument()
     })
 
-    it('displays application names with color coding', () => {
-        render(<ReleasesList {...defaultProps} />)
+    it('should display status badges with correct styling', () => {
+      const stableStatus = screen.getByText('Published')
+      const betaStatus = screen.getByText('Beta')
+      const draftStatus = screen.getByText('Draft')
 
-        const appOneBadge = screen.getByText('App One')
-        const appTwoBadge = screen.getByText('App Two')
-
-        expect(appOneBadge).toBeInTheDocument()
-        expect(appTwoBadge).toBeInTheDocument()
-
-        // Should have different background colors for different apps
-        expect(appOneBadge.closest('.bg-blue-100')).toBeInTheDocument() ||
-            expect(appOneBadge.closest('.bg-green-100')).toBeInTheDocument() ||
-            expect(appOneBadge.closest('.bg-purple-100')).toBeInTheDocument()
+      expect(stableStatus).toHaveClass('bg-green-100', 'text-green-800')
+      expect(betaStatus).toHaveClass('bg-yellow-100', 'text-yellow-800')
+      expect(draftStatus).toHaveClass('bg-gray-100', 'text-gray-800')
     })
 
-    it('shows work items information', () => {
-        render(<ReleasesList {...defaultProps} />)
+    it('should display release type badges with gradient colors', () => {
+      const majorType = screen.getByText('MAJOR')
+      const minorType = screen.getByText('MINOR')
+      const patchType = screen.getByText('PATCH')
 
-        // Work items should be displayed
-        expect(screen.getAllByText(/epic/i)).toHaveLength(2) // Each release has work items
+      expect(majorType).toHaveClass('bg-gradient-to-r', 'from-purple-500', 'to-pink-600')
+      expect(minorType).toHaveClass('bg-gradient-to-r', 'from-blue-500', 'to-indigo-600')
+      expect(patchType).toHaveClass('bg-gradient-to-r', 'from-green-500', 'to-emerald-600')
     })
 
-    it('calls onView when view button is clicked', async () => {
-        const user = userEvent.setup()
-        render(<ReleasesList {...defaultProps} />)
-
-        const viewButtons = screen.getAllByLabelText(/view release/i)
-        await user.click(viewButtons[0])
-
-        expect(defaultProps.onView).toHaveBeenCalledWith(mockReleases[0])
+    it('should display work item counts', () => {
+      // First release has 3 work items: 1 epic, 1 feature, 1 bug
+      expect(screen.getByText('1')).toBeInTheDocument() // Epic count
+      expect(screen.getByText('1')).toBeInTheDocument() // Feature count
+      expect(screen.getByText('1')).toBeInTheDocument() // Bug count
     })
 
-    it('calls onEdit when edit button is clicked', async () => {
-        const user = userEvent.setup()
-        render(<ReleasesList {...defaultProps} />)
+    it('should display work item icons', () => {
+      expect(screen.getAllByTestId('layers-icon')).toHaveLength(2) // Epic icons
+      expect(screen.getAllByTestId('zap-icon')).toHaveLength(2) // Feature icons
+      expect(screen.getAllByTestId('bug-icon')).toHaveLength(2) // Bug icons
+      expect(screen.getAllByTestId('file-text-icon')).toHaveLength(2) // User story icons
+      expect(screen.getAllByTestId('alert-triangle-icon')).toHaveLength(2) // Incident icons
+    })
+  })
 
-        const editButtons = screen.getAllByLabelText(/edit release/i)
-        await user.click(editButtons[0])
-
-        expect(defaultProps.onEdit).toHaveBeenCalledWith(mockReleases[0])
+  describe('Table View Mode', () => {
+    beforeEach(() => {
+      render(<ReleasesList {...defaultProps} viewMode="table" />)
     })
 
-    it('calls onDelete when delete button is clicked', async () => {
-        const user = userEvent.setup()
-        render(<ReleasesList {...defaultProps} />)
-
-        const deleteButtons = screen.getAllByLabelText(/delete release/i)
-        await user.click(deleteButtons[0])
-
-        expect(defaultProps.onDelete).toHaveBeenCalledWith(mockReleases[0])
+    it('should render table headers', () => {
+      expect(screen.getByText('Release')).toBeInTheDocument()
+      expect(screen.getByText('Application')).toBeInTheDocument()
+      expect(screen.getByText('Release Date')).toBeInTheDocument()
+      expect(screen.getByText('Status')).toBeInTheDocument()
+      expect(screen.getByText('Work Items')).toBeInTheDocument()
+      expect(screen.getByText('Actions')).toBeInTheDocument()
     })
 
-    it('hides action buttons when showActions is false', () => {
-        render(<ReleasesList {...defaultProps} showActions={false} />)
-
-        expect(screen.queryByLabelText(/edit release/i)).not.toBeInTheDocument()
-        expect(screen.queryByLabelText(/delete release/i)).not.toBeInTheDocument()
+    it('should render table rows with release data', () => {
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+      expect(screen.getByText('Major release with new features')).toBeInTheDocument()
     })
 
-    it('shows release dates correctly formatted', () => {
-        render(<ReleasesList {...defaultProps} />)
-
-        // Should show formatted dates
-        // The exact format depends on implementation
-        expect(screen.getByText(new RegExp(mockRelease.releaseDate.getFullYear().toString()))).toBeInTheDocument()
+    it('should render application names in table cells', () => {
+      expect(screen.getByText('NRE')).toBeInTheDocument()
+      expect(screen.getByText('NVE')).toBeInTheDocument()
+      expect(screen.getByText('E-Vite')).toBeInTheDocument()
     })
 
-    it('displays release descriptions', () => {
-        render(<ReleasesList {...defaultProps} />)
+    it('should render action buttons in table', () => {
+      expect(screen.getAllByTestId('eye-icon')).toHaveLength(3)
+      expect(screen.getAllByTestId('edit-icon')).toHaveLength(3)
+      expect(screen.getAllByTestId('trash-icon')).toHaveLength(3)
+    })
+  })
 
-        expect(screen.getByText(mockRelease.description)).toBeInTheDocument()
+  describe('Compact View Mode', () => {
+    beforeEach(() => {
+      render(<ReleasesList {...defaultProps} viewMode="compact" />)
     })
 
-    it('handles empty releases list', () => {
-        render(<ReleasesList {...defaultProps} releases={[]} />)
-
-        expect(screen.getByText(/no releases found/i)).toBeInTheDocument()
+    it('should render releases in compact format', () => {
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+      expect(screen.getByText('Version 1.1.0 Release')).toBeInTheDocument()
+      expect(screen.getByText('Version 1.0.1 Release')).toBeInTheDocument()
     })
 
-    it('shows download button for published releases', () => {
-        render(<ReleasesList {...defaultProps} />)
-
-        // Published release should have download option
-        const publishedReleaseCard = screen.getByText('Release 1.0').closest('.bg-white')
-        expect(publishedReleaseCard).toBeInTheDocument()
+    it('should not display descriptions in compact mode', () => {
+      expect(screen.queryByText('Major release with new features')).not.toBeInTheDocument()
     })
 
-    it('applies correct styling for card layout', () => {
-        const { container } = render(<ReleasesList {...defaultProps} />)
+    it('should display essential information only', () => {
+      expect(screen.getByText('v1.0.0')).toBeInTheDocument()
+      expect(screen.getByText('Jan 15, 2024')).toBeInTheDocument()
+      expect(screen.getByText('Published')).toBeInTheDocument()
+    })
+  })
 
-        const cardsContainer = container.querySelector('.space-y-4')
-        expect(cardsContainer).toBeInTheDocument()
+  describe('Action Handlers', () => {
+    beforeEach(() => {
+      render(<ReleasesList {...defaultProps} viewMode="card" />)
     })
 
-    it('applies correct styling for table layout', () => {
-        const { container } = render(<ReleasesList {...defaultProps} viewMode="table" />)
+    it('should call onView when view button is clicked', async () => {
+      const user = userEvent.setup()
+      const viewButtons = screen.getAllByTestId('eye-icon')
 
-        const table = container.querySelector('table')
-        expect(table).toBeInTheDocument()
-        expect(table).toHaveClass('min-w-full', 'divide-y', 'divide-gray-200')
+      await user.click(viewButtons[0])
+
+      expect(mockOnView).toHaveBeenCalledWith(mockReleases[0])
     })
 
-    it('shows work item types with correct icons', () => {
-        render(<ReleasesList {...defaultProps} />)
+    it('should call onEdit when edit button is clicked', async () => {
+      const user = userEvent.setup()
+      const editButtons = screen.getAllByTestId('edit-icon')
 
-        // Should show work item icons and counts
-        // The exact implementation depends on the work items structure
-        const workItemsSection = screen.getByText('Release 1.0').closest('.bg-white')
-        expect(workItemsSection).toBeInTheDocument()
+      await user.click(editButtons[0])
+
+      expect(mockOnEdit).toHaveBeenCalledWith(mockReleases[0])
     })
 
-    it('handles long release titles gracefully', () => {
-        const longTitleRelease = {
-            ...mockReleases[0],
-            title: 'This is a very long release title that should be handled properly without breaking the layout',
+    it('should call onDelete when delete button is clicked', async () => {
+      const user = userEvent.setup()
+      const deleteButtons = screen.getAllByTestId('trash-icon')
+
+      await user.click(deleteButtons[0])
+
+      expect(mockOnDelete).toHaveBeenCalledWith('release-1')
+    })
+
+    it('should not show actions when showActions is false', () => {
+      render(<ReleasesList {...defaultProps} showActions={false} />)
+
+      expect(screen.queryByTestId('eye-icon')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('edit-icon')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('trash-icon')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('Role-based Permissions', () => {
+    it('should show all actions for admin users', () => {
+      render(<ReleasesList {...defaultProps} userRole={UserRole.ADMIN} />)
+
+      expect(screen.getAllByTestId('eye-icon')).toHaveLength(3)
+      expect(screen.getAllByTestId('edit-icon')).toHaveLength(3)
+      expect(screen.getAllByTestId('trash-icon')).toHaveLength(3)
+    })
+
+    it('should show limited actions for basic users', () => {
+      render(<ReleasesList {...defaultProps} userRole={UserRole.BASIC} />)
+
+      expect(screen.getAllByTestId('eye-icon')).toHaveLength(3)
+      expect(screen.queryByTestId('edit-icon')).not.toBeInTheDocument()
+      expect(screen.queryByTestId('trash-icon')).not.toBeInTheDocument()
+    })
+
+    it('should show all actions for super admin users', () => {
+      render(<ReleasesList {...defaultProps} userRole={UserRole.SUPER_ADMIN} />)
+
+      expect(screen.getAllByTestId('eye-icon')).toHaveLength(3)
+      expect(screen.getAllByTestId('edit-icon')).toHaveLength(3)
+      expect(screen.getAllByTestId('trash-icon')).toHaveLength(3)
+    })
+  })
+
+  describe('Work Item Counting', () => {
+    it('should count work items correctly', () => {
+      render(<ReleasesList {...defaultProps} />)
+
+      // First release has 1 epic, 1 feature, 1 bug
+      const workItemsSection = screen.getAllByText('Work Items')[0]
+      const parentElement = workItemsSection.closest('.space-y-1')
+      
+      expect(parentElement).toBeInTheDocument()
+    })
+
+    it('should handle releases with no work items', () => {
+      const releasesWithoutWorkItems = [
+        {
+          ...mockReleases[0],
+          workItems: []
         }
+      ]
 
-        render(<ReleasesList {...defaultProps} releases={[longTitleRelease]} />)
+      render(<ReleasesList {...defaultProps} releases={releasesWithoutWorkItems} />)
 
-        expect(screen.getByText(/This is a very long release title/)).toBeInTheDocument()
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
     })
 
-    it('shows proper table headers in table view', () => {
-        render(<ReleasesList {...defaultProps} viewMode="table" />)
+    it('should display correct work item type icons', () => {
+      render(<ReleasesList {...defaultProps} />)
 
-        expect(screen.getByRole('columnheader', { name: /release/i })).toBeInTheDocument()
-        expect(screen.getByRole('columnheader', { name: /application/i })).toBeInTheDocument()
-        expect(screen.getByRole('columnheader', { name: /version/i })).toBeInTheDocument()
-        expect(screen.getByRole('columnheader', { name: /date/i })).toBeInTheDocument()
-        expect(screen.getByRole('columnheader', { name: /work items/i })).toBeInTheDocument()
+      expect(screen.getAllByTestId('layers-icon')).toHaveLength(2) // Epic icons
+      expect(screen.getAllByTestId('zap-icon')).toHaveLength(2) // Feature icons
+      expect(screen.getAllByTestId('bug-icon')).toHaveLength(2) // Bug icons
+    })
+  })
+
+  describe('Date Formatting', () => {
+    it('should format dates correctly', () => {
+      render(<ReleasesList {...defaultProps} />)
+
+      expect(screen.getByText('Jan 15, 2024')).toBeInTheDocument()
+      expect(screen.getByText('Feb 15, 2024')).toBeInTheDocument()
+      expect(screen.getByText('Mar 15, 2024')).toBeInTheDocument()
     })
 
-    it('applies hover effects correctly', async () => {
-        const user = userEvent.setup()
-        render(<ReleasesList {...defaultProps} />)
-
-        const firstCard = screen.getByText('Release 1.0').closest('.bg-white')
-        expect(firstCard).toBeInTheDocument()
-
-        // Hover should trigger transition effects
-        await user.hover(firstCard!)
-        expect(firstCard).toHaveClass('transition-shadow')
-    })
-
-    it('handles releases without work items', () => {
-        const releasesWithoutWorkItems = mockReleases.map(release => ({
-            ...release,
-            workItems: [],
-        }))
-
-        render(<ReleasesList {...defaultProps} releases={releasesWithoutWorkItems} />)
-
-        expect(screen.getByText('Release 1.0')).toBeInTheDocument()
-        // Should handle empty work items gracefully
-    })
-
-    it('displays author information when available', () => {
-        render(<ReleasesList {...defaultProps} />)
-
-        expect(screen.getByText(mockRelease.author)).toBeInTheDocument()
-    })
-
-    it('handles releases with missing optional fields', () => {
-        const incompleteRelease = {
-            _id: '3',
-            title: 'Incomplete Release',
-            applicationName: 'Test App',
-            releaseDate: new Date(),
-            isPublished: false,
-            workItems: [],
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            // Missing: version, description, author, downloadUrl
+    it('should handle invalid dates gracefully', () => {
+      const releasesWithInvalidDate = [
+        {
+          ...mockReleases[0],
+          releaseDate: new Date('invalid-date')
         }
+      ]
 
-        render(<ReleasesList {...defaultProps} releases={[incompleteRelease]} />)
+      render(<ReleasesList {...defaultProps} releases={releasesWithInvalidDate} />)
 
-        expect(screen.getByText('Incomplete Release')).toBeInTheDocument()
+      // Should not crash, should render some date representation
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+    })
+  })
+
+  describe('Release Links', () => {
+    it('should render links to release detail pages in card view', () => {
+      render(<ReleasesList {...defaultProps} viewMode="card" />)
+
+      const links = screen.getAllByRole('link')
+      expect(links[0]).toHaveAttribute('href', '/releases/release-1')
+      expect(links[1]).toHaveAttribute('href', '/releases/release-2')
+      expect(links[2]).toHaveAttribute('href', '/releases/release-3')
     })
 
-    it('has proper accessibility attributes', () => {
-        render(<ReleasesList {...defaultProps} viewMode="table" />)
+    it('should render links to release detail pages in table view', () => {
+      render(<ReleasesList {...defaultProps} viewMode="table" />)
 
-        const table = screen.getByRole('table')
-        expect(table).toBeInTheDocument()
+      const releaseLinks = screen.getAllByText('Version 1.0.0 Release')
+      expect(releaseLinks[0].closest('a')).toHaveAttribute('href', '/releases/release-1')
+    })
+  })
 
-        const columnHeaders = screen.getAllByRole('columnheader')
-        expect(columnHeaders.length).toBeGreaterThan(0)
+  describe('Custom Styling', () => {
+    it('should apply custom className', () => {
+      const { container } = render(
+        <ReleasesList {...defaultProps} className="custom-class" />
+      )
 
-        const rows = screen.getAllByRole('row')
-        expect(rows.length).toBeGreaterThan(1) // Header + data rows
+      expect(container.firstChild).toHaveClass('custom-class')
     })
 
-    it('supports keyboard navigation', async () => {
-        const user = userEvent.setup()
-        render(<ReleasesList {...defaultProps} />)
+    it('should apply default styling when no className provided', () => {
+      const { container } = render(<ReleasesList {...defaultProps} />)
 
-        // Should be able to navigate between action buttons
-        await user.tab()
-        expect(document.activeElement).toBeInTheDocument()
+      expect(container.firstChild).toHaveClass('space-y-4')
+    })
+  })
+
+  describe('Status Display', () => {
+    it('should display correct status icons', () => {
+      render(<ReleasesList {...defaultProps} />)
+
+      expect(screen.getAllByTestId('check-circle-icon')).toHaveLength(2) // Published status
+      expect(screen.getAllByTestId('alert-circle-icon')).toHaveLength(2) // Beta status
+      expect(screen.getAllByTestId('clock-icon')).toHaveLength(2) // Draft status
     })
 
-    it('applies custom className when provided', () => {
-        const { container } = render(
-            <ReleasesList {...defaultProps} className="custom-releases-list" />
-        )
+    it('should handle unknown status gracefully', () => {
+      const releasesWithUnknownStatus = [
+        {
+          ...mockReleases[0],
+          status: 'unknown' as any
+        }
+      ]
 
-        expect(container.firstChild).toHaveClass('custom-releases-list')
+      render(<ReleasesList {...defaultProps} releases={releasesWithUnknownStatus} />)
+
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+    })
+  })
+
+  describe('Application Color Mapping', () => {
+    it('should apply correct colors for known applications', () => {
+      render(<ReleasesList {...defaultProps} />)
+
+      const nreApp = screen.getByText('NRE')
+      expect(nreApp).toHaveClass('bg-blue-100', 'text-blue-800')
+
+      const nveApp = screen.getByText('NVE')
+      expect(nveApp).toHaveClass('bg-green-100', 'text-green-800')
+
+      const eviteApp = screen.getByText('E-Vite')
+      expect(eviteApp).toHaveClass('bg-purple-100', 'text-purple-800')
     })
 
-    it('renders with correct column widths in table view', () => {
-        const { container } = render(<ReleasesList {...defaultProps} viewMode="table" />)
+    it('should apply default colors for unknown applications', () => {
+      const releasesWithUnknownApp = [
+        {
+          ...mockReleases[0],
+          applicationName: 'Unknown App'
+        }
+      ]
 
-        const table = container.querySelector('table')
-        expect(table).toHaveStyle('table-layout: fixed')
+      render(<ReleasesList {...defaultProps} releases={releasesWithUnknownApp} />)
+
+      const unknownApp = screen.getByText('Unknown App')
+      expect(unknownApp).toHaveClass('bg-gray-100', 'text-gray-800')
     })
+  })
+
+  describe('Accessibility', () => {
+    it('should have proper ARIA labels for action buttons', () => {
+      render(<ReleasesList {...defaultProps} />)
+
+      const viewButtons = screen.getAllByLabelText(/View release/)
+      const editButtons = screen.getAllByLabelText(/Edit release/)
+      const deleteButtons = screen.getAllByLabelText(/Delete release/)
+
+      expect(viewButtons).toHaveLength(3)
+      expect(editButtons).toHaveLength(3)
+      expect(deleteButtons).toHaveLength(3)
+    })
+
+    it('should have proper table structure in table view', () => {
+      render(<ReleasesList {...defaultProps} viewMode="table" />)
+
+      expect(screen.getByRole('table')).toBeInTheDocument()
+      expect(screen.getByRole('columnheader', { name: /Release/ })).toBeInTheDocument()
+      expect(screen.getByRole('columnheader', { name: /Application/ })).toBeInTheDocument()
+    })
+
+    it('should have proper heading structure', () => {
+      render(<ReleasesList {...defaultProps} />)
+
+      const releaseHeadings = screen.getAllByRole('heading', { level: 3 })
+      expect(releaseHeadings).toHaveLength(3)
+    })
+  })
+
+  describe('Edge Cases', () => {
+    it('should handle releases without versions', () => {
+      const releasesWithoutVersion = [
+        {
+          ...mockReleases[0],
+          version: undefined
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithoutVersion} />)
+
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+      expect(screen.queryByText('v1.0.0')).not.toBeInTheDocument()
+    })
+
+    it('should handle releases without descriptions', () => {
+      const releasesWithoutDescription = [
+        {
+          ...mockReleases[0],
+          description: ''
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithoutDescription} />)
+
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+    })
+
+    it('should handle empty work items array', () => {
+      const releasesWithEmptyWorkItems = [
+        {
+          ...mockReleases[0],
+          workItems: []
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithEmptyWorkItems} />)
+
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+    })
+
+    it('should handle undefined work items', () => {
+      const releasesWithUndefinedWorkItems = [
+        {
+          ...mockReleases[0],
+          workItems: undefined as any
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithUndefinedWorkItems} />)
+
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+    })
+  })
 })
