@@ -1,9 +1,7 @@
 import React, { ReactElement } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
-import { AuthProvider } from '@/contexts/AuthContext'
 import { UIProvider } from '@/contexts/UIContext'
 import { UserProvider } from '@/contexts/UserContext'
-import { DashboardProvider } from '@/contexts/DashboardContext'
 import { ReleasesProvider } from '@/contexts/ReleasesContext'
 import { ReportsProvider } from '@/contexts/ReportsContext'
 import { SettingsProvider } from '@/contexts/SettingsContext'
@@ -42,11 +40,59 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   }
 }
 
-const AllTheProviders = ({ 
-  children, 
+// Create a mock AuthContext
+const MockAuthContext = React.createContext<any>(null)
+
+// Mock AuthProvider
+const MockAuthProvider = ({
+  children,
+  user = null
+}: {
+  children: React.ReactNode
+  user?: typeof mockUser | null
+}) => {
+  const authContextValue = {
+    user,
+    loading: false,
+    isInitialized: true,
+    login: jest.fn(),
+    logout: jest.fn(),
+    refreshUser: jest.fn(),
+  }
+
+  return (
+    <MockAuthContext.Provider value={authContextValue}>
+      {children}
+    </MockAuthContext.Provider>
+  )
+}
+
+// Mock DashboardProvider that doesn't depend on AuthContext
+const MockDashboardProvider = ({ children }: { children: React.ReactNode }) => {
+  return <div data-testid="dashboard-provider">{children}</div>
+}
+
+// Mock useAuth hook
+export const useAuth = () => {
+  const context = React.useContext(MockAuthContext)
+  if (!context) {
+    return {
+      user: null,
+      loading: false,
+      isInitialized: true,
+      login: jest.fn(),
+      logout: jest.fn(),
+      refreshUser: jest.fn(),
+    }
+  }
+  return context
+}
+
+const AllTheProviders = ({
+  children,
   user = null,
   initialAuthState = {}
-}: { 
+}: {
   children: React.ReactNode
   user?: typeof mockUser | null
   initialAuthState?: {
@@ -55,21 +101,13 @@ const AllTheProviders = ({
     isInitialized?: boolean
   }
 }) => {
-  // Mock the auth context value
-  const mockAuthContextValue = {
-    user: initialAuthState.user ?? user,
-    loading: initialAuthState.loading ?? false,
-    isInitialized: initialAuthState.isInitialized ?? true,
-    login: jest.fn(),
-    logout: jest.fn(),
-    refreshUser: jest.fn(),
-  }
+  const testUser = initialAuthState.user ?? user
 
   return (
     <UIProvider>
-      <AuthProvider value={mockAuthContextValue}>
+      <MockAuthProvider user={testUser}>
         <UserProvider>
-          <DashboardProvider>
+          <MockDashboardProvider>
             <ReleasesProvider>
               <ReportsProvider>
                 <SettingsProvider>
@@ -79,9 +117,9 @@ const AllTheProviders = ({
                 </SettingsProvider>
               </ReportsProvider>
             </ReleasesProvider>
-          </DashboardProvider>
+          </MockDashboardProvider>
         </UserProvider>
-      </AuthProvider>
+      </MockAuthProvider>
     </UIProvider>
   )
 }
@@ -91,7 +129,7 @@ export const customRender = (
   options: CustomRenderOptions = {}
 ) => {
   const { user, initialAuthState, ...renderOptions } = options
-  
+
   return render(ui, {
     wrapper: ({ children }) => (
       <AllTheProviders user={user} initialAuthState={initialAuthState}>
@@ -121,7 +159,7 @@ export const mockFetch = (responses: Record<string, any>) => {
     }
     return createMockResponse({ error: 'Not found' }, false, 404)
   })
-  
+
   global.fetch = mockFetch
   return mockFetch
 }

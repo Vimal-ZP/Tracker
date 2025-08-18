@@ -7,6 +7,37 @@ import { render as customRender } from '@/__tests__/utils/test-utils'
 import { apiClient } from '@/lib/api'
 import toast from 'react-hot-toast'
 
+// Mock the AuthContext at the module level - with dynamic user switching
+let mockCurrentUser: any = {
+  _id: 'test-user-id',
+  name: 'Test User',
+  email: 'test@example.com',
+  role: UserRole.SUPER_ADMIN,
+  isActive: true,
+  assignedApplications: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+const mockUseAuth = jest.fn(() => ({
+  user: mockCurrentUser,
+  loading: false,
+  isInitialized: true,
+  login: jest.fn(),
+  logout: jest.fn(),
+  refreshUser: jest.fn(),
+}))
+
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => mockUseAuth(),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+// Helper function to change current user for tests
+const setMockCurrentUser = (user: any) => {
+  mockCurrentUser = user
+}
+
 // Mock dependencies
 jest.mock('@/lib/api')
 jest.mock('react-hot-toast')
@@ -20,6 +51,18 @@ jest.mock('../UserForm', () => {
           Submit
         </button>
         <button onClick={onCancel}>Cancel</button>
+      </div>
+    )
+  }
+})
+
+jest.mock('@/components/ui/Modal', () => {
+  return function MockModal({ children, isOpen, title }: any) {
+    if (!isOpen) return null
+    return (
+      <div data-testid="modal">
+        <div>{title}</div>
+        <div>{children}</div>
       </div>
     )
   }
@@ -124,22 +167,25 @@ describe('UserList', () => {
     mockApiClient.createUser.mockResolvedValue({} as any)
     mockApiClient.updateUser.mockResolvedValue({} as any)
     mockApiClient.deleteUser.mockResolvedValue({} as any)
-    
+
+    // Reset to super admin user
+    setMockCurrentUser(mockSuperAdminUser)
+
     // Mock window.confirm
     global.confirm = jest.fn().mockReturnValue(true)
   })
 
   describe('Component Rendering', () => {
     it('should render loading state initially', () => {
-      mockApiClient.getUsers.mockImplementation(() => new Promise(() => {}))
-      
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      mockApiClient.getUsers.mockImplementation(() => new Promise(() => { }))
+
+      customRender(<UserList />)
 
       expect(screen.getByRole('status')).toBeInTheDocument() // Loading spinner
     })
 
     it('should render header with title and add button', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByText('User Management')).toBeInTheDocument()
@@ -150,7 +196,7 @@ describe('UserList', () => {
     })
 
     it('should render search and filter controls', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByPlaceholderText('Search users by name or email...')).toBeInTheDocument()
@@ -161,7 +207,7 @@ describe('UserList', () => {
     })
 
     it('should render users table with all users', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByText('John Doe')).toBeInTheDocument()
@@ -171,7 +217,7 @@ describe('UserList', () => {
     })
 
     it('should render table headers correctly', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByText('User')).toBeInTheDocument()
@@ -186,7 +232,7 @@ describe('UserList', () => {
 
   describe('User Display', () => {
     it('should display user avatars with initials', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByText('J')).toBeInTheDocument() // John Doe
@@ -196,7 +242,7 @@ describe('UserList', () => {
     })
 
     it('should display role badges with correct colors', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByText('Basic User')).toBeInTheDocument()
@@ -206,7 +252,7 @@ describe('UserList', () => {
     })
 
     it('should display assigned applications', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByText('NRE')).toBeInTheDocument()
@@ -216,7 +262,7 @@ describe('UserList', () => {
     })
 
     it('should display user status with icons', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getAllByText('Active')).toHaveLength(2)
@@ -227,7 +273,7 @@ describe('UserList', () => {
     })
 
     it('should display creation dates', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByText('1/1/2024')).toBeInTheDocument()
@@ -241,13 +287,13 @@ describe('UserList', () => {
         ...mockUsers[0],
         assignedApplications: []
       }]
-      
+
       mockApiClient.getUsers.mockResolvedValue({
         users: usersWithoutApps,
         pagination: mockPagination
       })
 
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByText('No applications assigned')).toBeInTheDocument()
@@ -456,12 +502,13 @@ describe('UserList', () => {
     })
 
     it('should limit admin actions appropriately', async () => {
-      customRender(<UserList />, { user: mockAdminUser })
+      setMockCurrentUser(mockAdminUser)
+      customRender(<UserList />)
 
       await waitFor(() => {
         const editButtons = screen.getAllByTestId('edit-icon')
         expect(editButtons).toHaveLength(2) // Admin can't edit super admin
-        
+
         const deleteButtons = screen.queryAllByTestId('trash-icon')
         expect(deleteButtons).toHaveLength(0) // Admin can't delete anyone
       })
@@ -514,7 +561,7 @@ describe('UserList', () => {
       await user.click(deleteButtons[0])
 
       expect(global.confirm).toHaveBeenCalledWith('Are you sure you want to delete John Doe?')
-      
+
       await waitFor(() => {
         expect(mockApiClient.deleteUser).toHaveBeenCalledWith('user-1')
         expect(mockToast.success).toHaveBeenCalledWith('User deleted successfully')
@@ -524,7 +571,7 @@ describe('UserList', () => {
     it('should cancel deletion when user rejects confirmation', async () => {
       const user = userEvent.setup()
       global.confirm = jest.fn().mockReturnValue(false)
-      
+
       customRender(<UserList />, { user: mockSuperAdminUser })
 
       await waitFor(() => {
@@ -603,7 +650,7 @@ describe('UserList', () => {
     it('should handle user creation error', async () => {
       const user = userEvent.setup()
       mockApiClient.createUser.mockRejectedValue(new Error('Creation failed'))
-      
+
       customRender(<UserList />, { user: mockSuperAdminUser })
 
       const addButton = await screen.findByRole('button', { name: /add user/i })
@@ -643,7 +690,7 @@ describe('UserList', () => {
     it('should handle user update error', async () => {
       const user = userEvent.setup()
       mockApiClient.updateUser.mockRejectedValue(new Error('Update failed'))
-      
+
       customRender(<UserList />, { user: mockSuperAdminUser })
 
       const editButtons = await screen.findAllByTestId('edit-icon')
@@ -663,7 +710,7 @@ describe('UserList', () => {
     it('should show loading spinner during action', async () => {
       const user = userEvent.setup()
       mockApiClient.deleteUser.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
-      
+
       customRender(<UserList />, { user: mockSuperAdminUser })
 
       const deleteButtons = await screen.findAllByTestId('trash-icon')
@@ -677,7 +724,7 @@ describe('UserList', () => {
     it('should disable actions during loading', async () => {
       const user = userEvent.setup()
       mockApiClient.updateUser.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
-      
+
       customRender(<UserList />, { user: mockSuperAdminUser })
 
       const statusButtons = await screen.findAllByTestId('x-circle-icon')
@@ -692,7 +739,7 @@ describe('UserList', () => {
   describe('Error Handling', () => {
     it('should handle API fetch error', async () => {
       mockApiClient.getUsers.mockRejectedValue(new Error('Fetch failed'))
-      
+
       customRender(<UserList />, { user: mockSuperAdminUser })
 
       await waitFor(() => {
@@ -703,7 +750,7 @@ describe('UserList', () => {
     it('should handle delete error', async () => {
       const user = userEvent.setup()
       mockApiClient.deleteUser.mockRejectedValue(new Error('Delete failed'))
-      
+
       customRender(<UserList />, { user: mockSuperAdminUser })
 
       const deleteButtons = await screen.findAllByTestId('trash-icon')
@@ -717,7 +764,7 @@ describe('UserList', () => {
     it('should handle status toggle error', async () => {
       const user = userEvent.setup()
       mockApiClient.updateUser.mockRejectedValue(new Error('Update failed'))
-      
+
       customRender(<UserList />, { user: mockSuperAdminUser })
 
       const statusButtons = await screen.findAllByTestId('x-circle-icon')
@@ -737,7 +784,7 @@ describe('UserList', () => {
         // Super admin can edit all users except other super admins (for deletion)
         const editButtons = screen.getAllByTestId('edit-icon')
         expect(editButtons).toHaveLength(3)
-        
+
         // Super admin can delete all users except other super admins
         const deleteButtons = screen.getAllByTestId('trash-icon')
         expect(deleteButtons).toHaveLength(2)
@@ -745,13 +792,14 @@ describe('UserList', () => {
     })
 
     it('should show limited actions for admin', async () => {
-      customRender(<UserList />, { user: mockAdminUser })
+      setMockCurrentUser(mockAdminUser)
+      customRender(<UserList />)
 
       await waitFor(() => {
         // Admin can edit basic users and other admins, but not super admins
         const editButtons = screen.getAllByTestId('edit-icon')
         expect(editButtons).toHaveLength(2)
-        
+
         // Admin cannot delete anyone
         const deleteButtons = screen.queryAllByTestId('trash-icon')
         expect(deleteButtons).toHaveLength(0)
@@ -759,13 +807,14 @@ describe('UserList', () => {
     })
 
     it('should show no actions for basic user', async () => {
-      customRender(<UserList />, { user: mockBasicUser })
+      setMockCurrentUser(mockBasicUser)
+      customRender(<UserList />)
 
       await waitFor(() => {
         // Basic user cannot perform any actions
         const editButtons = screen.queryAllByTestId('edit-icon')
         expect(editButtons).toHaveLength(0)
-        
+
         const deleteButtons = screen.queryAllByTestId('trash-icon')
         expect(deleteButtons).toHaveLength(0)
       })
@@ -778,7 +827,7 @@ describe('UserList', () => {
         ...mockUsers[0],
         assignedApplications: null as any
       }]
-      
+
       mockApiClient.getUsers.mockResolvedValue({
         users: usersWithNullApps,
         pagination: mockPagination
@@ -796,7 +845,7 @@ describe('UserList', () => {
         ...mockUsers[0],
         assignedApplications: undefined as any
       }]
-      
+
       mockApiClient.getUsers.mockResolvedValue({
         users: usersWithUndefinedApps,
         pagination: mockPagination
@@ -829,7 +878,7 @@ describe('UserList', () => {
         ...mockUsers[0],
         name: 'This is a very long user name that might cause layout issues if not handled properly'
       }]
-      
+
       mockApiClient.getUsers.mockResolvedValue({
         users: usersWithLongNames,
         pagination: mockPagination
@@ -847,7 +896,7 @@ describe('UserList', () => {
         ...mockUsers[0],
         createdAt: 'invalid-date' as any
       }]
-      
+
       mockApiClient.getUsers.mockResolvedValue({
         users: usersWithInvalidDates,
         pagination: mockPagination
@@ -879,14 +928,20 @@ describe('UserList', () => {
       await waitFor(() => {
         const searchInput = screen.getByPlaceholderText('Search users by name or email...')
         const roleSelect = screen.getByDisplayValue('All Roles')
-        
+
         expect(searchInput).toBeInTheDocument()
         expect(roleSelect).toBeInTheDocument()
       })
     })
 
     it('should have accessible buttons with proper labels', async () => {
-      customRender(<UserList />, { user: mockSuperAdminUser })
+      // Set up multiple pages to show pagination buttons
+      mockApiClient.getUsers.mockResolvedValue({
+        users: mockUsers,
+        pagination: { ...mockPagination, pages: 3, page: 1 }
+      })
+
+      customRender(<UserList />)
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /add user/i })).toBeInTheDocument()

@@ -14,7 +14,7 @@ export default function SettingsPage() {
 
     const permissions = rolePermissions[user.role];
 
-    if (!permissions.canManageSettings) {
+    if (!permissions?.canManageSettings) {
         return (
             <div className="h-full flex flex-col space-y-4">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12">
@@ -178,7 +178,7 @@ export default function SettingsPage() {
                                 </div>
                             </div>
                         ))}
-                        
+
                         {/* System Information */}
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200">
                             <div className="p-6">
@@ -264,9 +264,8 @@ export default function SettingsPage() {
                                                 {category.items.map((item) => (
                                                     <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
                                                         <div className="flex items-center space-x-3">
-                                                            <div className={`w-2 h-2 rounded-full ${
-                                                                item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'
-                                                            }`}></div>
+                                                            <div className={`w-2 h-2 rounded-full ${item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'
+                                                                }`}></div>
                                                             <div>
                                                                 <div className="font-medium text-gray-900">{item.name}</div>
                                                                 <div className="text-xs text-gray-500">{item.description}</div>
@@ -312,9 +311,8 @@ export default function SettingsPage() {
                                                 {category.items.map((item) => (
                                                     <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
                                                         <div className="flex items-center space-x-3">
-                                                            <div className={`w-2 h-2 rounded-full ${
-                                                                item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'
-                                                            }`}></div>
+                                                            <div className={`w-2 h-2 rounded-full ${item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'
+                                                                }`}></div>
                                                             <div>
                                                                 <div className="font-medium text-gray-900">{item.name}</div>
                                                                 <div className="text-xs text-gray-500">{item.description}</div>
@@ -360,9 +358,8 @@ export default function SettingsPage() {
                                                 {category.items.map((item) => (
                                                     <div key={item.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200">
                                                         <div className="flex items-center space-x-3">
-                                                            <div className={`w-2 h-2 rounded-full ${
-                                                                item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'
-                                                            }`}></div>
+                                                            <div className={`w-2 h-2 rounded-full ${item.status === 'configured' ? 'bg-green-500' : 'bg-amber-500'
+                                                                }`}></div>
                                                             <div>
                                                                 <div className="font-medium text-gray-900">{item.name}</div>
                                                                 <div className="text-xs text-gray-500">{item.description}</div>
@@ -445,11 +442,10 @@ export default function SettingsPage() {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-all duration-200 ${
-                                    activeTab === tab.id
+                                className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-all duration-200 ${activeTab === tab.id
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                                }`}
+                                    }`}
                             >
                                 <tab.icon className="w-4 h-4" />
                                 <span>{tab.name}</span>

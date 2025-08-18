@@ -5,6 +5,37 @@ import UserForm from '../UserForm'
 import { UserRole, AVAILABLE_APPLICATIONS } from '@/types/user'
 import { render as customRender } from '@/__tests__/utils/test-utils'
 
+// Mock the AuthContext at the module level - with dynamic user switching
+let mockCurrentUser: any = {
+  _id: 'test-user-id',
+  name: 'Test User',
+  email: 'test@example.com',
+  role: UserRole.SUPER_ADMIN,
+  isActive: true,
+  assignedApplications: [],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+const mockUseAuth = jest.fn(() => ({
+  user: mockCurrentUser,
+  loading: false,
+  isInitialized: true,
+  login: jest.fn(),
+  logout: jest.fn(),
+  refreshUser: jest.fn(),
+}))
+
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => mockUseAuth(),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+}))
+
+// Helper function to change current user for tests
+const setMockCurrentUser = (user: any) => {
+  mockCurrentUser = user
+}
+
 // Mock react-dom portal
 jest.mock('react-dom', () => ({
   ...jest.requireActual('react-dom'),
@@ -63,13 +94,22 @@ describe('UserForm', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    // Reset to super admin user
+    setMockCurrentUser({
+      _id: 'test-user-id',
+      name: 'Test User',
+      email: 'test@example.com',
+      role: UserRole.SUPER_ADMIN,
+      isActive: true,
+      assignedApplications: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
   })
 
   describe('Component Rendering', () => {
     it('should render create user form with all fields', () => {
-      customRender(<UserForm {...mockProps} />, {
-        user: mockSuperAdminUser
-      })
+      customRender(<UserForm {...mockProps} />)
 
       expect(screen.getByLabelText('Full Name')).toBeInTheDocument()
       expect(screen.getByLabelText('Email Address')).toBeInTheDocument()
@@ -349,7 +389,7 @@ describe('UserForm', () => {
 
       const roleSelect = screen.getByLabelText('Role')
       expect(roleSelect).toBeInTheDocument()
-      
+
       // Should not have Super Admin option
       expect(screen.queryByText('Super Admin')).not.toBeInTheDocument()
     })
@@ -435,7 +475,7 @@ describe('UserForm', () => {
       // Find and click the X button for NRE
       const nreTag = screen.getByText('NRE').closest('span')
       const removeButton = nreTag?.querySelector('[data-testid="x-icon"]')?.closest('button')
-      
+
       if (removeButton) {
         await user.click(removeButton)
       }
@@ -568,7 +608,7 @@ describe('UserForm', () => {
     it('should show loading state during submission', async () => {
       const user = userEvent.setup()
       const slowSubmit = jest.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
-      
+
       customRender(
         <UserForm {...mockProps} onSubmit={slowSubmit} user={mockUser} isEditing={true} />,
         { user: mockSuperAdminUser }
@@ -579,7 +619,7 @@ describe('UserForm', () => {
 
       expect(screen.getByRole('status')).toBeInTheDocument() // Loading spinner
       expect(submitButton).toBeDisabled()
-      
+
       await waitFor(() => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument()
       })
@@ -588,7 +628,7 @@ describe('UserForm', () => {
     it('should disable form during submission', async () => {
       const user = userEvent.setup()
       const slowSubmit = jest.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
-      
+
       customRender(
         <UserForm {...mockProps} onSubmit={slowSubmit} user={mockUser} isEditing={true} />,
         { user: mockSuperAdminUser }
@@ -596,7 +636,7 @@ describe('UserForm', () => {
 
       const submitButton = screen.getByText('Update User')
       const cancelButton = screen.getByText('Cancel')
-      
+
       await user.click(submitButton)
 
       expect(submitButton).toBeDisabled()
@@ -620,13 +660,13 @@ describe('UserForm', () => {
     it('should prevent default form submission', async () => {
       const user = userEvent.setup()
       const preventDefault = jest.fn()
-      
+
       customRender(<UserForm {...mockProps} />, {
         user: mockSuperAdminUser
       })
 
       const form = screen.getByRole('form') || screen.getByText('Create User').closest('form')!
-      
+
       // Mock the event
       const mockEvent = { preventDefault } as any
       fireEvent.submit(form, mockEvent)
@@ -666,7 +706,7 @@ describe('UserForm', () => {
 
       // Simulate resize event
       fireEvent.resize(window)
-      
+
       // Should not crash and dropdown should still be functional
       expect(screen.getByText('NRE')).toBeInTheDocument()
     })
@@ -682,7 +722,7 @@ describe('UserForm', () => {
 
       // Simulate scroll event
       fireEvent.scroll(window)
-      
+
       // Should not crash and dropdown should still be functional
       expect(screen.getByText('NRE')).toBeInTheDocument()
     })
@@ -721,7 +761,7 @@ describe('UserForm', () => {
     it('should handle form submission error gracefully', async () => {
       const user = userEvent.setup()
       const errorSubmit = jest.fn().mockRejectedValue(new Error('Submission failed'))
-      
+
       customRender(
         <UserForm {...mockProps} onSubmit={errorSubmit} user={mockUser} isEditing={true} />,
         { user: mockSuperAdminUser }
@@ -744,7 +784,7 @@ describe('UserForm', () => {
 
       // Simulate clicking without refs being set
       const dropdownButton = screen.getByText('Select applications...')
-      
+
       // Should not crash
       expect(dropdownButton).toBeInTheDocument()
     })
@@ -752,9 +792,7 @@ describe('UserForm', () => {
 
   describe('Accessibility', () => {
     it('should have proper form labels', () => {
-      customRender(<UserForm {...mockProps} />, {
-        user: mockSuperAdminUser
-      })
+      customRender(<UserForm {...mockProps} />)
 
       expect(screen.getByLabelText('Full Name')).toBeInTheDocument()
       expect(screen.getByLabelText('Email Address')).toBeInTheDocument()

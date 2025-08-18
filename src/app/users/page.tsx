@@ -13,7 +13,7 @@ export default function UsersPage() {
 
     const permissions = rolePermissions[user.role];
 
-    if (!permissions.canViewAllUsers) {
+    if (!permissions?.canViewAllUsers) {
         return (
             <div className="h-full flex flex-col space-y-4">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12">

@@ -19,6 +19,9 @@ const customJestConfig = {
     '!src/middleware.ts',
     '!src/**/*.config.{ts,js}',
     '!src/**/index.ts',
+    'src/app/**/*.{ts,tsx}',
+    '!src/app/layout.tsx',
+    '!src/app/globals.css',
   ],
   coverageThreshold: {
     global: {
