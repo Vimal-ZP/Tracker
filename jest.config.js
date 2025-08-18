@@ -28,7 +28,7 @@ const customJestConfig = {
       statements: 90,
     },
   },
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: [
