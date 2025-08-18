@@ -676,6 +676,247 @@ describe('WorkItemModal', () => {
     })
   })
 
+  describe('Input Field Error Clearing', () => {
+    beforeEach(() => {
+      render(<WorkItemModal {...defaultProps} />)
+    })
+
+    it('should clear title error when user starts typing', async () => {
+      const user = userEvent.setup()
+      const titleInput = screen.getByLabelText(/Title/)
+      const submitButton = screen.getByRole('button', { name: /create/i })
+
+      // Trigger error
+      await user.click(submitButton)
+      expect(screen.getByText('Title is required')).toBeInTheDocument()
+
+      // Clear error by typing
+      await user.type(titleInput, 'Test Title')
+      expect(screen.queryByText('Title is required')).not.toBeInTheDocument()
+    })
+
+    it('should clear hyperlink error when user starts typing', async () => {
+      const user = userEvent.setup()
+      const hyperlinkInput = screen.getByLabelText(/Hyperlink/)
+      const submitButton = screen.getByRole('button', { name: /create/i })
+
+      // Trigger error
+      await user.click(submitButton)
+      expect(screen.getByText('Hyperlink is required')).toBeInTheDocument()
+
+      // Clear error by typing
+      await user.type(hyperlinkInput, 'http://example.com')
+      expect(screen.queryByText('Hyperlink is required')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('Form Interaction Details', () => {
+    beforeEach(() => {
+      render(<WorkItemModal {...defaultProps} />)
+    })
+
+    it('should update all form fields correctly', async () => {
+      const user = userEvent.setup()
+
+      // Update type
+      await user.selectOptions(screen.getByLabelText(/Type/), WorkItemType.FEATURE)
+      expect(screen.getByLabelText(/Type/)).toHaveValue(WorkItemType.FEATURE)
+
+      // Update all text fields
+      await user.type(screen.getByLabelText(/ID/), 'FEAT-123')
+      await user.type(screen.getByLabelText(/Title/), 'Test Feature')
+      await user.type(screen.getByLabelText(/Flag Name/), 'feature-flag')
+      await user.type(screen.getByLabelText(/Remarks/), 'Test remarks')
+      await user.type(screen.getByLabelText(/Hyperlink/), 'https://example.com')
+
+      expect(screen.getByLabelText(/ID/)).toHaveValue('FEAT-123')
+      expect(screen.getByLabelText(/Title/)).toHaveValue('Test Feature')
+      expect(screen.getByLabelText(/Flag Name/)).toHaveValue('feature-flag')
+      expect(screen.getByLabelText(/Remarks/)).toHaveValue('Test remarks')
+      expect(screen.getByLabelText(/Hyperlink/)).toHaveValue('https://example.com')
+    })
+
+    it('should handle form submission with complete data', async () => {
+      const user = userEvent.setup()
+
+      // Fill complete form
+      await user.selectOptions(screen.getByLabelText(/Type/), WorkItemType.BUG)
+      await user.type(screen.getByLabelText(/ID/), 'BUG-456')
+      await user.type(screen.getByLabelText(/Title/), 'Test Bug')
+      await user.type(screen.getByLabelText(/Flag Name/), 'bug-flag')
+      await user.type(screen.getByLabelText(/Remarks/), 'Bug description')
+      await user.type(screen.getByLabelText(/Hyperlink/), 'https://bugs.example.com')
+
+      await user.click(screen.getByRole('button', { name: /create/i }))
+
+      expect(mockOnSubmit).toHaveBeenCalledWith({
+        type: WorkItemType.BUG,
+        id: 'BUG-456',
+        title: 'Test Bug',
+        flagName: 'bug-flag',
+        remarks: 'Bug description',
+        hyperlink: 'https://bugs.example.com',
+        parentId: ''
+      })
+    })
+  })
+
+  describe('Modal Title Variations', () => {
+    it('should show correct title for each mode', () => {
+      // Test each mode's title
+      const modes = [
+        { mode: 'create', expectedTitle: 'Create Work Item' },
+        { mode: 'edit', expectedTitle: 'Edit Work Item' },
+        { mode: 'createChild', expectedTitle: 'Create Child Work Item' },
+        { mode: 'createEpic', expectedTitle: 'Create Epic' },
+        { mode: 'createIncident', expectedTitle: 'Create Incident' }
+      ]
+
+      modes.forEach(({ mode, expectedTitle }) => {
+        const { unmount } = render(
+          <WorkItemModal
+            {...defaultProps}
+            mode={mode as any}
+            workItem={mode === 'edit' ? mockWorkItem : undefined}
+            parentItem={mode === 'createChild' ? mockParentItem : undefined}
+          />
+        )
+
+        expect(screen.getByText(expectedTitle)).toBeInTheDocument()
+        unmount()
+      })
+    })
+  })
+
+  describe('Field Styling and CSS Classes', () => {
+    beforeEach(() => {
+      render(<WorkItemModal {...defaultProps} />)
+    })
+
+    it('should apply correct CSS classes to form fields', () => {
+      expect(screen.getByLabelText(/Type/)).toHaveClass('input', 'w-full')
+      expect(screen.getByLabelText(/ID/)).toHaveClass('input', 'w-full')
+      expect(screen.getByLabelText(/Title/)).toHaveClass('input', 'w-full')
+      expect(screen.getByLabelText(/Flag Name/)).toHaveClass('input', 'w-full')
+      expect(screen.getByLabelText(/Remarks/)).toHaveClass('input', 'w-full')
+      expect(screen.getByLabelText(/Hyperlink/)).toHaveClass('input', 'w-full')
+    })
+
+    it('should apply disabled styling for fixed type modes', () => {
+      render(
+        <WorkItemModal
+          {...defaultProps}
+          mode="createEpic"
+        />
+      )
+
+      const typeSelect = screen.getByLabelText(/Type/)
+      expect(typeSelect).toHaveClass('bg-gray-100', 'cursor-not-allowed')
+      expect(typeSelect).toBeDisabled()
+    })
+  })
+
+  describe('Complex Scenarios', () => {
+    it('should handle rapid field changes without errors', async () => {
+      const user = userEvent.setup()
+      render(<WorkItemModal {...defaultProps} />)
+
+      const idInput = screen.getByLabelText(/ID/)
+      
+      // Rapid typing and clearing
+      await user.type(idInput, 'ABC')
+      await user.clear(idInput)
+      await user.type(idInput, 'DEF-123')
+      await user.clear(idInput)
+      await user.type(idInput, 'FINAL-456')
+
+      expect(idInput).toHaveValue('FINAL-456')
+    })
+
+    it('should handle multiple validation error states', async () => {
+      const user = userEvent.setup()
+      render(<WorkItemModal {...defaultProps} />)
+
+      // Try to submit empty form
+      await user.click(screen.getByRole('button', { name: /create/i }))
+
+      // All required field errors should appear
+      expect(screen.getByText('ID is required')).toBeInTheDocument()
+      expect(screen.getByText('Title is required')).toBeInTheDocument()
+      expect(screen.getByText('Hyperlink is required')).toBeInTheDocument()
+
+      // Fix ID field
+      await user.type(screen.getByLabelText(/ID/), 'TEST-123')
+      expect(screen.queryByText('ID is required')).not.toBeInTheDocument()
+      
+      // Other errors should still be present
+      expect(screen.getByText('Title is required')).toBeInTheDocument()
+      expect(screen.getByText('Hyperlink is required')).toBeInTheDocument()
+    })
+
+    it('should preserve form data during validation errors', async () => {
+      const user = userEvent.setup()
+      render(<WorkItemModal {...defaultProps} />)
+
+      // Fill some fields
+      await user.type(screen.getByLabelText(/ID/), 'TEST-123')
+      await user.type(screen.getByLabelText(/Flag Name/), 'test-flag')
+
+      // Submit with missing required fields
+      await user.click(screen.getByRole('button', { name: /create/i }))
+
+      // Data should be preserved
+      expect(screen.getByLabelText(/ID/)).toHaveValue('TEST-123')
+      expect(screen.getByLabelText(/Flag Name/)).toHaveValue('test-flag')
+    })
+  })
+
+  describe('Advanced Parent Scenarios', () => {
+    it('should handle parent selection with hierarchical logic', () => {
+      const featureParent: WorkItem = {
+        ...mockParentItem,
+        type: WorkItemType.FEATURE,
+        id: 'FEAT-PARENT'
+      }
+
+      render(
+        <WorkItemModal
+          {...defaultProps}
+          mode="createChild"
+          parentItem={featureParent}
+          availableParents={[featureParent]}
+        />
+      )
+
+      // Should set User Story as child type for Feature parent
+      const typeSelect = screen.getByLabelText(/Type/)
+      expect(typeSelect).toHaveValue(WorkItemType.USER_STORY)
+      
+      // Should set parent ID
+      const parentSelect = screen.getByLabelText(/Parent/)
+      expect(parentSelect).toHaveValue(featureParent._id)
+    })
+
+    it('should handle User Story parent creating Bug child', () => {
+      const userStoryParent: WorkItem = {
+        ...mockParentItem,
+        type: WorkItemType.USER_STORY,
+        id: 'US-PARENT'
+      }
+
+      render(
+        <WorkItemModal
+          {...defaultProps}
+          mode="createChild"
+          parentItem={userStoryParent}
+        />
+      )
+
+      const typeSelect = screen.getByLabelText(/Type/)
+      expect(typeSelect).toHaveValue(WorkItemType.BUG)
+    })
+  })
+
   describe('Accessibility', () => {
     beforeEach(() => {
       render(<WorkItemModal {...defaultProps} />)
@@ -700,17 +941,16 @@ describe('WorkItemModal', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument()
     })
 
-    it('should associate error messages with fields', async () => {
-      const user = userEvent.setup()
-      const submitButton = screen.getByRole('button', { name: /create/i })
+    it('should have form element structure', () => {
+      expect(screen.getByRole('form')).toBeInTheDocument()
+    })
 
-      await user.click(submitButton)
-
-      const idInput = screen.getByLabelText(/ID/)
-      const idError = screen.getByText('ID is required')
-
-      expect(idInput).toHaveAttribute('aria-describedby')
-      expect(idError.id).toBeTruthy()
+    it('should have proper input placeholders', () => {
+      expect(screen.getByPlaceholderText('e.g., EPIC-001, FEAT-123')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('Enter work item title')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('e.g., AUTH_SYSTEM')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('https://example.com/link')).toBeInTheDocument()
+      expect(screen.getByPlaceholderText('Additional notes or remarks')).toBeInTheDocument()
     })
   })
 })

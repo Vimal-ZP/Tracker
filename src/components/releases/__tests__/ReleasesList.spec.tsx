@@ -546,6 +546,211 @@ describe('ReleasesList', () => {
     })
   })
 
+  describe('Loading Skeleton Details', () => {
+    it('should render correct number of loading skeletons for each view mode', () => {
+      const { rerender } = render(<ReleasesList {...defaultProps} loading={true} viewMode="card" />)
+      expect(screen.getAllByTestId('loading-skeleton')).toHaveLength(3)
+
+      rerender(<ReleasesList {...defaultProps} loading={true} viewMode="compact" />)
+      expect(screen.getAllByTestId('loading-skeleton')).toHaveLength(3)
+
+      rerender(<ReleasesList {...defaultProps} loading={true} viewMode="table" />)
+      expect(screen.getByTestId('table-loading-skeleton')).toBeInTheDocument()
+    })
+
+    it('should have proper loading skeleton structure', () => {
+      render(<ReleasesList {...defaultProps} loading={true} viewMode="card" />)
+      
+      const skeletons = screen.getAllByTestId('loading-skeleton')
+      skeletons.forEach(skeleton => {
+        expect(skeleton).toHaveClass('animate-pulse')
+      })
+    })
+  })
+
+  describe('View Mode Specific Features', () => {
+    it('should render table headers in correct order', () => {
+      render(<ReleasesList {...defaultProps} viewMode="table" />)
+
+      const headers = screen.getAllByRole('columnheader')
+      expect(headers[0]).toHaveTextContent('Release')
+      expect(headers[1]).toHaveTextContent('Application')
+      expect(headers[2]).toHaveTextContent('Release Date')
+      expect(headers[3]).toHaveTextContent('Status')
+      expect(headers[4]).toHaveTextContent('Work Items')
+      expect(headers[5]).toHaveTextContent('Actions')
+    })
+
+    it('should apply correct text alignment in table view', () => {
+      render(<ReleasesList {...defaultProps} viewMode="table" />)
+
+      const rows = screen.getAllByRole('row')
+      const dataRow = rows[1] // Skip header row
+      const cells = dataRow.querySelectorAll('td')
+
+      expect(cells[0]).toHaveClass('text-left') // First column (Release)
+      expect(cells[1]).toHaveClass('text-center') // Application
+      expect(cells[2]).toHaveClass('text-center') // Release Date
+      expect(cells[3]).toHaveClass('text-center') // Status
+      expect(cells[4]).toHaveClass('text-center') // Work Items
+      expect(cells[5]).toHaveClass('text-right') // Actions (last column)
+    })
+
+    it('should show compact view without descriptions', () => {
+      render(<ReleasesList {...defaultProps} viewMode="compact" />)
+
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+      expect(screen.queryByText('Major release with new features')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('Work Item Counting Edge Cases', () => {
+    it('should handle work items with invalid types', () => {
+      const releasesWithInvalidWorkItemType = [
+        {
+          ...mockReleases[0],
+          workItems: [{
+            ...mockWorkItems[0],
+            type: 'invalid-type' as any
+          }]
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithInvalidWorkItemType} />)
+
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+    })
+
+    it('should handle work items without type property', () => {
+      const releasesWithNoTypeWorkItems = [
+        {
+          ...mockReleases[0],
+          workItems: [{
+            ...mockWorkItems[0],
+            type: undefined as any
+          }]
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithNoTypeWorkItems} />)
+
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+    })
+  })
+
+  describe('Application Color Edge Cases', () => {
+    it('should handle unknown application names with default colors', () => {
+      const releasesWithUnknownApp = [
+        {
+          ...mockReleases[0],
+          applicationName: 'Unknown Application'
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithUnknownApp} />)
+
+      const appElement = screen.getByText('Unknown Application')
+      expect(appElement).toHaveClass('bg-gray-100', 'text-gray-800')
+    })
+
+    it('should handle all known application colors', () => {
+      const knownApps = ['NRE', 'NVE', 'E-Vite', 'Portal Plus', 'Fast 2.0', 'FMS']
+      const expectedColors = [
+        ['bg-blue-100', 'text-blue-800'],
+        ['bg-green-100', 'text-green-800'], 
+        ['bg-purple-100', 'text-purple-800'],
+        ['bg-orange-100', 'text-orange-800'],
+        ['bg-pink-100', 'text-pink-800'],
+        ['bg-indigo-100', 'text-indigo-800']
+      ]
+
+      knownApps.forEach((appName, index) => {
+        const releaseWithApp = [{
+          ...mockReleases[0],
+          applicationName: appName
+        }]
+
+        const { unmount } = render(<ReleasesList {...defaultProps} releases={releaseWithApp} />)
+        
+        const appElement = screen.getByText(appName)
+        expectedColors[index].forEach(colorClass => {
+          expect(appElement).toHaveClass(colorClass)
+        })
+
+        unmount()
+      })
+    })
+  })
+
+  describe('Status Display Edge Cases', () => {
+    it('should handle deprecated status', () => {
+      const releasesWithDeprecatedStatus = [
+        {
+          ...mockReleases[0],
+          status: 'deprecated' as any
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithDeprecatedStatus} />)
+
+      expect(screen.getByText('Deprecated')).toBeInTheDocument()
+      expect(screen.getByTestId('x-circle-icon')).toBeInTheDocument()
+    })
+
+    it('should handle all status types with correct icons', () => {
+      const statusTypes = [
+        { status: 'draft', icon: 'clock-icon', text: 'Draft' },
+        { status: 'beta', icon: 'alert-circle-icon', text: 'Beta' },
+        { status: 'stable', icon: 'check-circle-icon', text: 'Published' },
+        { status: 'deprecated', icon: 'x-circle-icon', text: 'Deprecated' }
+      ]
+
+      statusTypes.forEach(({ status, icon, text }) => {
+        const releaseWithStatus = [{
+          ...mockReleases[0],
+          status: status as any
+        }]
+
+        const { unmount } = render(<ReleasesList {...defaultProps} releases={releaseWithStatus} />)
+        
+        expect(screen.getByText(text)).toBeInTheDocument()
+        expect(screen.getByTestId(icon)).toBeInTheDocument()
+
+        unmount()
+      })
+    })
+  })
+
+  describe('Release Type Colors', () => {
+    it('should display hotfix type with correct styling', () => {
+      const releasesWithHotfix = [
+        {
+          ...mockReleases[0],
+          type: 'hotfix' as any
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithHotfix} />)
+
+      const hotfixType = screen.getByText('HOTFIX')
+      expect(hotfixType).toHaveClass('bg-gradient-to-r', 'from-red-500', 'to-rose-600')
+    })
+
+    it('should handle unknown release types', () => {
+      const releasesWithUnknownType = [
+        {
+          ...mockReleases[0],
+          type: 'unknown' as any
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithUnknownType} />)
+
+      const unknownType = screen.getByText('UNKNOWN')
+      expect(unknownType).toHaveClass('bg-gradient-to-r', 'from-gray-500', 'to-gray-600')
+    })
+  })
+
   describe('Edge Cases', () => {
     it('should handle releases without versions', () => {
       const releasesWithoutVersion = [
@@ -598,6 +803,32 @@ describe('ReleasesList', () => {
       render(<ReleasesList {...defaultProps} releases={releasesWithUndefinedWorkItems} />)
 
       expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+    })
+
+    it('should handle releases with null/undefined dates', () => {
+      const releasesWithNullDate = [
+        {
+          ...mockReleases[0],
+          releaseDate: null as any
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithNullDate} />)
+
+      expect(screen.getByText('Version 1.0.0 Release')).toBeInTheDocument()
+    })
+
+    it('should handle very long titles', () => {
+      const releasesWithLongTitle = [
+        {
+          ...mockReleases[0],
+          title: 'This is a very long release title that might cause layout issues if not handled properly by the UI components'
+        }
+      ]
+
+      render(<ReleasesList {...defaultProps} releases={releasesWithLongTitle} />)
+
+      expect(screen.getByText(/This is a very long release title/)).toBeInTheDocument()
     })
   })
 })
