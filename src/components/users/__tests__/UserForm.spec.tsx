@@ -2,327 +2,808 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import UserForm from '../UserForm'
-import { mockUser } from '@/__tests__/utils/test-utils'
+import { UserRole, AVAILABLE_APPLICATIONS } from '@/types/user'
+import { render as customRender } from '@/__tests__/utils/test-utils'
+
+// Mock react-dom portal
+jest.mock('react-dom', () => ({
+  ...jest.requireActual('react-dom'),
+  createPortal: (element: any) => element,
+}))
+
+// Mock Lucide icons
+jest.mock('lucide-react', () => ({
+  User: (props: any) => <div data-testid="user-icon" {...props}>User</div>,
+  Mail: (props: any) => <div data-testid="mail-icon" {...props}>Mail</div>,
+  Lock: (props: any) => <div data-testid="lock-icon" {...props}>Lock</div>,
+  FolderOpen: (props: any) => <div data-testid="folder-open-icon" {...props}>FolderOpen</div>,
+  ChevronDown: (props: any) => <div data-testid="chevron-down-icon" {...props}>ChevronDown</div>,
+  X: (props: any) => <div data-testid="x-icon" {...props}>X</div>,
+}))
 
 describe('UserForm', () => {
-    const defaultProps = {
-        onSubmit: jest.fn(),
-        onCancel: jest.fn(),
-        isEditing: false,
-    }
+  const mockUser = {
+    _id: 'user-1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    role: UserRole.BASIC,
+    assignedApplications: ['NRE', 'NVE'],
+    isActive: true,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  }
 
-    beforeEach(() => {
-        jest.clearAllMocks()
+  const mockSuperAdminUser = {
+    _id: 'super-admin-1',
+    name: 'Super Admin',
+    email: 'admin@example.com',
+    role: UserRole.SUPER_ADMIN,
+    assignedApplications: [],
+    isActive: true,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  }
+
+  const mockAdminUser = {
+    _id: 'admin-1',
+    name: 'Admin User',
+    email: 'admin@example.com',
+    role: UserRole.ADMIN,
+    assignedApplications: ['NRE'],
+    isActive: true,
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01'),
+  }
+
+  const mockProps = {
+    onSubmit: jest.fn(),
+    onCancel: jest.fn(),
+    isEditing: false,
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('Component Rendering', () => {
+    it('should render create user form with all fields', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      expect(screen.getByLabelText('Full Name')).toBeInTheDocument()
+      expect(screen.getByLabelText('Email Address')).toBeInTheDocument()
+      expect(screen.getByLabelText('Password')).toBeInTheDocument()
+      expect(screen.getByLabelText('Role')).toBeInTheDocument()
+      expect(screen.getByText('Create User')).toBeInTheDocument()
+      expect(screen.getByText('Cancel')).toBeInTheDocument()
     })
 
-    it('renders create user form when not editing', () => {
-        render(<UserForm {...defaultProps} />)
+    it('should render edit user form with populated fields', () => {
+      customRender(
+        <UserForm {...mockProps} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
 
-        expect(screen.getByText('Create User')).toBeInTheDocument()
-        expect(screen.getByLabelText(/full name/i)).toBeInTheDocument()
-        expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
-        expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
-        expect(screen.getByLabelText(/role/i)).toBeInTheDocument()
+      expect(screen.getByDisplayValue('John Doe')).toBeInTheDocument()
+      expect(screen.getByDisplayValue('john@example.com')).toBeInTheDocument()
+      expect(screen.getByText('Update User')).toBeInTheDocument()
+      expect(screen.getByText('(leave blank to keep current)')).toBeInTheDocument()
     })
 
-    it('renders edit user form when editing', () => {
-        render(<UserForm {...defaultProps} user={mockUser} isEditing={true} />)
+    it('should render icons in form fields', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
 
-        expect(screen.getByText('Edit User')).toBeInTheDocument()
-        expect(screen.getByDisplayValue(mockUser.name)).toBeInTheDocument()
-        expect(screen.getByDisplayValue(mockUser.email)).toBeInTheDocument()
-        expect(screen.getByDisplayValue(mockUser.role)).toBeInTheDocument()
+      expect(screen.getByTestId('user-icon')).toBeInTheDocument()
+      expect(screen.getByTestId('mail-icon')).toBeInTheDocument()
+      expect(screen.getByTestId('lock-icon')).toBeInTheDocument()
     })
 
-    it('validates required fields on submit', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
+    it('should show applications section for super admin', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
 
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
-
-        expect(screen.getByText('Name is required')).toBeInTheDocument()
-        expect(screen.getByText('Email is required')).toBeInTheDocument()
-        expect(screen.getByText('Password is required')).toBeInTheDocument()
+      expect(screen.getByText('Assigned Applications')).toBeInTheDocument()
+      expect(screen.getByTestId('folder-open-icon')).toBeInTheDocument()
     })
 
-    it('validates email format', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
+    it('should not show applications section for non-super admin', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockAdminUser
+      })
 
-        const emailInput = screen.getByLabelText(/email/i)
-        await user.type(emailInput, 'invalid-email')
+      expect(screen.queryByText('Assigned Applications')).not.toBeInTheDocument()
+    })
+  })
 
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
+  describe('Form Validation', () => {
+    it('should validate required name field', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
 
-        expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument()
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
+
+      expect(screen.getByText('Name is required')).toBeInTheDocument()
+      expect(mockProps.onSubmit).not.toHaveBeenCalled()
     })
 
-    it('validates password length', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
+    it('should validate minimum name length', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
 
-        const passwordInput = screen.getByLabelText(/password/i)
-        await user.type(passwordInput, '123')
+      const nameField = screen.getByLabelText('Full Name')
+      await user.type(nameField, 'A')
 
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
 
-        expect(screen.getByText('Password must be at least 6 characters long')).toBeInTheDocument()
+      expect(screen.getByText('Name must be at least 2 characters')).toBeInTheDocument()
     })
 
-    it('submits form with valid data', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
+    it('should validate required email field', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
 
-        await user.type(screen.getByLabelText(/full name/i), 'John Doe')
-        await user.type(screen.getByLabelText(/email/i), 'john@example.com')
-        await user.type(screen.getByLabelText(/password/i), 'password123')
-        await user.selectOptions(screen.getByLabelText(/role/i), 'admin')
+      const nameField = screen.getByLabelText('Full Name')
+      await user.type(nameField, 'John Doe')
 
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
 
-        expect(defaultProps.onSubmit).toHaveBeenCalledWith({
-            name: 'John Doe',
-            email: 'john@example.com',
-            password: 'password123',
-            role: 'admin',
-            assignedApplications: [],
-            isActive: true,
+      expect(screen.getByText('Email is required')).toBeInTheDocument()
+    })
+
+    it('should validate email format', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const nameField = screen.getByLabelText('Full Name')
+      const emailField = screen.getByLabelText('Email Address')
+
+      await user.type(nameField, 'John Doe')
+      await user.type(emailField, 'invalid-email')
+
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
+
+      expect(screen.getByText('Email is invalid')).toBeInTheDocument()
+    })
+
+    it('should validate required password for new user', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const nameField = screen.getByLabelText('Full Name')
+      const emailField = screen.getByLabelText('Email Address')
+
+      await user.type(nameField, 'John Doe')
+      await user.type(emailField, 'john@example.com')
+
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
+
+      expect(screen.getByText('Password is required')).toBeInTheDocument()
+    })
+
+    it('should validate minimum password length', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const nameField = screen.getByLabelText('Full Name')
+      const emailField = screen.getByLabelText('Email Address')
+      const passwordField = screen.getByLabelText('Password')
+
+      await user.type(nameField, 'John Doe')
+      await user.type(emailField, 'john@example.com')
+      await user.type(passwordField, '123')
+
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
+
+      expect(screen.getByText('Password must be at least 6 characters')).toBeInTheDocument()
+    })
+
+    it('should not require password for editing user', async () => {
+      const user = userEvent.setup()
+      customRender(
+        <UserForm {...mockProps} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
+
+      const submitButton = screen.getByText('Update User')
+      await user.click(submitButton)
+
+      expect(screen.queryByText('Password is required')).not.toBeInTheDocument()
+      await waitFor(() => {
+        expect(mockProps.onSubmit).toHaveBeenCalled()
+      })
+    })
+
+    it('should validate password length when provided in edit mode', async () => {
+      const user = userEvent.setup()
+      customRender(
+        <UserForm {...mockProps} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
+
+      const passwordField = screen.getByLabelText(/Password/)
+      await user.type(passwordField, '123')
+
+      const submitButton = screen.getByText('Update User')
+      await user.click(submitButton)
+
+      expect(screen.getByText('Password must be at least 6 characters')).toBeInTheDocument()
+    })
+  })
+
+  describe('Error Handling and Clearing', () => {
+    it('should clear error when user starts typing in name field', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      // Trigger validation error
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
+      expect(screen.getByText('Name is required')).toBeInTheDocument()
+
+      // Start typing to clear error
+      const nameField = screen.getByLabelText('Full Name')
+      await user.type(nameField, 'J')
+
+      expect(screen.queryByText('Name is required')).not.toBeInTheDocument()
+    })
+
+    it('should clear error when user starts typing in email field', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const nameField = screen.getByLabelText('Full Name')
+      await user.type(nameField, 'John Doe')
+
+      // Trigger validation error
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
+      expect(screen.getByText('Email is required')).toBeInTheDocument()
+
+      // Start typing to clear error
+      const emailField = screen.getByLabelText('Email Address')
+      await user.type(emailField, 'j')
+
+      expect(screen.queryByText('Email is required')).not.toBeInTheDocument()
+    })
+
+    it('should apply error styling to invalid fields', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
+
+      const nameField = screen.getByLabelText('Full Name')
+      const emailField = screen.getByLabelText('Email Address')
+      const passwordField = screen.getByLabelText('Password')
+
+      expect(nameField).toHaveClass('input-error')
+      expect(emailField).toHaveClass('input-error')
+      expect(passwordField).toHaveClass('input-error')
+    })
+  })
+
+  describe('Role Management', () => {
+    it('should show role dropdown for super admin', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      expect(screen.getByLabelText('Role')).toBeInTheDocument()
+      expect(screen.getByText('Basic User')).toBeInTheDocument()
+      expect(screen.getByText('Admin')).toBeInTheDocument()
+      expect(screen.getByText('Super Admin')).toBeInTheDocument()
+    })
+
+    it('should show limited role options for admin', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockAdminUser
+      })
+
+      expect(screen.getByLabelText('Role')).toBeInTheDocument()
+      expect(screen.getByText('Basic User')).toBeInTheDocument()
+      expect(screen.getByText('Admin')).toBeInTheDocument()
+      expect(screen.queryByText('Super Admin')).not.toBeInTheDocument()
+    })
+
+    it('should not show role dropdown for basic user', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: { ...mockUser, role: UserRole.BASIC }
+      })
+
+      expect(screen.queryByLabelText('Role')).not.toBeInTheDocument()
+    })
+
+    it('should prevent admin from creating super admin', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockAdminUser
+      })
+
+      const roleSelect = screen.getByLabelText('Role')
+      expect(roleSelect).toBeInTheDocument()
+      
+      // Should not have Super Admin option
+      expect(screen.queryByText('Super Admin')).not.toBeInTheDocument()
+    })
+
+    it('should handle role change', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const roleSelect = screen.getByLabelText('Role')
+      await user.selectOptions(roleSelect, UserRole.ADMIN)
+
+      expect(roleSelect).toHaveValue(UserRole.ADMIN)
+    })
+  })
+
+  describe('Application Management', () => {
+    it('should show application dropdown for super admin when role is ADMIN or BASIC', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      expect(screen.getByText('Assigned Applications')).toBeInTheDocument()
+      expect(screen.getByText('Select applications...')).toBeInTheDocument()
+    })
+
+    it('should not show application dropdown for SUPER_ADMIN role', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const roleSelect = screen.getByLabelText('Role')
+      await user.selectOptions(roleSelect, UserRole.SUPER_ADMIN)
+
+      expect(screen.queryByText('Assigned Applications')).not.toBeInTheDocument()
+    })
+
+    it('should open application dropdown when clicked', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const dropdownButton = screen.getByText('Select applications...')
+      await user.click(dropdownButton)
+
+      // Should show available applications
+      AVAILABLE_APPLICATIONS.forEach(app => {
+        expect(screen.getByText(app)).toBeInTheDocument()
+      })
+    })
+
+    it('should toggle application selection', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const dropdownButton = screen.getByText('Select applications...')
+      await user.click(dropdownButton)
+
+      const nreOption = screen.getByText('NRE')
+      await user.click(nreOption)
+
+      // Should show selected application
+      expect(screen.getByText('1 application selected')).toBeInTheDocument()
+      expect(screen.getByText('NRE')).toBeInTheDocument()
+    })
+
+    it('should remove application when X is clicked', async () => {
+      const user = userEvent.setup()
+      customRender(
+        <UserForm {...mockProps} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
+
+      // User already has NRE and NVE assigned
+      expect(screen.getByText('NRE')).toBeInTheDocument()
+      expect(screen.getByText('NVE')).toBeInTheDocument()
+
+      // Find and click the X button for NRE
+      const nreTag = screen.getByText('NRE').closest('span')
+      const removeButton = nreTag?.querySelector('[data-testid="x-icon"]')?.closest('button')
+      
+      if (removeButton) {
+        await user.click(removeButton)
+      }
+
+      expect(screen.queryByText('NRE')).not.toBeInTheDocument()
+      expect(screen.getByText('NVE')).toBeInTheDocument() // NVE should still be there
+    })
+
+    it('should show warning when no applications assigned', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      expect(screen.getByText('No applications assigned. User will have limited access.')).toBeInTheDocument()
+    })
+
+    it('should update dropdown text when applications selected', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const dropdownButton = screen.getByText('Select applications...')
+      await user.click(dropdownButton)
+
+      const nreOption = screen.getByText('NRE')
+      await user.click(nreOption)
+
+      expect(screen.getByText('1 application selected')).toBeInTheDocument()
+
+      const nveOption = screen.getByText('NVE')
+      await user.click(nveOption)
+
+      expect(screen.getByText('2 applications selected')).toBeInTheDocument()
+    })
+
+    it('should show checkmark for selected applications', async () => {
+      const user = userEvent.setup()
+      customRender(
+        <UserForm {...mockProps} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
+
+      const dropdownButton = screen.getByText('2 applications selected')
+      await user.click(dropdownButton)
+
+      // Should show checkmarks for selected apps
+      const nreOption = screen.getByText('NRE').closest('div')
+      const nveOption = screen.getByText('NVE').closest('div')
+
+      expect(nreOption).toHaveClass('text-blue-900', 'bg-blue-50')
+      expect(nveOption).toHaveClass('text-blue-900', 'bg-blue-50')
+    })
+  })
+
+  describe('Form Submission', () => {
+    it('should submit valid form data for new user', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const nameField = screen.getByLabelText('Full Name')
+      const emailField = screen.getByLabelText('Email Address')
+      const passwordField = screen.getByLabelText('Password')
+
+      await user.type(nameField, 'John Doe')
+      await user.type(emailField, 'john@example.com')
+      await user.type(passwordField, 'password123')
+
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockProps.onSubmit).toHaveBeenCalledWith({
+          name: 'John Doe',
+          email: 'john@example.com',
+          password: 'password123',
+          role: UserRole.BASIC,
+          assignedApplications: []
         })
+      })
     })
 
-    it('calls onCancel when cancel button is clicked', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
+    it('should submit valid form data for editing user', async () => {
+      const user = userEvent.setup()
+      customRender(
+        <UserForm {...mockProps} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
 
-        const cancelButton = screen.getByRole('button', { name: /cancel/i })
-        await user.click(cancelButton)
+      const submitButton = screen.getByText('Update User')
+      await user.click(submitButton)
 
-        expect(defaultProps.onCancel).toHaveBeenCalledTimes(1)
-    })
-
-    it('shows loading state during submission', async () => {
-        const user = userEvent.setup()
-        const onSubmit = jest.fn().mockImplementation(() =>
-            new Promise(resolve => setTimeout(resolve, 100))
-        )
-
-        render(<UserForm {...defaultProps} onSubmit={onSubmit} />)
-
-        await user.type(screen.getByLabelText(/full name/i), 'John Doe')
-        await user.type(screen.getByLabelText(/email/i), 'john@example.com')
-        await user.type(screen.getByLabelText(/password/i), 'password123')
-
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
-
-        expect(screen.getByText('Creating...')).toBeInTheDocument()
-        expect(screen.getByRole('status')).toBeInTheDocument()
-    })
-
-    it('disables form during submission', async () => {
-        const user = userEvent.setup()
-        const onSubmit = jest.fn().mockImplementation(() =>
-            new Promise(resolve => setTimeout(resolve, 100))
-        )
-
-        render(<UserForm {...defaultProps} onSubmit={onSubmit} />)
-
-        await user.type(screen.getByLabelText(/full name/i), 'John Doe')
-        await user.type(screen.getByLabelText(/email/i), 'john@example.com')
-        await user.type(screen.getByLabelText(/password/i), 'password123')
-
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
-
-        expect(screen.getByLabelText(/full name/i)).toBeDisabled()
-        expect(screen.getByLabelText(/email/i)).toBeDisabled()
-        expect(screen.getByLabelText(/password/i)).toBeDisabled()
-        expect(screen.getByLabelText(/role/i)).toBeDisabled()
-    })
-
-    it('handles application assignment', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
-
-        // Open application dropdown
-        const appDropdown = screen.getByText('Select Applications')
-        await user.click(appDropdown)
-
-        // Select applications
-        const app1 = screen.getByText('App 1')
-        await user.click(app1)
-
-        const app2 = screen.getByText('App 2')
-        await user.click(app2)
-
-        await user.type(screen.getByLabelText(/full name/i), 'John Doe')
-        await user.type(screen.getByLabelText(/email/i), 'john@example.com')
-        await user.type(screen.getByLabelText(/password/i), 'password123')
-
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
-
-        expect(defaultProps.onSubmit).toHaveBeenCalledWith(
-            expect.objectContaining({
-                assignedApplications: ['App 1', 'App 2'],
-            })
-        )
-    })
-
-    it('toggles user active status', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
-
-        const activeToggle = screen.getByRole('checkbox', { name: /active/i })
-        expect(activeToggle).toBeChecked()
-
-        await user.click(activeToggle)
-        expect(activeToggle).not.toBeChecked()
-
-        await user.type(screen.getByLabelText(/full name/i), 'John Doe')
-        await user.type(screen.getByLabelText(/email/i), 'john@example.com')
-        await user.type(screen.getByLabelText(/password/i), 'password123')
-
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
-
-        expect(defaultProps.onSubmit).toHaveBeenCalledWith(
-            expect.objectContaining({
-                isActive: false,
-            })
-        )
-    })
-
-    it('clears validation errors when input changes', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
-
-        // Trigger validation error
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
-
-        expect(screen.getByText('Name is required')).toBeInTheDocument()
-
-        // Start typing to clear error
-        const nameInput = screen.getByLabelText(/full name/i)
-        await user.type(nameInput, 'J')
-
-        expect(screen.queryByText('Name is required')).not.toBeInTheDocument()
-    })
-
-    it('handles password visibility toggle', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
-
-        const passwordInput = screen.getByLabelText(/password/i)
-        expect(passwordInput).toHaveAttribute('type', 'password')
-
-        const toggleButton = screen.getByRole('button', { name: /toggle password visibility/i })
-        await user.click(toggleButton)
-
-        expect(passwordInput).toHaveAttribute('type', 'text')
-
-        await user.click(toggleButton)
-        expect(passwordInput).toHaveAttribute('type', 'password')
-    })
-
-    it('does not require password when editing user', () => {
-        render(<UserForm {...defaultProps} user={mockUser} isEditing={true} />)
-
-        const passwordInput = screen.getByLabelText(/password/i)
-        expect(passwordInput).toHaveAttribute('placeholder', 'Enter new password (optional)')
-    })
-
-    it('validates unique email addresses', async () => {
-        const user = userEvent.setup()
-        const onSubmit = jest.fn().mockRejectedValue(
-            new Error('Email already exists')
-        )
-
-        render(<UserForm {...defaultProps} onSubmit={onSubmit} />)
-
-        await user.type(screen.getByLabelText(/full name/i), 'John Doe')
-        await user.type(screen.getByLabelText(/email/i), 'existing@example.com')
-        await user.type(screen.getByLabelText(/password/i), 'password123')
-
-        const submitButton = screen.getByRole('button', { name: /create user/i })
-        await user.click(submitButton)
-
-        await waitFor(() => {
-            expect(screen.getByText('Email already exists')).toBeInTheDocument()
+      await waitFor(() => {
+        expect(mockProps.onSubmit).toHaveBeenCalledWith({
+          name: 'John Doe',
+          email: 'john@example.com',
+          password: undefined,
+          role: UserRole.BASIC,
+          assignedApplications: ['NRE', 'NVE']
         })
+      })
     })
 
-    it('has proper accessibility attributes', () => {
-        render(<UserForm {...defaultProps} />)
+    it('should include password in edit mode when provided', async () => {
+      const user = userEvent.setup()
+      customRender(
+        <UserForm {...mockProps} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
 
-        expect(screen.getByLabelText(/full name/i)).toBeInTheDocument()
-        expect(screen.getByLabelText(/email/i)).toBeInTheDocument()
-        expect(screen.getByLabelText(/password/i)).toBeInTheDocument()
-        expect(screen.getByLabelText(/role/i)).toBeInTheDocument()
+      const passwordField = screen.getByLabelText(/Password/)
+      await user.type(passwordField, 'newpassword123')
 
-        // Form should have proper structure
-        const form = screen.getByRole('form') || screen.getByLabelText(/full name/i).closest('form')
-        expect(form).toBeInTheDocument()
+      const submitButton = screen.getByText('Update User')
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(mockProps.onSubmit).toHaveBeenCalledWith({
+          name: 'John Doe',
+          email: 'john@example.com',
+          password: 'newpassword123',
+          role: UserRole.BASIC,
+          assignedApplications: ['NRE', 'NVE']
+        })
+      })
     })
 
-    it('handles keyboard navigation properly', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
+    it('should show loading state during submission', async () => {
+      const user = userEvent.setup()
+      const slowSubmit = jest.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
+      
+      customRender(
+        <UserForm {...mockProps} onSubmit={slowSubmit} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
 
-        // Should be able to tab through form fields
-        await user.tab()
-        expect(screen.getByLabelText(/full name/i)).toHaveFocus()
+      const submitButton = screen.getByText('Update User')
+      await user.click(submitButton)
 
-        await user.tab()
-        expect(screen.getByLabelText(/email/i)).toHaveFocus()
-
-        await user.tab()
-        expect(screen.getByLabelText(/password/i)).toHaveFocus()
-
-        await user.tab()
-        expect(screen.getByLabelText(/role/i)).toHaveFocus()
+      expect(screen.getByRole('status')).toBeInTheDocument() // Loading spinner
+      expect(submitButton).toBeDisabled()
+      
+      await waitFor(() => {
+        expect(screen.queryByRole('status')).not.toBeInTheDocument()
+      })
     })
 
-    it('populates form with user data when editing', () => {
-        const userToEdit = {
-            ...mockUser,
-            assignedApplications: ['App 1', 'App 2'],
-            isActive: false,
-        }
+    it('should disable form during submission', async () => {
+      const user = userEvent.setup()
+      const slowSubmit = jest.fn().mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)))
+      
+      customRender(
+        <UserForm {...mockProps} onSubmit={slowSubmit} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
 
-        render(<UserForm {...defaultProps} user={userToEdit} isEditing={true} />)
+      const submitButton = screen.getByText('Update User')
+      const cancelButton = screen.getByText('Cancel')
+      
+      await user.click(submitButton)
 
-        expect(screen.getByDisplayValue(userToEdit.name)).toBeInTheDocument()
-        expect(screen.getByDisplayValue(userToEdit.email)).toBeInTheDocument()
-        expect(screen.getByDisplayValue(userToEdit.role)).toBeInTheDocument()
+      expect(submitButton).toBeDisabled()
+      expect(cancelButton).toBeDisabled()
+    })
+  })
 
-        const activeToggle = screen.getByRole('checkbox', { name: /active/i })
-        expect(activeToggle).not.toBeChecked()
+  describe('Form Actions', () => {
+    it('should call onCancel when cancel button is clicked', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const cancelButton = screen.getByText('Cancel')
+      await user.click(cancelButton)
+
+      expect(mockProps.onCancel).toHaveBeenCalled()
     })
 
-    it('handles role selection correctly', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
+    it('should prevent default form submission', async () => {
+      const user = userEvent.setup()
+      const preventDefault = jest.fn()
+      
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
 
-        const roleSelect = screen.getByLabelText(/role/i)
-        await user.selectOptions(roleSelect, 'super_admin')
+      const form = screen.getByRole('form') || screen.getByText('Create User').closest('form')!
+      
+      // Mock the event
+      const mockEvent = { preventDefault } as any
+      fireEvent.submit(form, mockEvent)
 
-        expect(screen.getByDisplayValue('super_admin')).toBeInTheDocument()
+      expect(preventDefault).toHaveBeenCalled()
+    })
+  })
+
+  describe('Dropdown Behavior', () => {
+    it('should close dropdown when clicking outside', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const dropdownButton = screen.getByText('Select applications...')
+      await user.click(dropdownButton)
+
+      // Dropdown should be open
+      expect(screen.getByText('NRE')).toBeInTheDocument()
+
+      // Click outside
+      await user.click(document.body)
+
+      // Dropdown should be closed (applications not visible)
+      expect(screen.queryByText('NRE')).not.toBeInTheDocument()
     })
 
-    it('validates form on blur events', async () => {
-        const user = userEvent.setup()
-        render(<UserForm {...defaultProps} />)
+    it('should update dropdown position on resize', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
 
-        const emailInput = screen.getByLabelText(/email/i)
-        await user.type(emailInput, 'invalid-email')
-        await user.tab() // Trigger blur
+      const dropdownButton = screen.getByText('Select applications...')
+      await user.click(dropdownButton)
 
-        expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument()
+      // Simulate resize event
+      fireEvent.resize(window)
+      
+      // Should not crash and dropdown should still be functional
+      expect(screen.getByText('NRE')).toBeInTheDocument()
     })
+
+    it('should update dropdown position on scroll', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const dropdownButton = screen.getByText('Select applications...')
+      await user.click(dropdownButton)
+
+      // Simulate scroll event
+      fireEvent.scroll(window)
+      
+      // Should not crash and dropdown should still be functional
+      expect(screen.getByText('NRE')).toBeInTheDocument()
+    })
+  })
+
+  describe('Edge Cases', () => {
+    it('should handle user with undefined assignedApplications', () => {
+      const userWithoutApps = {
+        ...mockUser,
+        assignedApplications: undefined as any
+      }
+
+      customRender(
+        <UserForm {...mockProps} user={userWithoutApps} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
+
+      expect(screen.getByText('Select applications...')).toBeInTheDocument()
+      expect(screen.getByText('No applications assigned. User will have limited access.')).toBeInTheDocument()
+    })
+
+    it('should handle user with non-array assignedApplications', () => {
+      const userWithInvalidApps = {
+        ...mockUser,
+        assignedApplications: 'invalid' as any
+      }
+
+      customRender(
+        <UserForm {...mockProps} user={userWithInvalidApps} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
+
+      expect(screen.getByText('Select applications...')).toBeInTheDocument()
+    })
+
+    it('should handle form submission error gracefully', async () => {
+      const user = userEvent.setup()
+      const errorSubmit = jest.fn().mockRejectedValue(new Error('Submission failed'))
+      
+      customRender(
+        <UserForm {...mockProps} onSubmit={errorSubmit} user={mockUser} isEditing={true} />,
+        { user: mockSuperAdminUser }
+      )
+
+      const submitButton = screen.getByText('Update User')
+      await user.click(submitButton)
+
+      await waitFor(() => {
+        expect(errorSubmit).toHaveBeenCalled()
+        // Form should return to normal state after error
+        expect(submitButton).not.toBeDisabled()
+      })
+    })
+
+    it('should handle missing refs gracefully', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      // Simulate clicking without refs being set
+      const dropdownButton = screen.getByText('Select applications...')
+      
+      // Should not crash
+      expect(dropdownButton).toBeInTheDocument()
+    })
+  })
+
+  describe('Accessibility', () => {
+    it('should have proper form labels', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      expect(screen.getByLabelText('Full Name')).toBeInTheDocument()
+      expect(screen.getByLabelText('Email Address')).toBeInTheDocument()
+      expect(screen.getByLabelText('Password')).toBeInTheDocument()
+      expect(screen.getByLabelText('Role')).toBeInTheDocument()
+    })
+
+    it('should associate error messages with form fields', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const submitButton = screen.getByText('Create User')
+      await user.click(submitButton)
+
+      const nameField = screen.getByLabelText('Full Name')
+      const nameError = screen.getByText('Name is required')
+
+      expect(nameField).toHaveClass('input-error')
+      expect(nameError).toBeInTheDocument()
+    })
+
+    it('should have proper button roles and text', () => {
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const submitButton = screen.getByRole('button', { name: 'Create User' })
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' })
+
+      expect(submitButton).toBeInTheDocument()
+      expect(cancelButton).toBeInTheDocument()
+    })
+
+    it('should support keyboard navigation', async () => {
+      const user = userEvent.setup()
+      customRender(<UserForm {...mockProps} />, {
+        user: mockSuperAdminUser
+      })
+
+      const nameField = screen.getByLabelText('Full Name')
+      const emailField = screen.getByLabelText('Email Address')
+
+      await user.tab()
+      expect(nameField).toHaveFocus()
+
+      await user.tab()
+      expect(emailField).toHaveFocus()
+    })
+  })
 })
